@@ -36,14 +36,13 @@ export function ProductGrid({ initialData, initialQuery }: ProductGridProps) {
   }
 
   const { data, isLoading } = useProducts(query, initialData)
+  const currentPage = query.page ?? 1
 
   function setPage(page: number) {
     const params = new URLSearchParams(searchParams.toString())
     params.set('page', String(page))
     router.push(`${pathname}?${params}`)
   }
-
-  const currentPage = query.page ?? 1
 
   return (
     <div>
@@ -52,8 +51,8 @@ export function ProductGrid({ initialData, initialQuery }: ProductGridProps) {
       {isLoading ? (
         <GridSkeleton />
       ) : data?.items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <p className="text-zinc-500 text-lg">Brak produktów spełniających kryteria.</p>
+        <div className="flex flex-col items-center justify-center py-24">
+          <p className="text-stone-400 text-base">Brak produktów spełniających kryteria.</p>
         </div>
       ) : (
         <>
@@ -61,9 +60,7 @@ export function ProductGrid({ initialData, initialQuery }: ProductGridProps) {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8"
             initial="hidden"
             animate="visible"
-            variants={{
-              visible: { transition: { staggerChildren: 0.06 } },
-            }}
+            variants={{ visible: { transition: { staggerChildren: 0.06 } } }}
           >
             {data?.items.map((product) => (
               <ProductCard key={product.id} product={product} />
@@ -75,18 +72,18 @@ export function ProductGrid({ initialData, initialQuery }: ProductGridProps) {
               <button
                 onClick={() => setPage(currentPage - 1)}
                 disabled={currentPage <= 1}
-                className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-xl text-stone-500 hover:text-stone-900 hover:bg-stone-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
                 aria-label="Poprzednia strona"
               >
                 <ChevronLeft size={20} />
               </button>
-              <span className="text-zinc-400 text-sm tabular-nums">
+              <span className="text-stone-500 text-sm tabular-nums">
                 {currentPage} / {data.totalPages}
               </span>
               <button
                 onClick={() => setPage(currentPage + 1)}
                 disabled={currentPage >= data.totalPages}
-                className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-xl text-stone-500 hover:text-stone-900 hover:bg-stone-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
                 aria-label="Następna strona"
               >
                 <ChevronRight size={20} />
@@ -103,11 +100,11 @@ function GridSkeleton() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="bg-zinc-900 rounded-2xl overflow-hidden animate-pulse">
-          <div className="aspect-square bg-zinc-800" />
+        <div key={i} className="bg-white rounded-2xl overflow-hidden border border-stone-200 animate-pulse">
+          <div className="aspect-square bg-stone-100" />
           <div className="p-4 space-y-2">
-            <div className="h-4 bg-zinc-800 rounded w-3/4" />
-            <div className="h-5 bg-zinc-800 rounded w-1/3" />
+            <div className="h-4 bg-stone-100 rounded w-3/4" />
+            <div className="h-4 bg-stone-100 rounded w-1/3" />
           </div>
         </div>
       ))}

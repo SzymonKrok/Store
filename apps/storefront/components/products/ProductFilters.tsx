@@ -13,7 +13,6 @@ export function ProductFilters({ query }: ProductFiltersProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-
   const { data: categories } = useCategories()
 
   function updateParam(key: string, value: string | undefined) {
@@ -27,17 +26,20 @@ export function ProductFilters({ query }: ProductFiltersProps) {
     router.push(`${pathname}?${params}`)
   }
 
+  const selectClass =
+    'bg-white border border-stone-200 text-stone-700 text-sm rounded-xl px-3 py-2 hover:border-stone-400 focus:outline-none focus:border-stone-600 transition-colors cursor-pointer'
+
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <div className="flex items-center gap-2 text-zinc-500">
-        <SlidersHorizontal size={15} />
-        <span className="text-sm font-medium">Filtry</span>
+      <div className="flex items-center gap-1.5 text-stone-500">
+        <SlidersHorizontal size={14} strokeWidth={1.5} />
+        <span className="text-xs font-semibold uppercase tracking-widest">Filtry</span>
       </div>
 
       <select
         value={query.categoryId ?? ''}
         onChange={(e) => updateParam('categoryId', e.target.value || undefined)}
-        className="bg-zinc-900 border border-zinc-700 text-zinc-300 text-sm rounded-lg px-3 py-2 hover:border-zinc-500 focus:outline-none focus:border-zinc-400 transition-colors cursor-pointer"
+        className={selectClass}
       >
         <option value="">Wszystkie kategorie</option>
         {categories?.map((cat) => (
@@ -50,7 +52,7 @@ export function ProductFilters({ query }: ProductFiltersProps) {
       <select
         value={query.sortBy ?? 'newest'}
         onChange={(e) => updateParam('sortBy', e.target.value)}
-        className="bg-zinc-900 border border-zinc-700 text-zinc-300 text-sm rounded-lg px-3 py-2 hover:border-zinc-500 focus:outline-none focus:border-zinc-400 transition-colors cursor-pointer"
+        className={selectClass}
       >
         <option value="newest">Najnowsze</option>
         <option value="price_asc">Cena: rosnąco</option>
@@ -63,15 +65,15 @@ export function ProductFilters({ query }: ProductFiltersProps) {
           placeholder="Min zł"
           value={query.minPrice ?? ''}
           onChange={(e) => updateParam('minPrice', e.target.value || undefined)}
-          className="bg-zinc-900 border border-zinc-700 text-zinc-300 text-sm rounded-lg px-3 py-2 w-24 hover:border-zinc-500 focus:outline-none focus:border-zinc-400 transition-colors"
+          className="bg-white border border-stone-200 text-stone-700 text-sm rounded-xl px-3 py-2 w-24 hover:border-stone-400 focus:outline-none focus:border-stone-600 transition-colors"
         />
-        <span className="text-zinc-600 text-sm">—</span>
+        <span className="text-stone-400 text-sm">—</span>
         <input
           type="number"
           placeholder="Max zł"
           value={query.maxPrice ?? ''}
           onChange={(e) => updateParam('maxPrice', e.target.value || undefined)}
-          className="bg-zinc-900 border border-zinc-700 text-zinc-300 text-sm rounded-lg px-3 py-2 w-24 hover:border-zinc-500 focus:outline-none focus:border-zinc-400 transition-colors"
+          className="bg-white border border-stone-200 text-stone-700 text-sm rounded-xl px-3 py-2 w-24 hover:border-stone-400 focus:outline-none focus:border-stone-600 transition-colors"
         />
       </div>
     </div>
