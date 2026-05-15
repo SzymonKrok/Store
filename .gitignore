@@ -7,3 +7,10 @@ dist
 packages/db/generated
 coverage
 .turbo
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+.env.*.local
+.vercel
+.railway
