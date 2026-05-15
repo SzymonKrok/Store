@@ -30,12 +30,12 @@
 ### Checklist
 
 #### Backend (NestJS)
-- [ ] **Task 1** — Update Prisma schema: add `ProductImage`, add `variantId` to `PriceHistory`, run migration
-- [ ] **Task 2** — Add product/category Zod schemas to `@store/validation`
-- [ ] **Task 3** — `CategoriesModule`: CRUD, slug uniqueness, ADMIN guards
-- [ ] **Task 4** — `UploadModule`: Cloudflare R2 pre-signed PUT URLs
-- [ ] **Task 5** — `ProductsModule`: paginated list, detail with Omnibus, create/update with price history, delete
-- [ ] **Task 6** — Wire all modules into `AppModule`
+- [x] **Task 1** — Update Prisma schema: add `ProductImage`, add `variantId` to `PriceHistory`, run migration
+- [x] **Task 2** — Add product/category Zod schemas to `@store/validation`
+- [x] **Task 3** — `CategoriesModule`: CRUD, slug uniqueness, ADMIN guards
+- [x] **Task 4** — `UploadModule`: Cloudflare R2 pre-signed PUT URLs
+- [x] **Task 5** — `ProductsModule`: paginated list, detail with Omnibus, create/update with price history, delete
+- [x] **Task 6** — Wire all modules into `AppModule`
 
 #### Frontend (Next.js Storefront)
 - [ ] **Task 7** — Install Framer Motion + Lucide React; add R2 image domain to `next.config.ts`; create `lib/api/products.ts` and `lib/api/categories.ts` TanStack Query hooks
