@@ -1,8 +1,11 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { ImageGallery } from '@/components/products/ImageGallery'
 import { ProductInfo } from '@/components/products/ProductInfo'
+import { RelatedProducts, RelatedProductsSkeleton } from '@/components/products/RelatedProducts'
+import { ReviewsSection } from '@/components/products/ReviewsSection'
 import type { ProductDetail } from '@/lib/api/products'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api'
@@ -67,6 +70,15 @@ export default async function ProductPage({
           <ImageGallery images={product.images} />
           <ProductInfo product={product} />
         </div>
+
+        <Suspense fallback={<RelatedProductsSkeleton />}>
+          <RelatedProducts
+            categoryId={product.category.id}
+            currentSlug={slug}
+          />
+        </Suspense>
+
+        <ReviewsSection productId={product.id} />
       </div>
     </main>
   )
