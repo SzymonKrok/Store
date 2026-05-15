@@ -42,6 +42,7 @@ model Product {
   categoryId   String
   category     Category         @relation(fields: [categoryId], references: [id])
   variants     ProductVariant[]
+  images       ProductImage[]
   priceHistory PriceHistory[]
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
@@ -50,25 +51,40 @@ model Product {
 }
 
 model ProductVariant {
-  id         String     @id @default(cuid())
-  productId  String
-  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
-  sku        String     @unique
-  price      Decimal    @db.Decimal(10, 2)
-  stock      Int        @default(0)
-  attributes Json
-  cartItems  CartItem[]
+  id           String         @id @default(cuid())
+  productId    String
+  product      Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku          String         @unique
+  price        Decimal        @db.Decimal(10, 2)
+  stock        Int            @default(0)
+  attributes   Json
+  cartItems    CartItem[]
+  priceHistory PriceHistory[]
 }
 
-/// Omnibus Directive compliance — stores lowest price per product for the last 30 days display
-model PriceHistory {
-  id         String   @id @default(cuid())
-  productId  String
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  price      Decimal  @db.Decimal(10, 2)
-  recordedAt DateTime @default(now())
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  altText   String?
+  position  Int     @default(0)
 
-  @@index([productId, recordedAt])
+  @@index([productId])
+}
+
+/// Omnibus Directive — tracks price per variant for 30-day lowest price display
+model PriceHistory {
+  id         String         @id @default(cuid())
+  productId  String
+  product    Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variantId  String
+  variant    ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  price      Decimal        @db.Decimal(10, 2)
+  recordedAt DateTime       @default(now())
+
+  @@index([variantId, recordedAt])
+  @@index([productId])
 }
 
 model Cart {
