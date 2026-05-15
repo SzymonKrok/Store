@@ -6,7 +6,7 @@ import { ProductQueryDto } from './dto/product-query.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { RolesGuard } from '../auth/guards/roles.guard'
 import { Roles } from '../auth/decorators/roles.decorator'
-import { Role } from '@store/db'
+import { Role } from '@prisma/client'
 
 @Controller('products')
 export class ProductsController {
