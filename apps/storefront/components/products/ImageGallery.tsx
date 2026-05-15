@@ -11,22 +11,22 @@ export function ImageGallery({ images }: { images: ProductImage[] }) {
 
   if (images.length === 0) {
     return (
-      <div className="aspect-square bg-zinc-900 rounded-2xl flex items-center justify-center border border-zinc-800">
-        <span className="text-zinc-600 text-sm">Brak zdjęć</span>
+      <div className="aspect-square bg-stone-100 rounded-3xl flex items-center justify-center border border-stone-200">
+        <span className="font-display text-7xl text-stone-300 italic select-none">S</span>
       </div>
     )
   }
 
   return (
     <div className="space-y-4">
-      <div className="relative aspect-square bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800">
+      <div className="relative aspect-square bg-stone-100 rounded-3xl overflow-hidden border border-stone-200">
         <AnimatePresence mode="wait">
           <motion.div
             key={selected}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.22 }}
             className="absolute inset-0"
           >
             <Image
@@ -47,10 +47,10 @@ export function ImageGallery({ images }: { images: ProductImage[] }) {
             <button
               key={img.id}
               onClick={() => setSelected(i)}
-              className={`relative flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-colors ${
+              className={`relative flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-colors cursor-pointer ${
                 i === selected
-                  ? 'border-white'
-                  : 'border-zinc-700 hover:border-zinc-500'
+                  ? 'border-stone-900'
+                  : 'border-stone-200 hover:border-stone-400'
               }`}
             >
               <Image
