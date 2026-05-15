@@ -56,16 +56,49 @@ You are an expert full-stack developer and software architect assisting in build
 - **GDPR / RODO:** Implement a standard Cookie Consent Banner that blocks tracking scripts until explicitly accepted.
 
 # UI/UX & DESIGN SYSTEM GUIDELINES
-The storefront must feature a premium, sleek, and highly modern aesthetic, drawing inspiration from high-end architectural design and the premium automotive segment. The interface should feel expensive, trustworthy, and perfectly polished.
+The storefront uses a sophisticated **bright light theme** — warm, airy, premium. Inspiration: high-end architectural design and premium automotive. The interface must feel expensive, trustworthy, and perfectly polished.
 
-- **Color Scheme:** Coherent and sophisticated. Utilize deep, architectural charcoals and soft blacks for dark elements or dark-mode themes, contrasted with crisp, clean backgrounds. Incorporate subtle, ambient glowing effects (reminiscent of hidden LED accents) for active states, primary buttons, and hover interactions.
-- **Typography:** Implement a modern, geometric sans-serif typeface (e.g., Inter, Geist, or Satoshi) via `next/font`. Maintain a strict, clean typographic hierarchy with perfect tracking and leading.
-- **Animations & Micro-interactions:** The interface must feel fluid and alive. Integrate Framer Motion (or advanced Tailwind transitions) to implement:
-  - Buttery-smooth page routing transitions.
-  - Soft, staggered fade-ins for the Product Grid.
-  - Elegant slide-out animations for the Cart Drawer and Mobile Menu.
-  - Subtle scaling and soft shadow expansions when hovering over product cards.
-- **Components:** Utilize clean grid alignments, rounded corners (consistent border-radius throughout), subtle glassmorphism effects for sticky navigation bars, and minimalist icons (e.g., Lucide React).
+## Color Palette
+- **Background:** `bg-stone-50` (warm off-white) — never pure white
+- **Primary text:** `text-stone-900`
+- **Secondary text:** `text-stone-500` / `text-stone-400`
+- **Borders:** `border-stone-200` (cards, inputs, dividers)
+- **Accent:** `text-amber-700` / `bg-amber-700` (#A16207) — category labels, highlights, active states
+- **Cards:** `bg-white` with `border border-stone-200 rounded-2xl`
+- **Skeletons:** `bg-stone-200` / `bg-stone-100` on `bg-stone-50`
+- **CTA buttons:** `bg-stone-900 text-white rounded-2xl` (primary), ghost `border-stone-300` (secondary)
+- **Decorative blobs:** `bg-amber-50` + `bg-stone-200` with `blur-3xl opacity-60` — ambient, never distracting
+
+## Typography
+- **Display headings (h1, hero titles):** `font-display` → Cormorant Garamond (variable `--font-cormorant`), loaded via `next/font/google`. Use italic spans for elegance.
+- **Body / UI text:** `font-sans` → Inter (variable `--font-inter`). All buttons, labels, nav, paragraphs.
+- **Tailwind classes:** `font-display` for Cormorant, `font-sans` (default) for Inter. Configured in `tailwind.config.ts`.
+- Never mix font families within the same UI element. Display font is for headings only.
+
+## Layout & Structure
+- **Header:** Fixed, `h-16`. Transparent on load → `bg-white/90 backdrop-blur-md border-b border-stone-200` after 24px scroll. Framer Motion entrance from `y: -72`.
+- **Page content:** `pt-16` to clear fixed header. Max width `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`.
+- **Footer:** 5-column grid (brand + 4 nav columns). `bg-stone-900 text-white`.
+- **Page transitions:** `app/template.tsx` wraps every page in `motion.div` with `opacity: 0→1, y: 10→0, duration: 0.35s`.
+
+## Animations (Framer Motion)
+- **Scroll reveals:** Use `<AnimatedSection>` (`components/ui/AnimatedSection.tsx`) for section-level fade-up. `useInView({ once: true, margin: '-80px' })`.
+- **Stagger:** `staggerChildren: 0.08` for grids, `0.12` for hero text lines.
+- **Duration:** 0.35s for page transitions, 0.5–0.6s for section reveals, 0.2s for micro-interactions.
+- **Easing:** `[0.25, 0.46, 0.45, 0.94]` (ease-out-quart) for entrances; `ease-in` for exits.
+- **Card hover:** `scale: 1.02` + shadow expansion via Tailwind `hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)]`.
+- **Mobile drawer:** `AnimatePresence` + slide from `x: '100%'`, staggered nav links inside.
+- Always respect `prefers-reduced-motion` — Framer Motion handles this automatically.
+
+## Component Conventions
+- Icons: Lucide React only, `strokeWidth={1.5}`, size 16–20px for UI, 13px for inline status.
+- Border radius: `rounded-2xl` for cards/buttons, `rounded-xl` for inputs/tags, `rounded-3xl` for image containers.
+- Glassmorphism: `bg-white/90 backdrop-blur-md` — header only, not cards.
+- No dark mode support in storefront (light theme is definitive). Admin panel may differ.
+- Product card empty state: large italic Cormorant "S" on `bg-stone-100`.
+
+## theme.config.ts
+Central config at `apps/storefront/theme.config.ts`. Key fields: `mode: 'light'`, `primaryColor: '#1C1917'`, `accentColor: '#A16207'`, `displayFontFamily: 'Cormorant'`, `borderRadius: '1rem'`.
 
 # RENDERING & DATA FETCHING STRATEGY (Next.js App Router)
 
