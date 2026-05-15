@@ -46,9 +46,9 @@ export default async function ShopPage({
   const initialData = await fetchInitialProducts(query)
 
   return (
-    <main className="min-h-screen bg-zinc-950">
+    <main className="min-h-screen bg-stone-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-bold text-white tracking-tight mb-8">Sklep</h1>
+        <h1 className="text-3xl font-semibold text-stone-900 tracking-tight mb-8">Sklep</h1>
         <Suspense fallback={null}>
           <ProductGrid initialData={initialData} initialQuery={query} />
         </Suspense>

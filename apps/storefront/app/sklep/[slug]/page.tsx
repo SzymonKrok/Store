@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import type { Metadata } from 'next'
 import { ImageGallery } from '@/components/products/ImageGallery'
 import { ProductInfo } from '@/components/products/ProductInfo'
@@ -45,23 +46,21 @@ export default async function ProductPage({
 }) {
   const { slug } = await params
   const product = await fetchProduct(slug)
-
   if (!product) notFound()
 
   return (
-    <main className="min-h-screen bg-zinc-950">
+    <main className="min-h-screen bg-stone-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-xs text-zinc-500 mb-10">
-          <a href="/" className="hover:text-zinc-300 transition-colors">
+        <nav className="flex items-center gap-2 text-xs text-stone-400 mb-10">
+          <Link href="/" className="hover:text-stone-700 transition-colors">
             Strona główna
-          </a>
+          </Link>
           <span>/</span>
-          <a href="/sklep" className="hover:text-zinc-300 transition-colors">
+          <Link href="/sklep" className="hover:text-stone-700 transition-colors">
             Sklep
-          </a>
+          </Link>
           <span>/</span>
-          <span className="text-zinc-400">{product.name}</span>
+          <span className="text-stone-600">{product.name}</span>
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
