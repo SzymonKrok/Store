@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ShoppingBag, Search, Menu, X, User } from 'lucide-react'
 import { CartDrawer } from './CartDrawer'
+import { useCart } from '../../lib/api/cart'
 
 const navLinks = [
   { href: '/sklep', label: 'Sklep' },
@@ -16,6 +17,8 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
+  const { data: cart } = useCart()
+  const itemCount = cart?.items.reduce((sum, i) => sum + i.quantity, 0) ?? 0
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -79,6 +82,17 @@ export function Header() {
                 className="relative p-2.5 text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors rounded-xl cursor-pointer"
               >
                 <ShoppingBag size={19} strokeWidth={1.5} />
+                {itemCount > 0 && (
+                  <motion.span
+                    key={itemCount}
+                    initial={{ scale: 0.7 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute -top-0.5 -right-0.5 w-4 h-4 flex items-center justify-center bg-stone-900 text-white text-[10px] font-medium rounded-full leading-none"
+                  >
+                    {itemCount > 9 ? '9+' : itemCount}
+                  </motion.span>
+                )}
               </button>
 
               <button

@@ -162,13 +162,13 @@ importers:
         version: 6.0.3
       jest:
         specifier: ^29.0.0
-        version: 29.7.0(@types/node@22.19.19)
+        version: 29.7.0(@types/node@25.8.0)
       supertest:
         specifier: ^7.0.0
         version: 7.2.2
       ts-jest:
         specifier: ^29.0.0
-        version: 29.4.9(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(jest-util@29.7.0)(jest@29.7.0(@types/node@22.19.19))(typescript@5.9.3)
+        version: 29.4.9(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(jest-util@29.7.0)(jest@29.7.0(@types/node@25.8.0))(typescript@5.9.3)
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
@@ -176,7 +176,7 @@ importers:
   apps/storefront:
     dependencies:
       '@hookform/resolvers':
-        specifier: ^3.0.0
+        specifier: ^3.10.0
         version: 3.10.0(react-hook-form@7.75.0(react@19.2.6))
       '@store/db':
         specifier: workspace:*
@@ -206,7 +206,7 @@ importers:
         specifier: ^19.0.0
         version: 19.2.6(react@19.2.6)
       react-hook-form:
-        specifier: ^7.0.0
+        specifier: ^7.75.0
         version: 7.75.0(react@19.2.6)
       zod:
         specifier: ^3.0.0
@@ -272,10 +272,10 @@ importers:
         version: 29.5.14
       jest:
         specifier: ^29.0.0
-        version: 29.7.0(@types/node@25.8.0)
+        version: 29.7.0(@types/node@22.19.19)
       ts-jest:
         specifier: ^29.0.0
-        version: 29.4.9(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(jest-util@29.7.0)(jest@29.7.0(@types/node@25.8.0))(typescript@5.9.3)
+        version: 29.4.9(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(jest-util@29.7.0)(jest@29.7.0(@types/node@22.19.19))(typescript@5.9.3)
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
