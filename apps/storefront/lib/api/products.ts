@@ -40,13 +40,14 @@ export interface ProductsResponse {
   totalPages: number
 }
 
-export function useProducts(query: Partial<ProductQueryDto> = {}) {
+export function useProducts(query: Partial<ProductQueryDto> = {}, initialData?: ProductsResponse) {
   return useQuery({
     queryKey: ['products', query],
     queryFn: async () => {
       const { data } = await apiClient.get<ProductsResponse>('/products', { params: query })
       return data
     },
+    initialData,
   })
 }
 
