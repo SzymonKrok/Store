@@ -22,7 +22,9 @@
 
 ---
 
-## Phase 2: Product Catalog 🔄 IN PROGRESS
+## Phase 2: Product Catalog ✅ COMPLETE
+
+**Completed:** 2026-05-15
 
 **Spec:** `docs/superpowers/specs/2026-05-15-phase-2-catalog-design.md`
 **Plan:** `docs/superpowers/plans/2026-05-15-phase-2-catalog-plan.md`
@@ -38,13 +40,13 @@
 - [x] **Task 6** — Wire all modules into `AppModule`
 
 #### Frontend (Next.js Storefront)
-- [ ] **Task 7** — Install Framer Motion + Lucide React; add R2 image domain to `next.config.ts`; create `lib/api/products.ts` and `lib/api/categories.ts` TanStack Query hooks
-- [ ] **Task 8** — `/sklep` product grid: RSC page + `<ProductGrid>` client component + `<ProductCard>` + `<ProductFilters>`
-- [ ] **Task 9** — `/sklep/[slug]` product detail: RSC page + `<ImageGallery>` + `<VariantSelector>` + `<OmnibusPrice>`
-- [ ] **Task 10** — Dynamic `sitemap.ts`
+- [x] **Task 7** — Install Framer Motion + Lucide React; add R2 image domain to `next.config.ts`; create `lib/api/products.ts` and `lib/api/categories.ts` TanStack Query hooks
+- [x] **Task 8** — `/sklep` product grid: RSC page + `<ProductGrid>` client component + `<ProductCard>` + `<ProductFilters>`
+- [x] **Task 9** — `/sklep/[slug]` product detail: RSC page + `<ImageGallery>` + `<VariantSelector>` + `<OmnibusPrice>`
+- [x] **Task 10** — Dynamic `sitemap.ts`
 
 #### Final verification
-- [ ] **Task 11** — End-to-end smoke test: create category + product via API, verify storefront renders correctly
+- [x] **Task 11** — End-to-end smoke test: create category + product via API, verify storefront renders correctly
 
 ---
 

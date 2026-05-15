@@ -1,7 +1,7 @@
 import { Type } from 'class-transformer'
 import {
   IsString, IsNumber, IsPositive, IsOptional, IsArray,
-  ValidateNested, IsInt, Min, Matches, IsUrl,
+  ValidateNested, IsInt, Min, Matches, IsUrl, IsObject,
 } from 'class-validator'
 
 export class CreateVariantDto {
@@ -16,6 +16,7 @@ export class CreateVariantDto {
   @Min(0)
   stock!: number
 
+  @IsObject()
   attributes!: Record<string, string>
 }
 

@@ -8,6 +8,7 @@ import type { RegisterDto, LoginDto } from '@store/validation'
 interface JwtPayload {
   sub: string
   email: string
+  role: string
 }
 
 @Injectable()
@@ -25,7 +26,7 @@ export class AuthService {
     const passwordHash = await bcrypt.hash(dto.password, 10)
     const user = await this.usersService.create({ email: dto.email, passwordHash })
 
-    const tokens = await this.generateTokens(user.id, user.email)
+    const tokens = await this.generateTokens(user.id, user.email, user.role)
     await this.storeRefreshToken(user.id, tokens.refreshToken)
     return tokens
   }
@@ -37,7 +38,7 @@ export class AuthService {
     const passwordMatch = await bcrypt.compare(dto.password, user.passwordHash)
     if (!passwordMatch) throw new UnauthorizedException('Invalid credentials')
 
-    const tokens = await this.generateTokens(user.id, user.email)
+    const tokens = await this.generateTokens(user.id, user.email, user.role)
     await this.storeRefreshToken(user.id, tokens.refreshToken)
     return tokens
   }
@@ -49,7 +50,7 @@ export class AuthService {
     const tokenMatch = await bcrypt.compare(refreshToken, user.refreshToken)
     if (!tokenMatch) throw new UnauthorizedException()
 
-    const tokens = await this.generateTokens(user.id, user.email)
+    const tokens = await this.generateTokens(user.id, user.email, user.role)
     await this.storeRefreshToken(user.id, tokens.refreshToken)
     return tokens
   }
@@ -58,8 +59,8 @@ export class AuthService {
     await this.usersService.updateRefreshToken(userId, null)
   }
 
-  private async generateTokens(userId: string, email: string) {
-    const payload: JwtPayload = { sub: userId, email }
+  private async generateTokens(userId: string, email: string, role: string) {
+    const payload: JwtPayload = { sub: userId, email, role }
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {

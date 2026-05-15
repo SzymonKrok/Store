@@ -11,15 +11,15 @@ export class UploadService {
   private readonly publicUrl: string
 
   constructor(private readonly config: ConfigService) {
-    this.bucket = config.getOrThrow<string>('R2_BUCKET_NAME')
-    this.publicUrl = config.getOrThrow<string>('R2_PUBLIC_URL')
+    this.bucket = config.get<string>('R2_BUCKET_NAME') ?? ''
+    this.publicUrl = config.get<string>('R2_PUBLIC_URL') ?? ''
+    const accountId = config.get<string>('R2_ACCOUNT_ID') ?? ''
+    const accessKeyId = config.get<string>('R2_ACCESS_KEY_ID') ?? ''
+    const secretAccessKey = config.get<string>('R2_SECRET_ACCESS_KEY') ?? ''
     this.s3 = new S3Client({
       region: 'auto',
-      endpoint: `https://${config.getOrThrow<string>('R2_ACCOUNT_ID')}.r2.cloudflarestorage.com`,
-      credentials: {
-        accessKeyId: config.getOrThrow<string>('R2_ACCESS_KEY_ID'),
-        secretAccessKey: config.getOrThrow<string>('R2_SECRET_ACCESS_KEY'),
-      },
+      endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+      credentials: { accessKeyId, secretAccessKey },
     })
   }
 
