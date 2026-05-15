@@ -1,0 +1,36 @@
+export default function ProductLoading() {
+  return (
+    <main className="min-h-screen bg-zinc-950">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Image gallery skeleton */}
+          <div className="space-y-4">
+            <div className="aspect-square bg-zinc-900 rounded-2xl animate-pulse" />
+            <div className="flex gap-3">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="w-20 h-20 bg-zinc-900 rounded-xl animate-pulse" />
+              ))}
+            </div>
+          </div>
+          {/* Info skeleton */}
+          <div className="space-y-5 pt-2">
+            <div className="h-4 w-24 bg-zinc-800 rounded animate-pulse" />
+            <div className="h-9 w-3/4 bg-zinc-800 rounded animate-pulse" />
+            <div className="h-8 w-32 bg-zinc-800 rounded animate-pulse" />
+            <div className="space-y-2 pt-2">
+              <div className="h-4 w-full bg-zinc-800 rounded animate-pulse" />
+              <div className="h-4 w-5/6 bg-zinc-800 rounded animate-pulse" />
+              <div className="h-4 w-4/6 bg-zinc-800 rounded animate-pulse" />
+            </div>
+            <div className="flex gap-2 pt-2">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="h-10 w-16 bg-zinc-800 rounded-lg animate-pulse" />
+              ))}
+            </div>
+            <div className="h-12 bg-zinc-800 rounded-xl animate-pulse mt-4" />
+          </div>
+        </div>
+      </div>
+    </main>
+  )
+}
