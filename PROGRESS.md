@@ -50,12 +50,38 @@
 
 ---
 
-## Phase 3: Cart & Marketing ⏳ PLANNED
+## Phase 3: Cart & Marketing ✅ COMPLETE
 
-- Persistent cart (session + authenticated)
-- Coupon codes (percentage + flat)
-- Guest checkout flow
-- Abandoned cart recovery (NestJS Cron + Resend email)
+**Completed:** 2026-05-15
+
+**Spec:** `docs/superpowers/specs/2026-05-15-phase-3-cart-design.md`
+
+### What was built
+
+#### Backend (NestJS)
+- Prisma schema: `Coupon`, `CouponUsage`, `Order`, `OrderItem` models + `OrderStatus`/`DiscountType` enums; `recoveryEmailSentAt` on `Cart`
+- `OptionalJwtAuthGuard` — allows cart/order endpoints to accept both authenticated and guest requests
+- `CartModule`: GET/POST/PATCH/DELETE cart items + POST merge (session→user on login); guest carts via `x-cart-session` header
+- `CouponsModule`: full ruleset validation (expiry, minOrderValue, maxUses, limitPerUser); PERCENTAGE and FLAT discounts; admin CRUD
+- `OrdersModule`: single Prisma transaction — hard stock check → decrement → Order + OrderItem snapshots (productName, variantSku, variantAttributes, priceAtPurchase) → CouponUsage → cart deletion; 409 on stock-out
+- `AbandonedCartModule`: hourly cron via `@nestjs/schedule`, sends Resend recovery email to authenticated users with inactive carts >2h
+
+#### Frontend (Next.js Storefront)
+- `lib/api/cart.ts`: TanStack Query hooks with optimistic updates; `crypto.randomUUID()` session identity in localStorage
+- `lib/api/orders.ts`: `useCreateOrder` mutation, clears session ID after checkout
+- `components/cart/CartItem.tsx`: image, variant attrs, quantity stepper, remove button
+- `components/cart/CouponInput.tsx`: validate-on-apply, toggle applied/remove state
+- `components/cart/CartSummary.tsx`: subtotal, discount line, total
+- `components/layout/CartDrawer.tsx`: wired to real cart data; Framer Motion slide-in + backdrop blur; empty/loading/filled states
+- `components/layout/Header.tsx`: live item count badge on cart icon (`bg-stone-900`, animates on change)
+- `/checkout`: minimal layout (logo only), React Hook Form + Zod, shipping form, T&C checkbox (legal requirement), order summary sidebar, coupon input
+- `/order-confirmation/[id]`: client page showing order items + totals; graceful fallback for guests
+
+### Key decisions
+- Stock decrements at order creation (`PENDING_PAYMENT`), not at payment. Phase 4 P24 webhook must restore stock on payment failure.
+- Guest carts identified via `x-cart-session` header; merge into user cart via `POST /api/cart/merge` after login
+- `acceptTerms: z.literal(true)` enforces Polish legal requirement for explicit T&C consent
+- `OrderItem` snapshots `productName`, `variantSku`, `variantAttributes` — invoices survive product renames/deletions
 
 ## Phase 4: Polish Regional Integrations ⏳ PLANNED
 
