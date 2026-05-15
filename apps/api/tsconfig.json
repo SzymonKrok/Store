@@ -2,7 +2,8 @@
   "extends": "@store/tsconfig/nestjs.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
+    "declaration": false,
+    "declarationMap": false,
     "paths": {
       "@store/db": ["../../packages/db/src/index.ts"],
       "@store/validation": ["../../packages/validation/src/index.ts"]

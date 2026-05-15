@@ -1,0 +1,13 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@store/db$": "<rootDir>/../../../packages/db/src/index.ts",
+    "^@store/validation$": "<rootDir>/../../../packages/validation/src/index.ts"
+  }
+}
