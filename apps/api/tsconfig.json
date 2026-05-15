@@ -1,0 +1,13 @@
+{
+  "extends": "@store/tsconfig/nestjs.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "paths": {
+      "@store/db": ["../../packages/db/src/index.ts"],
+      "@store/validation": ["../../packages/validation/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "test", "**/*.spec.ts"]
+}
