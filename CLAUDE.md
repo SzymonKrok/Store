@@ -28,9 +28,10 @@ You are an expert full-stack developer and software architect assisting in build
 ## 2. Product Catalog & Legal Compliance
 - Categories and Subcategories management.
 - **Product Variants (Crucial):** Prisma schema must support complex variants (e.g., size, color). One `Product` has many `ProductVariants`, each with its own SKU, price, and stock level.
-- Product Grid with pagination, filtering (including variant attributes), sorting.
+- Product Grid with pagination, filtering (category + price range), sorting (newest/price_asc/price_desc).
 - Product Details Page (R2 images, description, stock selection by variant).
-- **Omnibus Directive:** Prisma schema must include a `PriceHistory` table. The Product component must automatically display "The lowest price in the last 30 days" if a product is on sale.
+- **Omnibus Directive (Legal — Polish law):** `PriceHistory` tracks price at the **ProductVariant level** (not product level). `PriceHistory.variantId` is required. Every variant price change writes a new row automatically (in a Prisma transaction). The storefront displays "Najniższa cena z ostatnich 30 dni: X zł" using `MIN(price) WHERE variantId = ? AND recordedAt >= NOW() - INTERVAL '30 days'` — shown only when omnibusPrice < currentPrice.
+- **R2 Image Upload:** Pre-signed URL flow — API generates a short-lived PUT URL (`POST /api/upload/presign`), browser uploads directly to R2, then passes the key/URL back when creating/updating a product. Images never travel through the NestJS server.
 
 ## 3. Cart, Checkout & Marketing
 - Persistent cart state.
@@ -65,6 +66,13 @@ The storefront must feature a premium, sleek, and highly modern aesthetic, drawi
   - Elegant slide-out animations for the Cart Drawer and Mobile Menu.
   - Subtle scaling and soft shadow expansions when hovering over product cards.
 - **Components:** Utilize clean grid alignments, rounded corners (consistent border-radius throughout), subtle glassmorphism effects for sticky navigation bars, and minimalist icons (e.g., Lucide React).
+
+# RENDERING & DATA FETCHING STRATEGY (Next.js App Router)
+
+- **Product Grid (`/sklep`):** RSC page fetches initial data server-side for SEO. `<ProductGrid>` is a `'use client'` component that hydrates with TanStack Query and handles all subsequent filter/sort/pagination interactions. Filter state is stored in URL search params (`?categoryId=&minPrice=&maxPrice=&sortBy=&page=`) for bookmarkability and SSR.
+- **Product Detail (`/sklep/[slug]`):** Full RSC page (SSR on every request). `generateMetadata` for dynamic title/OpenGraph. Client components (`<VariantSelector>`, `<ImageGallery>`) handle interactivity.
+- **Sitemap:** `app/sitemap.ts` fetches all product slugs server-side at request time.
+- **General rule:** RSC for initial SEO-critical load, TanStack Query client components for interactive state that changes without navigation.
 
 # DEVELOPMENT PHASES
 - **PHASE 1 (Foundation):** Setup Monorepo, Next.js, NestJS, DB schema (Prisma including Omnibus PriceHistory and Product Variants), and JWT Auth.
