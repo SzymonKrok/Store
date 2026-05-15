@@ -12,6 +12,21 @@ enum Role {
   ADMIN
 }
 
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FLAT
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -21,6 +36,7 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   carts        Cart[]
+  orders       Order[]
 }
 
 model Category {
@@ -59,6 +75,7 @@ model ProductVariant {
   stock        Int            @default(0)
   attributes   Json
   cartItems    CartItem[]
+  orderItems   OrderItem[]
   priceHistory PriceHistory[]
 }
 
@@ -88,12 +105,13 @@ model PriceHistory {
 }
 
 model Cart {
-  id        String     @id @default(cuid())
-  userId    String?
-  user      User?      @relation(fields: [userId], references: [id])
-  sessionId String?
-  items     CartItem[]
-  updatedAt DateTime   @updatedAt
+  id                  String     @id @default(cuid())
+  userId              String?
+  user                User?      @relation(fields: [userId], references: [id])
+  sessionId           String?
+  items               CartItem[]
+  recoveryEmailSentAt DateTime?
+  updatedAt           DateTime   @updatedAt
 
   @@index([userId])
   @@index([sessionId])
@@ -108,4 +126,71 @@ model CartItem {
   quantity  Int
 
   @@index([variantId])
+}
+
+model Coupon {
+  id           String        @id @default(cuid())
+  code         String        @unique
+  type         DiscountType
+  value        Decimal       @db.Decimal(10, 2)
+  expiresAt    DateTime?
+  minOrderValue Decimal?     @db.Decimal(10, 2)
+  maxUses      Int?
+  limitPerUser Int?
+  usedCount    Int           @default(0)
+  isActive     Boolean       @default(true)
+  usages       CouponUsage[]
+  orders       Order[]
+  createdAt    DateTime      @default(now())
+}
+
+model CouponUsage {
+  id         String   @id @default(cuid())
+  couponId   String
+  coupon     Coupon   @relation(fields: [couponId], references: [id])
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id])
+  userId     String?
+  guestEmail String?
+  usedAt     DateTime @default(now())
+
+  @@index([couponId, userId])
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  userId          String?
+  user            User?         @relation(fields: [userId], references: [id])
+  guestEmail      String?
+  guestName       String?
+  guestPhone      String?
+  status          OrderStatus   @default(PENDING_PAYMENT)
+  subtotal        Decimal       @db.Decimal(10, 2)
+  discountAmount  Decimal       @db.Decimal(10, 2) @default(0)
+  total           Decimal       @db.Decimal(10, 2)
+  couponId        String?
+  coupon          Coupon?       @relation(fields: [couponId], references: [id])
+  shippingAddress Json
+  items           OrderItem[]
+  couponUsage     CouponUsage[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model OrderItem {
+  id                String         @id @default(cuid())
+  orderId           String
+  order             Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId         String
+  variant           ProductVariant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  quantity          Int
+  priceAtPurchase   Decimal        @db.Decimal(10, 2)
+  productName       String
+  variantSku        String
+  variantAttributes Json
+
+  @@index([orderId])
 }
