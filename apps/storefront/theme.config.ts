@@ -9,7 +9,7 @@ export const themeConfig = {
   ui: {
     mode: 'light' as const,
     primaryColor: '#1C1917',
-    accentColor: '#A16207',
+    accentColor: '#166534',
     fontFamily: 'Inter',
     displayFontFamily: 'Cormorant',
     borderRadius: '1rem',

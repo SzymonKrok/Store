@@ -48,10 +48,10 @@ export default async function ShopPage({
   return (
     <main className="min-h-screen bg-stone-50">
       <div className="relative overflow-hidden bg-white border-b border-stone-100">
-        <div className="absolute top-0 right-0 w-72 h-72 bg-amber-50 rounded-full blur-3xl opacity-70 translate-x-1/3 -translate-y-1/3 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-72 h-72 bg-green-50 rounded-full blur-3xl opacity-70 translate-x-1/3 -translate-y-1/3 pointer-events-none" />
         <div className="absolute bottom-0 left-1/3 w-56 h-56 bg-stone-100 rounded-full blur-3xl opacity-60 pointer-events-none" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 mb-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-800 mb-2">
             Kolekcja
           </p>
           <h1 className="font-display text-4xl sm:text-5xl font-medium text-stone-900 tracking-tight italic">

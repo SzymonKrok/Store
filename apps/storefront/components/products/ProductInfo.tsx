@@ -16,7 +16,7 @@ export function ProductInfo({ product }: { product: ProductDetail }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
+      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-green-800">
         {product.category.name}
       </span>
 

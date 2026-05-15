@@ -63,11 +63,12 @@ The storefront uses a sophisticated **bright light theme** — warm, airy, premi
 - **Primary text:** `text-stone-900`
 - **Secondary text:** `text-stone-500` / `text-stone-400`
 - **Borders:** `border-stone-200` (cards, inputs, dividers)
-- **Accent:** `text-amber-700` / `bg-amber-700` (#A16207) — category labels, highlights, active states
+- **Accent:** `text-green-800` / `bg-green-800` (#166534, bottle green) — category labels, section labels, active states
+- **Star ratings:** `text-amber-400 fill-amber-400` — gold stars only; kept as a universal semantic token, not a brand colour
 - **Cards:** `bg-white` with `border border-stone-200 rounded-2xl`
 - **Skeletons:** `bg-stone-200` / `bg-stone-100` on `bg-stone-50`
 - **CTA buttons:** `bg-stone-900 text-white rounded-2xl` (primary), ghost `border-stone-300` (secondary)
-- **Decorative blobs:** `bg-amber-50` + `bg-stone-200` with `blur-3xl opacity-60` — ambient, never distracting
+- **Decorative blobs:** `bg-green-50` + `bg-stone-200` with `blur-3xl opacity-60` — ambient, never distracting
 
 ## Typography
 - **Display headings (h1, hero titles):** `font-display` → Cormorant Garamond (variable `--font-cormorant`), loaded via `next/font/google`. Use italic spans for elegance.
@@ -98,7 +99,7 @@ The storefront uses a sophisticated **bright light theme** — warm, airy, premi
 - Product card empty state: large italic Cormorant "S" on `bg-stone-100`.
 
 ## theme.config.ts
-Central config at `apps/storefront/theme.config.ts`. Key fields: `mode: 'light'`, `primaryColor: '#1C1917'`, `accentColor: '#A16207'`, `displayFontFamily: 'Cormorant'`, `borderRadius: '1rem'`.
+Central config at `apps/storefront/theme.config.ts`. Key fields: `mode: 'light'`, `primaryColor: '#1C1917'`, `accentColor: '#166534'` (bottle green), `displayFontFamily: 'Cormorant'`, `borderRadius: '1rem'`.
 
 # RENDERING & DATA FETCHING STRATEGY (Next.js App Router)
 

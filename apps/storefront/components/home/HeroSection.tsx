@@ -8,7 +8,7 @@ export function HeroSection() {
   return (
     <section className="relative min-h-[92vh] flex items-center bg-stone-50 overflow-hidden">
       <div className="absolute inset-0 pointer-events-none select-none" aria-hidden>
-        <div className="absolute top-1/4 right-[8%] w-[38vw] h-[38vw] max-w-[560px] max-h-[560px] rounded-full bg-amber-50 opacity-70 blur-3xl" />
+        <div className="absolute top-1/4 right-[8%] w-[38vw] h-[38vw] max-w-[560px] max-h-[560px] rounded-full bg-green-50 opacity-70 blur-3xl" />
         <div className="absolute bottom-0 left-[4%] w-[28vw] h-[28vw] max-w-[380px] max-h-[380px] rounded-full bg-stone-200 opacity-50 blur-3xl" />
       </div>
 
@@ -18,7 +18,7 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-700 mb-6"
+            className="text-xs font-semibold uppercase tracking-[0.3em] text-green-800 mb-6"
           >
             Nowa kolekcja 2026
           </motion.p>

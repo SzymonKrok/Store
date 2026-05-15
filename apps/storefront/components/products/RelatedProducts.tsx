@@ -31,7 +31,7 @@ export async function RelatedProducts({
   return (
     <AnimatedSection className="border-t border-stone-100 pt-14 pb-4">
       <div className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 mb-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-800 mb-2">
           Odkryj więcej
         </p>
         <h2 className="font-display text-3xl font-medium text-stone-900 italic tracking-tight">

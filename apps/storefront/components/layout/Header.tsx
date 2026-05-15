@@ -130,7 +130,7 @@ export function Header() {
                   <Link
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
-                    className="font-display text-4xl font-medium text-stone-900 hover:text-amber-700 transition-colors tracking-wide italic"
+                    className="font-display text-4xl font-medium text-stone-900 hover:text-green-800 transition-colors tracking-wide italic"
                   >
                     {link.label}
                   </Link>
