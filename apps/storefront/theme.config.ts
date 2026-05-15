@@ -7,10 +7,12 @@ export const themeConfig = {
     enableAbandonedCartRecovery: true,
   },
   ui: {
-    primaryColor: '#18181b',
-    accentColor: '#3b82f6',
+    mode: 'light' as const,
+    primaryColor: '#1C1917',
+    accentColor: '#A16207',
     fontFamily: 'Inter',
-    borderRadius: '0.5rem',
+    displayFontFamily: 'Cormorant',
+    borderRadius: '1rem',
   },
   store: {
     name: 'Store',
