@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ShoppingBag, Search, Menu, X } from 'lucide-react'
+import { ShoppingBag, Search, Menu, X, User } from 'lucide-react'
+import { CartDrawer } from './CartDrawer'
 
 const navLinks = [
   { href: '/sklep', label: 'Sklep' },
@@ -14,6 +15,7 @@ const navLinks = [
 export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [cartOpen, setCartOpen] = useState(false)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -61,12 +63,24 @@ export function Header() {
               >
                 <Search size={19} strokeWidth={1.5} />
               </button>
+
+              <Link
+                href="/logowanie"
+                aria-label="Zaloguj się"
+                className="hidden md:flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors rounded-xl"
+              >
+                <User size={17} strokeWidth={1.5} />
+                Zaloguj
+              </Link>
+
               <button
-                aria-label="Koszyk"
-                className="p-2.5 text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors rounded-xl cursor-pointer"
+                onClick={() => setCartOpen(true)}
+                aria-label="Otwórz koszyk"
+                className="relative p-2.5 text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors rounded-xl cursor-pointer"
               >
                 <ShoppingBag size={19} strokeWidth={1.5} />
               </button>
+
               <button
                 aria-label="Otwórz menu"
                 onClick={() => setMobileOpen(true)}
@@ -104,7 +118,8 @@ export function Header() {
                 <X size={19} strokeWidth={1.5} />
               </button>
             </div>
-            <nav className="flex flex-col items-center justify-center flex-1 gap-10">
+
+            <nav className="flex flex-col items-center justify-center flex-1 gap-8">
               {navLinks.map((link, i) => (
                 <motion.div
                   key={link.href}
@@ -121,10 +136,28 @@ export function Header() {
                   </Link>
                 </motion.div>
               ))}
+
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 + navLinks.length * 0.08, duration: 0.35 }}
+                className="mt-2"
+              >
+                <Link
+                  href="/logowanie"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 text-stone-500 hover:text-stone-900 transition-colors text-sm font-medium"
+                >
+                  <User size={16} strokeWidth={1.5} />
+                  Zaloguj się
+                </Link>
+              </motion.div>
             </nav>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </>
   )
 }

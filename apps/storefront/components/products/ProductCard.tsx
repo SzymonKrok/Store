@@ -13,25 +13,20 @@ export const cardVariants = {
 export function ProductCard({ product }: { product: ProductSummary }) {
   const price = Number(product.variants[0]?.price ?? product.basePrice)
   const image = product.images[0]
+  const placeholderSrc = `https://picsum.photos/seed/${product.id}/600/600`
 
   return (
     <motion.div variants={cardVariants} layout>
       <Link href={`/sklep/${product.slug}`} className="group block">
         <div className="bg-white rounded-2xl overflow-hidden border border-stone-200 transition-all duration-300 group-hover:border-stone-300 group-hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
           <div className="relative aspect-square overflow-hidden bg-stone-100">
-            {image ? (
-              <Image
-                src={image.url}
-                alt={image.altText ?? product.name}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="font-display text-5xl text-stone-300 italic select-none">S</span>
-              </div>
-            )}
+            <Image
+              src={image ? image.url : placeholderSrc}
+              alt={image ? (image.altText ?? product.name) : product.name}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+            />
           </div>
           <div className="p-4">
             <h3 className="text-stone-900 font-medium text-sm leading-snug line-clamp-2 mb-1.5">
