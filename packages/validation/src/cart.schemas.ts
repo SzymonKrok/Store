@@ -48,12 +48,49 @@ export const shippingAddressSchema = z.object({
 })
 export type ShippingAddress = z.infer<typeof shippingAddressSchema>
 
-export const checkoutSchema = z.object({
-  shippingAddress: shippingAddressSchema,
-  couponCode: z.string().optional(),
-  acceptTerms: z.literal(true, {
-    errorMap: () => ({ message: 'Musisz zaakceptować regulamin' }),
-  }),
-  sessionId: z.string().optional(),
-})
+export const checkoutSchema = z
+  .object({
+    shippingAddress: shippingAddressSchema,
+    couponCode: z.string().optional(),
+    acceptTerms: z.literal(true, {
+      errorMap: () => ({ message: 'Musisz zaakceptować regulamin' }),
+    }),
+    sessionId: z.string().optional(),
+    deliveryMethod: z.enum(['COURIER', 'PARCEL_LOCKER']),
+    lockerCode: z.string().optional(),
+    wantsInvoice: z.boolean().default(false),
+    companyName: z.string().optional(),
+    taxId: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.deliveryMethod === 'PARCEL_LOCKER' && !data.lockerCode) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Wybierz paczkomat',
+        path: ['lockerCode'],
+      })
+    }
+    if (data.wantsInvoice) {
+      if (!data.companyName) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Nazwa firmy jest wymagana',
+          path: ['companyName'],
+        })
+      }
+      if (!data.taxId || !/^\d{10}$/.test(data.taxId)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'NIP musi zawierać 10 cyfr',
+          path: ['taxId'],
+        })
+      }
+    }
+  })
 export type CheckoutDto = z.infer<typeof checkoutSchema>
+
+export const generateLabelSchema = z.object({
+  parcelSize: z.enum(['A', 'B', 'C']),
+  parcelWeight: z.number().positive(),
+})
+export type GenerateLabelDto = z.infer<typeof generateLabelSchema>

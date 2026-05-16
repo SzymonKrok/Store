@@ -27,6 +27,11 @@ enum DiscountType {
   FLAT
 }
 
+enum DeliveryMethod {
+  COURIER
+  PARCEL_LOCKER
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -170,11 +175,23 @@ model Order {
   total           Decimal       @db.Decimal(10, 2)
   couponId        String?
   coupon          Coupon?       @relation(fields: [couponId], references: [id])
-  shippingAddress Json
-  items           OrderItem[]
-  couponUsage     CouponUsage[]
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  shippingAddress  Json
+  deliveryMethod   DeliveryMethod @default(COURIER)
+  lockerCode       String?
+  wantsInvoice     Boolean        @default(false)
+  companyName      String?
+  taxId            String?
+  invoiceUrl       String?
+  fakturowniaId    String?
+  p24SessionId     String?
+  p24OrderId       String?
+  inpostShipmentId String?
+  trackingNumber   String?
+  shippingLabelUrl String?
+  items            OrderItem[]
+  couponUsage      CouponUsage[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
   @@index([userId])
   @@index([status])

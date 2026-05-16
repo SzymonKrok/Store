@@ -1,4 +1,4 @@
-import { IsString, IsOptional, ValidateNested, Matches } from 'class-validator'
+import { IsString, IsOptional, IsBoolean, IsEnum, ValidateNested, Matches } from 'class-validator'
 import { Type } from 'class-transformer'
 
 class ShippingAddressDto {
@@ -37,4 +37,23 @@ export class CreateOrderDto {
   @IsString()
   @IsOptional()
   sessionId?: string
+
+  @IsEnum(['COURIER', 'PARCEL_LOCKER'])
+  deliveryMethod!: 'COURIER' | 'PARCEL_LOCKER'
+
+  @IsString()
+  @IsOptional()
+  lockerCode?: string
+
+  @IsBoolean()
+  @IsOptional()
+  wantsInvoice?: boolean
+
+  @IsString()
+  @IsOptional()
+  companyName?: string
+
+  @IsString()
+  @IsOptional()
+  taxId?: string
 }

@@ -83,11 +83,36 @@
 - `acceptTerms: z.literal(true)` enforces Polish legal requirement for explicit T&C consent
 - `OrderItem` snapshots `productName`, `variantSku`, `variantAttributes` — invoices survive product renames/deletions
 
-## Phase 4: Polish Regional Integrations ⏳ PLANNED
+## Phase 4: Polish Regional Integrations ✅ COMPLETE
 
-- InPost Geowidget + ShipX label generation
-- Przelewy24 payments + webhook handlers
-- Fakturownia invoice generation via Resend
+**Completed:** 2026-05-16
+
+**Spec:** `docs/superpowers/specs/2026-05-16-phase-4-integrations-design.md`
+
+### What was built
+
+#### Backend (NestJS)
+- Prisma schema: `DeliveryMethod` enum (`COURIER | PARCEL_LOCKER`); Order gains `deliveryMethod`, `lockerCode`, `wantsInvoice`, `companyName`, `taxId`, `invoiceUrl`, `fakturowniaId`, `p24SessionId`, `p24OrderId`, `inpostShipmentId`, `trackingNumber`, `shippingLabelUrl`
+- `PaymentsModule`: `Przelewy24Strategy` (registration sign + SHA384 webhook verification + `PUT /verify` two-step); `POST /orders/:id/pay` returns paymentUrl; `POST /payments/p24/webhook` verifies, marks PAID, emits `order.paid`; cancellation path restores stock via shared helper
+- `OrderTimeoutModule`: `@Cron('*/15 * * * *')` cancels `PENDING_PAYMENT` orders >60 min old, restores stock in Prisma transaction
+- `FakturowniaModule`: `FakturowniaService.generateInvoice()` — B2B `Faktura VAT` (with NIP) or B2C `Faktura imienna`; stores `invoiceUrl + fakturowniaId` on Order; 100% coverage grants fiscal printer exemption
+- `FulfillmentModule`: single `OrderFulfillmentListener` — `@OnEvent('order.paid')` sequentially awaits Fakturownia then sends Resend confirmation email with guaranteed invoice link
+- `InpostModule`: `POST /admin/orders/:id/generate-label` (admin-only) — ShipX shipment creation, label PDF fetched and uploaded to R2; stores `inpostShipmentId + trackingNumber + shippingLabelUrl`; sender details from `STORE_*` env vars
+- `OrdersService.restoreStock()` shared helper used by both webhook cancellation and timeout cron
+- `UploadService.uploadBuffer()` added for R2 buffer upload (labels)
+- `EventEmitterModule.forRoot()` added to `AppModule`
+
+#### Frontend (Next.js Storefront)
+- Checkout page: delivery method toggle (`COURIER` / `PARCEL_LOCKER`), InPost Geowidget lazy-loaded on locker selection, `wantsInvoice` checkbox with conditional `companyName` + `taxId` fields
+- After order creation, calls `POST /orders/:id/pay` and redirects to P24 payment URL via `window.location.href`
+- `useCreateOrder` mutation updated to accept new fields and perform two-step create → initiate-payment flow
+
+### Key decisions
+- `EventEmitter` not Bull/Redis: P24 gets instant `200 OK`; null `invoiceUrl` surfaced in Phase 5 admin as "Regenerate Invoice"
+- Sequential Fakturownia → Resend in single listener: guarantees invoice link in confirmation email
+- Manual ShipX label trigger: admin controls dispatch timing, parcel size, and cancellation window
+- Sender details from `STORE_*` env vars: single env change per white-label client deployment
+- `restoreStock` shared helper: DRY across webhook cancellation + timeout cron paths
 
 ## Phase 5: Admin Dashboard & Polish ⏳ PLANNED
 

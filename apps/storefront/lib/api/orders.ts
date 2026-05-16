@@ -22,23 +22,35 @@ export interface Order {
   }>
 }
 
+export interface CreateOrderPayload {
+  shippingAddress: ShippingAddress
+  couponCode?: string
+  deliveryMethod: 'COURIER' | 'PARCEL_LOCKER'
+  lockerCode?: string
+  wantsInvoice?: boolean
+  companyName?: string
+  taxId?: string
+}
+
 export function useCreateOrder() {
   return useMutation({
-    mutationFn: async ({
-      shippingAddress,
-      couponCode,
-    }: {
-      shippingAddress: ShippingAddress
-      couponCode?: string
-    }) => {
+    mutationFn: async (payload: CreateOrderPayload) => {
       const sessionId = getOrCreateSessionId()
-      const { data } = await apiClient.post<Order>(
+      const { data: order } = await apiClient.post<Order>(
         '/orders',
-        { shippingAddress, couponCode, sessionId },
+        { ...payload, sessionId },
         { headers: { 'x-cart-session': sessionId } },
       )
       clearSessionId()
-      return data
+
+      // Initiate P24 payment — returns paymentUrl (external P24 hosted page)
+      const { data: payment } = await apiClient.post<{ paymentUrl: string }>(
+        `/orders/${order.id}/pay`,
+        {},
+        { headers: { 'x-cart-session': sessionId } },
+      )
+
+      return { order, paymentUrl: payment.paymentUrl }
     },
   })
 }

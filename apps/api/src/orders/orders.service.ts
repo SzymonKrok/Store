@@ -81,6 +81,11 @@ export class OrdersService {
           total,
           couponId: couponResult?.coupon.id ?? null,
           shippingAddress: dto.shippingAddress as object,
+          deliveryMethod: dto.deliveryMethod ?? 'COURIER',
+          lockerCode: dto.lockerCode ?? null,
+          wantsInvoice: dto.wantsInvoice ?? false,
+          companyName: dto.companyName ?? null,
+          taxId: dto.taxId ?? null,
           items: {
             create: cart.items.map((item) => ({
               variantId: item.variantId,
@@ -164,5 +169,16 @@ export class OrdersService {
     const order = await this.prisma.order.findUnique({ where: { id } })
     if (!order) throw new NotFoundException('Order not found')
     return this.prisma.order.update({ where: { id }, data: { status: status as any } })
+  }
+
+  async restoreStock(orderId: string, tx?: Parameters<Parameters<PrismaService['$transaction']>[0]>[0]) {
+    const db = tx ?? this.prisma
+    const items = await db.orderItem.findMany({ where: { orderId } })
+    for (const item of items) {
+      await db.productVariant.update({
+        where: { id: item.variantId },
+        data: { stock: { increment: item.quantity } },
+      })
+    }
   }
 }

@@ -7,5 +7,6 @@ import { CouponsModule } from '../coupons/coupons.module'
   imports: [CouponsModule],
   controllers: [OrdersController],
   providers: [OrdersService],
+  exports: [OrdersService],
 })
 export class OrdersModule {}

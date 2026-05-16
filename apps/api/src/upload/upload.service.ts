@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { randomUUID } from 'crypto'
+import { Readable } from 'stream'
 
 @Injectable()
 export class UploadService {
@@ -29,6 +30,17 @@ export class UploadService {
     const command = new PutObjectCommand({ Bucket: this.bucket, Key: key, ContentType: contentType })
     const uploadUrl = await getSignedUrl(this.s3, command, { expiresIn: 300 })
     return { uploadUrl, key }
+  }
+
+  async uploadBuffer(buffer: Buffer | Readable, key: string, contentType: string): Promise<string> {
+    const command = new PutObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+      Body: buffer,
+      ContentType: contentType,
+    })
+    await this.s3.send(command)
+    return this.getPublicUrl(key)
   }
 
   getPublicUrl(key: string): string {
