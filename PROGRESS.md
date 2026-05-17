@@ -114,11 +114,45 @@
 - Sender details from `STORE_*` env vars: single env change per white-label client deployment
 - `restoreStock` shared helper: DRY across webhook cancellation + timeout cron paths
 
-## Phase 5: Admin Dashboard & Polish ⏳ PLANNED
+## Phase 5A: Admin Dashboard ✅ COMPLETE
 
-- Sales stats + order management
-- RMA / returns workflow
-- Product/Variant/Category/User/Coupon CRUD UI
+**Completed:** 2026-05-17
+
+**Spec:** `docs/superpowers/specs/2026-05-17-phase-5a-admin-dashboard-design.md`
+
+### What was built
+
+#### Backend (NestJS)
+- Prisma migration: `Product.isActive`, `ProductVariant.{isActive, compareAtPrice}`, `Order.user onDelete:SetNull`
+- `AdminModule`: `GET /admin/stats` (KPIs + 30-day Warsaw-tz revenue chart), `GET/PATCH/DELETE /admin/users/*`
+- `OrdersService.regenerateInvoice()` + `POST /admin/orders/:id/regenerate-invoice`
+- `ProductsService`: `isActive:true` filter on public queries; `showArchived` param for admin; full variant upsert; image replace
+
+#### Frontend (apps/admin, port 3001)
+- shadcn/ui + Recharts installed; CSS variables with professional blue `#2563EB` primary; Fira Code monospace
+- Login page: role-guarded (ADMIN only), react-hook-form + zod
+- Dashboard layout: auth guard, `isChecking` Loader2 spinner, QueryClientProvider, Sonner Toaster
+- Sidebar: fixed left `bg-slate-900`, 6 nav items, logout handler
+- Axios client: Bearer interceptor + silent 401 refresh with queue
+- Dashboard page: 4 KPI cards (amber/red badges on alerts) + Recharts 30-day revenue LineChart
+- Orders: filterable table + `OrderSheet` with status select / invoice / InPost label actions + action guards
+- Products: list with stock/status badges, archive-on-409 toast, create/edit page with variant table, attribute builder (popover chips), R2 image upload zone
+- Categories: table + Dialog (create/edit), auto-slug, parent select, 409 guard
+- Users: table + `UserSheet` with order history, role toggle, GDPR delete AlertDialog
+- Coupons: table with soft-delete/restore, Dialog with all fields
+
+#### Storefront
+- `ProductInfo`: `compareAtPrice` strikethrough display when `compareAtPrice > price`
+- `ProductVariant` type updated with `compareAtPrice` field
+
+### Key decisions
+- Same auth pattern as storefront: client-side guard + TanStack Query
+- Admin sees all products via `showArchived=true`; storefront always filters `isActive:true`
+- Warsaw timezone (`date-fns-tz`) for stats month boundary and revenue chart grouping
+
+## Phase 5B/C: Storefront Compliance & RMA ⏳ PLANNED
+
+- GA4 + Facebook Pixel injection (admin settings fields)
+- GDPR Cookie Banner (blocks tracking until accepted)
 - CMS for Terms of Service + Privacy Policy
-- GA4 + Facebook Pixel injection
-- GDPR Cookie Banner
+- RMA / returns workflow
