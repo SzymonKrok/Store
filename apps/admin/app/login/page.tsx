@@ -30,12 +30,14 @@ export default function LoginPage() {
   async function onSubmit(values: FormValues) {
     setServerError(null)
     try {
-      const { data } = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api'}/auth/login`,
+      const { data } = await axios.post<{ accessToken: string }>(
+        `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api'}/auth/login`,
         values,
         { withCredentials: true },
       )
-      if (data.user.role !== 'ADMIN') {
+      // Decode role from JWT payload (middle base64 segment)
+      const payload = JSON.parse(atob(data.accessToken.split('.')[1])) as { role: string }
+      if (payload.role !== 'ADMIN') {
         setServerError('Brak dostępu do panelu administratora')
         return
       }
