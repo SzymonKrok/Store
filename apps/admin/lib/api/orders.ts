@@ -14,7 +14,7 @@ export interface AdminOrder {
   taxId: string | null
   invoiceUrl: string | null
   shippingLabelUrl: string | null
-  p24OrderId: string | null
+  stripeSessionId: string | null
   shippingAddress: Record<string, string>
   createdAt: string
   user: { email: string } | null

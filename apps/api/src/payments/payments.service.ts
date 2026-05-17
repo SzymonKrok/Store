@@ -9,7 +9,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { ConfigService } from '@nestjs/config'
 import { PrismaService } from '../prisma/prisma.service'
 import { OrdersService } from '../orders/orders.service'
-import { Przelewy24Strategy, P24WebhookPayload } from './strategies/przelewy24.strategy'
+import { StripeStrategy } from './strategies/stripe.strategy'
 
 @Injectable()
 export class PaymentsService {
@@ -18,7 +18,7 @@ export class PaymentsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly ordersService: OrdersService,
-    private readonly p24: Przelewy24Strategy,
+    private readonly stripe: StripeStrategy,
     private readonly eventEmitter: EventEmitter2,
     private readonly config: ConfigService,
   ) {}
@@ -35,79 +35,75 @@ export class PaymentsService {
       throw new BadRequestException(`Order is already ${order.status}`)
     }
 
-    const shippingAddress = order.shippingAddress as Record<string, string>
-    const p24SessionId = `order-${order.id}-${Date.now()}`
-
-    await this.prisma.order.update({ where: { id: orderId }, data: { p24SessionId } })
-
-    const apiBaseUrl = this.config.get<string>('API_BASE_URL') ?? 'http://localhost:3333'
     const storefrontUrl = this.config.get<string>('STOREFRONT_URL') ?? 'http://localhost:3000'
+    const shippingAddress = order.shippingAddress as Record<string, string>
 
-    const paymentUrl = await this.p24.registerTransaction(
-      p24SessionId,
-      Number(order.total),
-      'PLN',
-      `Zamówienie #${order.id}`,
-      shippingAddress.email,
-      `${storefrontUrl}/order-confirmation/${order.id}`,
-      `${apiBaseUrl}/api/payments/p24/webhook`,
-    )
+    const { sessionId, url } = await this.stripe.createCheckoutSession({
+      orderId: order.id,
+      items: order.items.map((item) => ({
+        name: item.productName,
+        sku: item.variantSku,
+        unitAmount: Math.round(Number(item.priceAtPurchase) * 100),
+        quantity: item.quantity,
+      })),
+      discountAmount: Math.round(Number(order.discountAmount) * 100),
+      currency: 'pln',
+      customerEmail: shippingAddress.email,
+      successUrl: `${storefrontUrl}/order-confirmation/${order.id}`,
+      cancelUrl: `${storefrontUrl}/checkout`,
+    })
 
-    return { paymentUrl }
+    await this.prisma.order.update({
+      where: { id: orderId },
+      data: { stripeSessionId: sessionId },
+    })
+
+    return { paymentUrl: url }
   }
 
-  async handleP24Webhook(payload: P24WebhookPayload): Promise<void> {
-    if (!this.p24.verifyWebhookSignature(payload)) {
-      throw new UnauthorizedException('Invalid P24 signature')
+  async handleStripeWebhook(rawBody: Buffer, signature: string): Promise<void> {
+    let event: ReturnType<StripeStrategy['constructWebhookEvent']>
+    try {
+      event = this.stripe.constructWebhookEvent(rawBody, signature)
+    } catch {
+      throw new UnauthorizedException('Invalid Stripe webhook signature')
     }
 
-    const order = await this.prisma.order.findFirst({
-      where: { p24SessionId: payload.sessionId },
+    if (event.type !== 'checkout.session.completed') return
+
+    const session = event.data.object
+    const orderId = session.metadata?.orderId
+    if (!orderId) {
+      this.logger.warn('Stripe webhook: checkout.session.completed missing metadata.orderId')
+      return
+    }
+
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
       include: { items: true },
     })
 
     if (!order) {
-      this.logger.warn(`No order found for p24SessionId: ${payload.sessionId}`)
+      this.logger.warn(`Stripe webhook: no order found for id ${orderId}`)
       return
     }
 
     if (order.status === 'PAID') {
-      this.logger.log(`Order ${order.id} already PAID — idempotent skip`)
+      this.logger.log(`Order ${orderId} already PAID — idempotent skip`)
       return
     }
 
-    await this.p24.verifyTransaction(
-      payload.sessionId,
-      payload.orderId,
-      Number(order.total),
-      'PLN',
-    )
-
     await this.prisma.order.update({
-      where: { id: order.id },
-      data: { status: 'PAID', p24OrderId: String(payload.orderId) },
+      where: { id: orderId },
+      data: { status: 'PAID' },
     })
 
     const updatedOrder = await this.prisma.order.findUnique({
-      where: { id: order.id },
+      where: { id: orderId },
       include: { items: true },
     })
 
     this.eventEmitter.emit('order.paid', updatedOrder)
-    this.logger.log(`Order ${order.id} marked PAID, order.paid event emitted`)
-  }
-
-  async handleCancellationWebhook(sessionId: string): Promise<void> {
-    const order = await this.prisma.order.findFirst({
-      where: { p24SessionId: sessionId, status: 'PENDING_PAYMENT' },
-    })
-    if (!order) return
-
-    await this.prisma.$transaction(async (tx) => {
-      await tx.order.update({ where: { id: order.id }, data: { status: 'CANCELLED' } })
-      await this.ordersService.restoreStock(order.id, tx as any)
-    })
-
-    this.logger.log(`Order ${order.id} cancelled via P24 webhook, stock restored`)
+    this.logger.log(`Order ${orderId} marked PAID via Stripe webhook, order.paid event emitted`)
   }
 }

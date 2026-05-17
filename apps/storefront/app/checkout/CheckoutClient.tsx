@@ -119,7 +119,7 @@ export function CheckoutClient() {
         companyName: rest.companyName,
         taxId: rest.taxId,
       })
-      // External redirect to P24 hosted payment page
+      // External redirect to Stripe Checkout hosted page
       window.location.href = paymentUrl
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: unknown } } })?.response?.data?.message
