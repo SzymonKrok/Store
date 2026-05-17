@@ -60,6 +60,7 @@ model Product {
   slug         String           @unique
   description  String?
   basePrice    Decimal          @db.Decimal(10, 2)
+  isActive     Boolean          @default(true)
   categoryId   String
   category     Category         @relation(fields: [categoryId], references: [id])
   variants     ProductVariant[]
@@ -72,16 +73,18 @@ model Product {
 }
 
 model ProductVariant {
-  id           String         @id @default(cuid())
-  productId    String
-  product      Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
-  sku          String         @unique
-  price        Decimal        @db.Decimal(10, 2)
-  stock        Int            @default(0)
-  attributes   Json
-  cartItems    CartItem[]
-  orderItems   OrderItem[]
-  priceHistory PriceHistory[]
+  id             String         @id @default(cuid())
+  productId      String
+  product        Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku            String         @unique
+  price          Decimal        @db.Decimal(10, 2)
+  compareAtPrice Decimal?       @db.Decimal(10, 2)
+  stock          Int            @default(0)
+  attributes     Json
+  isActive       Boolean        @default(true)
+  cartItems      CartItem[]
+  orderItems     OrderItem[]
+  priceHistory   PriceHistory[]
 }
 
 model ProductImage {
@@ -165,7 +168,7 @@ model CouponUsage {
 model Order {
   id              String        @id @default(cuid())
   userId          String?
-  user            User?         @relation(fields: [userId], references: [id])
+  user            User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
   guestEmail      String?
   guestName       String?
   guestPhone      String?

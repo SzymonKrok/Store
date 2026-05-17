@@ -7,13 +7,17 @@ import {
 } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { CouponsService } from '../coupons/coupons.service'
+import { FakturowniaService } from '../fakturownia/fakturownia.service'
 import { CreateOrderDto } from './dto/create-order.dto'
+
+const ACTIONABLE_STATUSES = ['PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED'] as const
 
 @Injectable()
 export class OrdersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly couponsService: CouponsService,
+    private readonly fakturownia: FakturowniaService,
   ) {}
 
   async create(userId: string | undefined, dto: CreateOrderDto) {
@@ -180,5 +184,18 @@ export class OrdersService {
         data: { stock: { increment: item.quantity } },
       })
     }
+  }
+
+  async regenerateInvoice(id: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: { items: true },
+    })
+    if (!order) throw new NotFoundException('Order not found')
+    if (!(ACTIONABLE_STATUSES as readonly string[]).includes(order.status)) {
+      throw new BadRequestException(`Cannot generate invoice for order in status ${order.status}`)
+    }
+    const invoiceUrl = await this.fakturownia.generateInvoice(order)
+    return { invoiceUrl }
   }
 }

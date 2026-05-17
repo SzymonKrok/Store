@@ -17,6 +17,7 @@ import { FakturowniaModule } from './fakturownia/fakturownia.module'
 import { FulfillmentModule } from './fulfillment/fulfillment.module'
 import { OrderTimeoutModule } from './order-timeout/order-timeout.module'
 import { InpostModule } from './inpost/inpost.module'
+import { AdminModule } from './admin/admin.module'
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { InpostModule } from './inpost/inpost.module'
     FulfillmentModule,
     OrderTimeoutModule,
     InpostModule,
+    AdminModule,
   ],
 })
 export class AppModule {}

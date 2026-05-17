@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards } from '@nestjs/common'
+import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, HttpCode } from '@nestjs/common'
 import { OrdersService } from './orders.service'
 import { CreateOrderDto } from './dto/create-order.dto'
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto'
@@ -57,5 +57,13 @@ export class OrdersController {
   @Roles(Role.ADMIN)
   updateStatus(@Param('id') id: string, @Body() dto: UpdateOrderStatusDto) {
     return this.ordersService.updateStatus(id, dto.status)
+  }
+
+  @Post('admin/orders/:id/regenerate-invoice')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @HttpCode(200)
+  regenerateInvoice(@Param('id') id: string) {
+    return this.ordersService.regenerateInvoice(id)
   }
 }
