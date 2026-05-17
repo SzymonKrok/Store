@@ -131,10 +131,10 @@ export function OrderSheet({ orderId, onClose }: Props) {
                     <span className="ml-2 font-mono text-xs">{order.lockerCode}</span>
                   )}
                 </p>
-                {order.p24OrderId && (
+                {order.stripeSessionId && (
                   <p>
-                    <span className="text-slate-700 font-medium">P24: </span>
-                    <span className="font-mono text-xs">{order.p24OrderId}</span>
+                    <span className="text-slate-700 font-medium">Stripe: </span>
+                    <span className="font-mono text-xs truncate block max-w-xs">{order.stripeSessionId}</span>
                   </p>
                 )}
                 {order.wantsInvoice && (
