@@ -1,7 +1,7 @@
 import { Type } from 'class-transformer'
 import {
   IsString, IsNumber, IsPositive, IsOptional, IsArray,
-  ValidateNested, IsInt, Min, Matches, IsUrl, IsObject,
+  ValidateNested, IsInt, Min, Matches, IsUrl, IsObject, IsBoolean,
 } from 'class-validator'
 
 export class CreateVariantDto {
@@ -12,12 +12,21 @@ export class CreateVariantDto {
   @IsPositive()
   price!: number
 
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsPositive()
+  @IsOptional()
+  compareAtPrice?: number | null
+
   @IsInt()
   @Min(0)
   stock!: number
 
   @IsObject()
   attributes!: Record<string, string>
+
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean
 }
 
 export class CreateProductImageDto {

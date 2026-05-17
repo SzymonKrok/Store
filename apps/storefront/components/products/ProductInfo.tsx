@@ -10,6 +10,7 @@ export function ProductInfo({ product }: { product: ProductDetail }) {
 
   const selected = product.variants.find((v) => v.id === selectedId) ?? product.variants[0]
   const price = Number(selected?.price ?? product.basePrice)
+  const compareAtPrice = selected?.compareAtPrice != null ? Number(selected.compareAtPrice) : null
   const omnibusPrice = selected?.omnibusPrice != null ? Number(selected.omnibusPrice) : null
   const inStock = (selected?.stock ?? 0) > 0
   const attributeKeys = selected ? Object.keys(selected.attributes) : []
@@ -25,9 +26,16 @@ export function ProductInfo({ product }: { product: ProductDetail }) {
       </h1>
 
       <div>
-        <p className="text-2xl font-semibold text-stone-900 tabular-nums">
-          {price.toFixed(2)} zł
-        </p>
+        <div className="flex items-baseline gap-3">
+          <p className="text-2xl font-semibold text-stone-900 tabular-nums">
+            {price.toFixed(2)} zł
+          </p>
+          {compareAtPrice !== null && compareAtPrice > price && (
+            <p className="text-base text-stone-400 line-through tabular-nums">
+              {compareAtPrice.toFixed(2)} zł
+            </p>
+          )}
+        </div>
         <OmnibusPrice currentPrice={price} omnibusPrice={omnibusPrice} />
       </div>
 

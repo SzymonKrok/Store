@@ -10,10 +10,11 @@ export class ProductsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(query: ProductQueryDto) {
-    const { categoryId, minPrice, maxPrice, sortBy = SortBy.NEWEST, page = 1, limit = 20 } = query
+    const { categoryId, minPrice, maxPrice, sortBy = SortBy.NEWEST, page = 1, limit = 20, showArchived } = query
     const skip = (page - 1) * limit
 
     const where: Prisma.ProductWhereInput = {
+      ...(showArchived ? {} : { isActive: true }),
       ...(categoryId ? { categoryId } : {}),
       ...((minPrice !== undefined || maxPrice !== undefined)
         ? {
@@ -50,10 +51,10 @@ export class ProductsService {
 
   async findOne(slug: string) {
     const product = await this.prisma.product.findUnique({
-      where: { slug },
+      where: { slug, isActive: true },
       include: {
         category: true,
-        variants: true,
+        variants: { where: { isActive: true } },
         images: { orderBy: { position: 'asc' } },
       },
     })
@@ -90,8 +91,10 @@ export class ProductsService {
             create: dto.variants.map((v) => ({
               sku: v.sku,
               price: v.price,
+              compareAtPrice: v.compareAtPrice ?? null,
               stock: v.stock,
               attributes: v.attributes as Prisma.InputJsonValue,
+              isActive: v.isActive ?? true,
             })),
           },
           images: {
@@ -130,28 +133,68 @@ export class ProductsService {
     }
 
     return this.prisma.$transaction(async (tx) => {
+      const updateData: Prisma.ProductUpdateInput = {}
+      if (dto.name !== undefined) updateData.name = dto.name
+      if (dto.slug !== undefined) updateData.slug = dto.slug
+      if (dto.description !== undefined) updateData.description = dto.description
+      if (dto.basePrice !== undefined) updateData.basePrice = dto.basePrice
+      if (dto.categoryId !== undefined) updateData.category = { connect: { id: dto.categoryId } }
+      const dtoAny = dto as Record<string, unknown>
+      if (typeof dtoAny['isActive'] === 'boolean') updateData.isActive = dtoAny['isActive'] as boolean
+
       const updated = await tx.product.update({
         where: { id },
-        data: {
-          ...(dto.name !== undefined ? { name: dto.name } : {}),
-          ...(dto.slug !== undefined ? { slug: dto.slug } : {}),
-          ...(dto.description !== undefined ? { description: dto.description } : {}),
-          ...(dto.basePrice !== undefined ? { basePrice: dto.basePrice } : {}),
-          ...(dto.categoryId !== undefined ? { categoryId: dto.categoryId } : {}),
-        },
+        data: updateData,
         include: { variants: true },
       })
+
+      if (dto.images !== undefined) {
+        await tx.productImage.deleteMany({ where: { productId: id } })
+        if (dto.images.length > 0) {
+          await tx.productImage.createMany({
+            data: dto.images.map((img, i) => ({
+              productId: id,
+              url: img.url,
+              altText: img.altText ?? null,
+              position: img.position ?? i,
+            })),
+          })
+        }
+      }
 
       if (dto.variants) {
         for (const variantDto of dto.variants) {
           const existing = product.variants.find((v) => v.sku === variantDto.sku)
-          if (existing && Number(existing.price) !== variantDto.price) {
+          if (existing) {
+            const priceChanged = Number(existing.price) !== variantDto.price
             await tx.productVariant.update({
               where: { id: existing.id },
-              data: { price: variantDto.price, stock: variantDto.stock },
+              data: {
+                price: variantDto.price,
+                compareAtPrice: variantDto.compareAtPrice ?? null,
+                stock: variantDto.stock,
+                isActive: variantDto.isActive ?? true,
+              },
+            })
+            if (priceChanged) {
+              await tx.priceHistory.create({
+                data: { productId: id, variantId: existing.id, price: variantDto.price },
+              })
+            }
+          } else {
+            const newVariant = await tx.productVariant.create({
+              data: {
+                productId: id,
+                sku: variantDto.sku,
+                price: variantDto.price,
+                compareAtPrice: variantDto.compareAtPrice ?? null,
+                stock: variantDto.stock,
+                attributes: variantDto.attributes as Prisma.InputJsonValue,
+                isActive: variantDto.isActive ?? true,
+              },
             })
             await tx.priceHistory.create({
-              data: { productId: id, variantId: existing.id, price: variantDto.price },
+              data: { productId: id, variantId: newVariant.id, price: variantDto.price },
             })
           }
         }

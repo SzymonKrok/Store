@@ -1,5 +1,5 @@
-import { IsOptional, IsString, IsNumber, IsPositive, IsEnum, IsInt, Min, Max } from 'class-validator'
-import { Type } from 'class-transformer'
+import { IsOptional, IsString, IsNumber, IsPositive, IsEnum, IsInt, Min, Max, IsBoolean } from 'class-validator'
+import { Type, Transform } from 'class-transformer'
 
 export enum SortBy {
   PRICE_ASC = 'price_asc',
@@ -40,4 +40,9 @@ export class ProductQueryDto {
   @Max(100)
   @IsOptional()
   limit?: number = 20
+
+  @Transform(({ value }) => value === 'true')
+  @IsBoolean()
+  @IsOptional()
+  showArchived?: boolean
 }
