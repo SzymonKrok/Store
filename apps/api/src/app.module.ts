@@ -18,6 +18,8 @@ import { FulfillmentModule } from './fulfillment/fulfillment.module'
 import { OrderTimeoutModule } from './order-timeout/order-timeout.module'
 import { InpostModule } from './inpost/inpost.module'
 import { AdminModule } from './admin/admin.module'
+import { SettingsModule } from './settings/settings.module'
+import { ReturnsModule } from './returns/returns.module'
 
 @Module({
   imports: [
@@ -40,6 +42,8 @@ import { AdminModule } from './admin/admin.module'
     OrderTimeoutModule,
     InpostModule,
     AdminModule,
+    SettingsModule,
+    ReturnsModule,
   ],
 })
 export class AppModule {}

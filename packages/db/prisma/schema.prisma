@@ -32,6 +32,12 @@ enum DeliveryMethod {
   PARCEL_LOCKER
 }
 
+enum ReturnStatus {
+  RETURN_REQUESTED
+  RETURN_APPROVED
+  REFUNDED
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -186,18 +192,39 @@ model Order {
   taxId            String?
   invoiceUrl       String?
   fakturowniaId    String?
-  p24SessionId     String?
-  p24OrderId       String?
+  stripeSessionId  String?
   inpostShipmentId String?
   trackingNumber   String?
   shippingLabelUrl String?
   items            OrderItem[]
   couponUsage      CouponUsage[]
+  returnRequest    ReturnRequest?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
   @@index([userId])
   @@index([status])
+}
+
+model ReturnRequest {
+  id          String       @id @default(cuid())
+  orderId     String       @unique
+  order       Order        @relation(fields: [orderId], references: [id])
+  reason      String
+  bankAccount String
+  status      ReturnStatus @default(RETURN_REQUESTED)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([status])
+}
+
+model StoreSettings {
+  id             Int     @id @default(1)
+  ga4Id          String?
+  fbPixelId      String?
+  termsOfService String  @default("")
+  privacyPolicy  String  @default("")
 }
 
 model OrderItem {

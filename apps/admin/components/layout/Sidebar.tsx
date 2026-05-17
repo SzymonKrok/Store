@@ -9,6 +9,8 @@ import {
   Tag,
   Users,
   Ticket,
+  Settings,
+  Undo2,
   LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -17,10 +19,12 @@ import { apiClient } from '@/lib/axios'
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/orders', label: 'Zamówienia', icon: ShoppingCart },
+  { href: '/returns', label: 'Zwroty', icon: Undo2 },
   { href: '/products', label: 'Produkty', icon: Package },
   { href: '/categories', label: 'Kategorie', icon: Tag },
   { href: '/users', label: 'Użytkownicy', icon: Users },
   { href: '/coupons', label: 'Kupony', icon: Ticket },
+  { href: '/settings', label: 'Ustawienia', icon: Settings },
 ]
 
 export function Sidebar() {
