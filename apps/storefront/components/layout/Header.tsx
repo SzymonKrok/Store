@@ -1,11 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ShoppingBag, Search, Menu, X, User } from 'lucide-react'
+import { ShoppingBag, Search, Menu, X, User, LogOut, Package } from 'lucide-react'
+import { toast } from 'sonner'
 import { CartDrawer } from './CartDrawer'
 import { useCart } from '../../lib/api/cart'
+import { useAuth } from '../../lib/auth'
 
 const navLinks = [
   { href: '/sklep', label: 'Sklep' },
@@ -17,7 +20,11 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const { data: cart } = useCart()
+  const { user, logout } = useAuth()
+  const router = useRouter()
   const itemCount = cart?.items.reduce((sum, i) => sum + i.quantity, 0) ?? 0
 
   useEffect(() => {
@@ -25,6 +32,24 @@ export function Header() {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  useEffect(() => {
+    if (!dropdownOpen) return
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [dropdownOpen])
+
+  async function handleLogout() {
+    setDropdownOpen(false)
+    await logout()
+    toast.success('Wylogowano pomyślnie')
+    router.push('/')
+  }
 
   return (
     <>
@@ -67,14 +92,67 @@ export function Header() {
                 <Search size={19} strokeWidth={1.5} />
               </button>
 
-              <Link
-                href="/logowanie"
-                aria-label="Zaloguj się"
-                className="hidden md:flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors rounded-xl"
-              >
-                <User size={17} strokeWidth={1.5} />
-                Zaloguj
-              </Link>
+              {/* Auth — desktop */}
+              <div className="hidden md:block relative" ref={dropdownRef}>
+                {user ? (
+                  <>
+                    <button
+                      onClick={() => setDropdownOpen((o) => !o)}
+                      aria-label="Menu konta"
+                      className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors rounded-xl cursor-pointer"
+                    >
+                      <User size={17} strokeWidth={1.5} />
+                      <span className="max-w-[120px] truncate">{user.email.split('@')[0]}</span>
+                    </button>
+
+                    <AnimatePresence>
+                      {dropdownOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute right-0 top-full mt-2 w-48 bg-white border border-stone-200 rounded-2xl shadow-lg overflow-hidden z-50"
+                        >
+                          <Link
+                            href="/konto"
+                            onClick={() => setDropdownOpen(false)}
+                            className="flex items-center gap-2.5 px-4 py-3 text-sm text-stone-700 hover:bg-stone-50 transition-colors"
+                          >
+                            <User size={15} strokeWidth={1.5} />
+                            Moje konto
+                          </Link>
+                          <Link
+                            href="/konto/zamowienia"
+                            onClick={() => setDropdownOpen(false)}
+                            className="flex items-center gap-2.5 px-4 py-3 text-sm text-stone-700 hover:bg-stone-50 transition-colors"
+                          >
+                            <Package size={15} strokeWidth={1.5} />
+                            Moje zamówienia
+                          </Link>
+                          <div className="border-t border-stone-100 mx-2" />
+                          <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                          >
+                            <LogOut size={15} strokeWidth={1.5} />
+                            Wyloguj się
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </>
+                ) : (
+                  <Link
+                    href="/logowanie"
+                    aria-label="Zaloguj się"
+                    className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors rounded-xl"
+                  >
+                    <User size={17} strokeWidth={1.5} />
+                    Zaloguj
+                  </Link>
+                )}
+              </div>
 
               <button
                 onClick={() => setCartOpen(true)}
@@ -155,16 +233,36 @@ export function Header() {
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.05 + navLinks.length * 0.08, duration: 0.35 }}
-                className="mt-2"
+                className="mt-2 flex flex-col items-center gap-3"
               >
-                <Link
-                  href="/logowanie"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2 text-stone-500 hover:text-stone-900 transition-colors text-sm font-medium"
-                >
-                  <User size={16} strokeWidth={1.5} />
-                  Zaloguj się
-                </Link>
+                {user ? (
+                  <>
+                    <Link
+                      href="/konto"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-2 text-stone-600 hover:text-stone-900 transition-colors text-sm font-medium"
+                    >
+                      <User size={16} strokeWidth={1.5} />
+                      Moje konto
+                    </Link>
+                    <button
+                      onClick={async () => { setMobileOpen(false); await handleLogout() }}
+                      className="flex items-center gap-2 text-red-500 hover:text-red-700 transition-colors text-sm font-medium cursor-pointer"
+                    >
+                      <LogOut size={16} strokeWidth={1.5} />
+                      Wyloguj się
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    href="/logowanie"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-2 text-stone-500 hover:text-stone-900 transition-colors text-sm font-medium"
+                  >
+                    <User size={16} strokeWidth={1.5} />
+                    Zaloguj się
+                  </Link>
+                )}
               </motion.div>
             </nav>
           </motion.div>

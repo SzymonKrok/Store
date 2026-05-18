@@ -1,6 +1,6 @@
 'use client'
 
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { apiClient } from '../axios'
 import { getOrCreateSessionId, clearSessionId } from './cart'
 import type { ShippingAddress } from '@store/validation'
@@ -11,6 +11,7 @@ export interface Order {
   subtotal: string
   discountAmount: string
   total: string
+  createdAt: string
   shippingAddress: ShippingAddress
   items: Array<{
     id: string
@@ -51,6 +52,23 @@ export function useCreateOrder() {
       )
 
       return { order, paymentUrl: payment.paymentUrl }
+    },
+  })
+}
+
+export interface OrdersPage {
+  items: Order[]
+  total: number
+  page: number
+  totalPages: number
+}
+
+export function useOrders(page = 1) {
+  return useQuery({
+    queryKey: ['orders', page],
+    queryFn: async () => {
+      const { data } = await apiClient.get<OrdersPage>('/orders', { params: { page, limit: 10 } })
+      return data
     },
   })
 }

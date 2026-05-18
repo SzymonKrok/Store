@@ -6,11 +6,13 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
+import { User, ArrowRight } from 'lucide-react'
 import { useCart } from '../../lib/api/cart'
 import { useCreateOrder } from '../../lib/api/orders'
 import { CouponInput } from '../../components/cart/CouponInput'
 import { CartSummary } from '../../components/cart/CartSummary'
 import { shippingAddressSchema } from '@store/validation'
+import { useAuth } from '../../lib/auth'
 
 const checkoutFormSchema = z
   .object({
@@ -52,10 +54,12 @@ declare global {
 }
 
 export function CheckoutClient() {
+  const { user, isLoading: authLoading } = useAuth()
   const { data: cart, isLoading: cartLoading } = useCart()
   const { mutateAsync: createOrder, isPending } = useCreateOrder()
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountAmount: number } | null>(null)
   const [serverError, setServerError] = useState<string | null>(null)
+  const [guestChosen, setGuestChosen] = useState(false)
   const geowidgetContainerRef = useRef<HTMLDivElement>(null)
 
   const {
@@ -130,10 +134,56 @@ export function CheckoutClient() {
     }
   }
 
-  if (cartLoading) {
+  if (cartLoading || authLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="w-8 h-8 border-2 border-stone-200 border-t-stone-900 rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  // Gate: prompt unauthenticated users to login or continue as guest (N1)
+  if (!user && !guestChosen) {
+    return (
+      <div className="max-w-lg mx-auto px-4 py-20">
+        <div className="text-center mb-8">
+          <h1 className="font-display text-3xl font-medium text-stone-900 italic mb-2">Przejdź do kasy</h1>
+          <p className="text-stone-500 text-sm">Zaloguj się, aby przyspieszyć zakupy, lub kontynuuj jako gość.</p>
+        </div>
+
+        <div className="space-y-3">
+          <Link
+            href="/logowanie?redirect=/checkout"
+            className="flex items-center justify-between w-full px-5 py-4 bg-stone-900 text-white rounded-2xl hover:bg-stone-700 transition-colors group"
+          >
+            <div className="flex items-center gap-3">
+              <User size={18} strokeWidth={1.5} />
+              <div className="text-left">
+                <p className="font-medium text-sm">Zaloguj się</p>
+                <p className="text-stone-400 text-xs mt-0.5">Szybsze zakupy, historia zamówień</p>
+              </div>
+            </div>
+            <ArrowRight size={16} strokeWidth={1.5} className="opacity-60 group-hover:opacity-100 transition-opacity" />
+          </Link>
+
+          <button
+            onClick={() => setGuestChosen(true)}
+            className="flex items-center justify-between w-full px-5 py-4 bg-white border border-stone-200 text-stone-700 rounded-2xl hover:border-stone-400 transition-colors group cursor-pointer"
+          >
+            <div className="text-left">
+              <p className="font-medium text-sm">Kontynuuj jako gość</p>
+              <p className="text-stone-400 text-xs mt-0.5">Bez rejestracji, szybka realizacja</p>
+            </div>
+            <ArrowRight size={16} strokeWidth={1.5} className="opacity-40 group-hover:opacity-70 transition-opacity" />
+          </button>
+
+          <p className="text-center text-xs text-stone-400 pt-1">
+            Nie masz konta?{' '}
+            <Link href="/rejestracja" className="text-stone-600 underline hover:no-underline">
+              Zarejestruj się
+            </Link>
+          </p>
+        </div>
       </div>
     )
   }
