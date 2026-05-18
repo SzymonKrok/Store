@@ -115,7 +115,10 @@ export class AdminService {
   }
 
   async deleteUser(id: string) {
-    // GDPR: hard delete — Order.userId nullified by onDelete: SetNull
-    await this.prisma.user.delete({ where: { id } })
+    // GDPR: hard delete — Order.userId nullified by onDelete: SetNull; Cart has no cascade rule so delete it first
+    await this.prisma.$transaction([
+      this.prisma.cart.deleteMany({ where: { userId: id } }),
+      this.prisma.user.delete({ where: { id } }),
+    ])
   }
 }

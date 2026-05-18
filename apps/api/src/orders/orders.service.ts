@@ -151,7 +151,13 @@ export class OrdersService {
       include: { items: true, coupon: true },
     })
     if (!order) throw new NotFoundException('Order not found')
-    if (!isAdmin && order.userId !== userId) throw new ForbiddenException('Access denied')
+    if (!isAdmin) {
+      if (order.userId) {
+        // user-owned order — require matching authenticated caller
+        if (order.userId !== userId) throw new ForbiddenException('Access denied')
+      }
+      // guest order (userId === null) — allow anyone with the CUID (unguessable)
+    }
     return order
   }
 

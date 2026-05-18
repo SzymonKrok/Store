@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common'
+import { Injectable, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 
 const cartInclude = {
@@ -53,16 +53,20 @@ export class CartService {
   }
 
   async updateItem(itemId: string, quantity: number, userId?: string, sessionId?: string) {
-    const item = await this.prisma.cartItem.findUnique({ where: { id: itemId } })
+    const item = await this.prisma.cartItem.findUnique({ where: { id: itemId }, include: { cart: true } })
     if (!item) throw new NotFoundException('Cart item not found')
+    const owns = userId ? item.cart.userId === userId : item.cart.sessionId === sessionId
+    if (!owns) throw new ForbiddenException('Not your cart item')
 
     await this.prisma.cartItem.update({ where: { id: itemId }, data: { quantity } })
     return this.getCart(userId, sessionId)
   }
 
   async removeItem(itemId: string, userId?: string, sessionId?: string) {
-    const item = await this.prisma.cartItem.findUnique({ where: { id: itemId } })
+    const item = await this.prisma.cartItem.findUnique({ where: { id: itemId }, include: { cart: true } })
     if (!item) throw new NotFoundException('Cart item not found')
+    const owns = userId ? item.cart.userId === userId : item.cart.sessionId === sessionId
+    if (!owns) throw new ForbiddenException('Not your cart item')
 
     await this.prisma.cartItem.delete({ where: { id: itemId } })
     return this.getCart(userId, sessionId)

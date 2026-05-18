@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common'
+import { Injectable, BadRequestException, ConflictException, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { CreateCategoryDto } from './dto/create-category.dto'
 import { UpdateCategoryDto } from './dto/update-category.dto'
@@ -33,6 +33,12 @@ export class CategoriesService {
 
   async remove(id: string) {
     await this.findOneOrThrow(id)
+    const [productCount, childCount] = await this.prisma.$transaction([
+      this.prisma.product.count({ where: { categoryId: id } }),
+      this.prisma.category.count({ where: { parentId: id } }),
+    ])
+    if (productCount > 0) throw new BadRequestException('Kategoria zawiera produkty — usuń je przed usunięciem kategorii')
+    if (childCount > 0) throw new BadRequestException('Kategoria zawiera podkategorie — usuń je przed usunięciem kategorii')
     await this.prisma.category.delete({ where: { id } })
   }
 

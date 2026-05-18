@@ -29,9 +29,11 @@ export class ReturnsService {
 
     if (!order) throw new NotFoundException('Zamówienie nie zostało znalezione')
 
-    if (userId && order.userId && order.userId !== userId) {
-      throw new ForbiddenException('Brak dostępu do tego zamówienia')
+    if (order.userId) {
+      // user-owned order — require matching authenticated caller
+      if (!userId || order.userId !== userId) throw new ForbiddenException('Brak dostępu do tego zamówienia')
     }
+    // guest order (order.userId === null) — allow access via CUID (unguessable)
 
     if (!(RETURNABLE_ORDER_STATUSES as readonly string[]).includes(order.status)) {
       throw new BadRequestException(

@@ -207,6 +207,7 @@ export class ProductsService {
   async remove(id: string) {
     const product = await this.prisma.product.findUnique({ where: { id } })
     if (!product) throw new NotFoundException('Product not found')
-    await this.prisma.product.delete({ where: { id } })
+    // Soft-delete: OrderItem.variant has onDelete: Restrict so hard-delete fails on any historical order
+    return this.prisma.product.update({ where: { id }, data: { isActive: false } })
   }
 }
