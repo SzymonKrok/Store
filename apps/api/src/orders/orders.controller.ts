@@ -10,7 +10,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator'
 import { Role } from '@prisma/client'
 
 interface JwtPayload {
-  sub: string
+  id: string
   email: string
   role: string
 }
@@ -22,7 +22,7 @@ export class OrdersController {
   @Post('orders')
   @UseGuards(OptionalJwtAuthGuard)
   create(@CurrentUser() user: JwtPayload | null, @Body() dto: CreateOrderDto) {
-    return this.ordersService.create(user?.sub, dto)
+    return this.ordersService.create(user?.id, dto)
   }
 
   @Get('orders')
@@ -32,13 +32,13 @@ export class OrdersController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    return this.ordersService.findAll(user.sub, page ? Number(page) : 1, limit ? Number(limit) : 20)
+    return this.ordersService.findAll(user.id, page ? Number(page) : 1, limit ? Number(limit) : 20)
   }
 
   @Get('orders/:id')
   @UseGuards(OptionalJwtAuthGuard)
   findOne(@CurrentUser() user: JwtPayload | null, @Param('id') id: string) {
-    return this.ordersService.findOne(id, user?.sub, user?.role === 'ADMIN')
+    return this.ordersService.findOne(id, user?.id, user?.role === 'ADMIN')
   }
 
   @Get('admin/orders')

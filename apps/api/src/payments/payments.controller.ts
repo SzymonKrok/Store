@@ -14,7 +14,7 @@ import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard'
 import { CurrentUser } from '../auth/decorators/current-user.decorator'
 
 interface JwtPayload {
-  sub: string
+  id: string
   email: string
   role: string
 }
@@ -26,7 +26,7 @@ export class PaymentsController {
   @Post('orders/:id/pay')
   @UseGuards(OptionalJwtAuthGuard)
   initiatePayment(@Param('id') id: string, @CurrentUser() user: JwtPayload | null) {
-    return this.paymentsService.initiatePayment(id, user?.sub)
+    return this.paymentsService.initiatePayment(id, user?.id)
   }
 
   @Post('webhooks/stripe')

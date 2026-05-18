@@ -54,22 +54,17 @@ export class OrdersService {
     const total = subtotal - discountAmount
 
     return this.prisma.$transaction(async (tx) => {
-      // Hard stock check — all items must have sufficient stock
+      // Atomic stock decrement — WHERE and UPDATE are one row-locked operation, preventing overselling
       for (const item of cart.items) {
-        const variant = await tx.productVariant.findUnique({ where: { id: item.variantId } })
-        if (!variant || variant.stock < item.quantity) {
+        const result = await tx.productVariant.updateMany({
+          where: { id: item.variantId, stock: { gte: item.quantity } },
+          data: { stock: { decrement: item.quantity } },
+        })
+        if (result.count === 0) {
           throw new ConflictException(
             `Insufficient stock for "${item.variant.product.name}" (SKU: ${item.variant.sku})`,
           )
         }
-      }
-
-      // Decrement stock
-      for (const item of cart.items) {
-        await tx.productVariant.update({
-          where: { id: item.variantId },
-          data: { stock: { decrement: item.quantity } },
-        })
       }
 
       // Create order with snapshots
@@ -104,7 +99,7 @@ export class OrdersService {
         include: { items: true },
       })
 
-      // Record coupon usage
+      // Record coupon usage with atomic cap enforcement
       if (couponResult) {
         await tx.couponUsage.create({
           data: {
@@ -114,10 +109,17 @@ export class OrdersService {
             guestEmail: userId ? null : dto.shippingAddress.email,
           },
         })
-        await tx.coupon.update({
-          where: { id: couponResult.coupon.id },
+        const capWhere =
+          couponResult.coupon.maxUses !== null
+            ? { id: couponResult.coupon.id, usedCount: { lt: couponResult.coupon.maxUses } }
+            : { id: couponResult.coupon.id }
+        const couponUpdate = await tx.coupon.updateMany({
+          where: capWhere,
           data: { usedCount: { increment: 1 } },
         })
+        if (couponUpdate.count === 0) {
+          throw new ConflictException('Coupon usage limit reached')
+        }
       }
 
       // Clear cart

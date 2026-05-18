@@ -8,7 +8,7 @@ import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard'
 import { CurrentUser } from '../auth/decorators/current-user.decorator'
 
 interface JwtPayload {
-  sub: string
+  id: string
   email: string
   role: string
 }
@@ -23,7 +23,7 @@ export class CartController {
     @CurrentUser() user: JwtPayload | null,
     @Headers('x-cart-session') sessionId?: string,
   ) {
-    return this.cartService.getCart(user?.sub, sessionId)
+    return this.cartService.getCart(user?.id, sessionId)
   }
 
   @Post('items')
@@ -33,7 +33,7 @@ export class CartController {
     @Headers('x-cart-session') sessionId: string | undefined,
     @Body() dto: AddCartItemDto,
   ) {
-    return this.cartService.addItem(user?.sub, sessionId, dto.variantId, dto.quantity)
+    return this.cartService.addItem(user?.id, sessionId, dto.variantId, dto.quantity)
   }
 
   @Patch('items/:itemId')
@@ -44,7 +44,7 @@ export class CartController {
     @Param('itemId') itemId: string,
     @Body() dto: UpdateCartItemDto,
   ) {
-    return this.cartService.updateItem(itemId, dto.quantity, user?.sub, sessionId)
+    return this.cartService.updateItem(itemId, dto.quantity, user?.id, sessionId)
   }
 
   @Delete('items/:itemId')
@@ -54,7 +54,7 @@ export class CartController {
     @Headers('x-cart-session') sessionId: string | undefined,
     @Param('itemId') itemId: string,
   ) {
-    return this.cartService.removeItem(itemId, user?.sub, sessionId)
+    return this.cartService.removeItem(itemId, user?.id, sessionId)
   }
 
   @Post('merge')
@@ -63,6 +63,6 @@ export class CartController {
     @CurrentUser() user: JwtPayload,
     @Body() dto: MergeCartDto,
   ) {
-    return this.cartService.mergeCarts(user.sub, dto.sessionId)
+    return this.cartService.mergeCarts(user.id, dto.sessionId)
   }
 }

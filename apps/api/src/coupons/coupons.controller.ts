@@ -11,7 +11,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator'
 import { Role } from '@prisma/client'
 
 interface JwtPayload {
-  sub: string
+  id: string
   email: string
   role: string
 }
@@ -23,7 +23,7 @@ export class CouponsController {
   @Post('coupons/validate')
   @UseGuards(OptionalJwtAuthGuard)
   validate(@Body() dto: ValidateCouponDto, @CurrentUser() user: JwtPayload | null) {
-    return this.couponsService.validate(dto.code, dto.subtotal, user?.sub)
+    return this.couponsService.validate(dto.code, dto.subtotal, user?.id)
   }
 
   @Post('admin/coupons')

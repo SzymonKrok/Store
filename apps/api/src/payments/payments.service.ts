@@ -78,25 +78,16 @@ export class PaymentsService {
       return
     }
 
-    const order = await this.prisma.order.findUnique({
-      where: { id: orderId },
-      include: { items: true },
-    })
-
-    if (!order) {
-      this.logger.warn(`Stripe webhook: no order found for id ${orderId}`)
-      return
-    }
-
-    if (order.status === 'PAID') {
-      this.logger.log(`Order ${orderId} already PAID — idempotent skip`)
-      return
-    }
-
-    await this.prisma.order.update({
-      where: { id: orderId },
+    // Atomic conditional update — only the first webhook call wins; concurrent retries return count=0
+    const result = await this.prisma.order.updateMany({
+      where: { id: orderId, status: 'PENDING_PAYMENT' },
       data: { status: 'PAID' },
     })
+
+    if (result.count === 0) {
+      this.logger.log(`Order ${orderId} already processed or not found — idempotent skip`)
+      return
+    }
 
     const updatedOrder = await this.prisma.order.findUnique({
       where: { id: orderId },
