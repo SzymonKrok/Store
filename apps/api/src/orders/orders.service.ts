@@ -2,6 +2,7 @@ import {
   Injectable,
   BadRequestException,
   ConflictException,
+  Logger,
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common'
@@ -14,6 +15,8 @@ const ACTIONABLE_STATUSES = ['PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED'] as co
 
 @Injectable()
 export class OrdersService {
+  private readonly logger = new Logger(OrdersService.name)
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly couponsService: CouponsService,
@@ -187,10 +190,13 @@ export class OrdersService {
     const db = tx ?? this.prisma
     const items = await db.orderItem.findMany({ where: { orderId } })
     for (const item of items) {
-      await db.productVariant.update({
+      const result = await db.productVariant.updateMany({
         where: { id: item.variantId },
         data: { stock: { increment: item.quantity } },
       })
+      if (result.count === 0) {
+        this.logger.warn(`restoreStock: variant ${item.variantId} not found — skipping (product may have been soft/hard deleted)`)
+      }
     }
   }
 

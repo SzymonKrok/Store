@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common'
+import { Injectable, BadRequestException, ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 
 const cartInclude = {
@@ -39,6 +39,11 @@ export class CartService {
     if (!variant) throw new NotFoundException('Variant not found')
 
     const existing = await this.prisma.cartItem.findFirst({ where: { cartId: cart.id, variantId } })
+    const currentInCart = existing?.quantity ?? 0
+    if (variant.stock < currentInCart + quantity) {
+      throw new ConflictException(`Niewystarczający stan magazynowy (dostępne: ${variant.stock} szt.)`)
+    }
+
     if (existing) {
       await this.prisma.cartItem.update({
         where: { id: existing.id },

@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config'
 import { PrismaService } from '../prisma/prisma.service'
 import { OrdersService } from '../orders/orders.service'
 import { StripeStrategy } from './strategies/stripe.strategy'
+import { parseShippingAddress } from '../common/shipping-address'
 
 @Injectable()
 export class PaymentsService {
@@ -36,7 +37,7 @@ export class PaymentsService {
     }
 
     const storefrontUrl = this.config.get<string>('STOREFRONT_URL') ?? 'http://localhost:3000'
-    const shippingAddress = order.shippingAddress as Record<string, string>
+    const shippingAddress = parseShippingAddress(order.shippingAddress)
 
     const { sessionId, url } = await this.stripe.createCheckoutSession({
       orderId: order.id,

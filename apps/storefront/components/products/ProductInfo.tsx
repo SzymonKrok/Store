@@ -1,12 +1,16 @@
 'use client'
 
 import { useState } from 'react'
-import { ShoppingBag, Package } from 'lucide-react'
+import { ShoppingBag, Package, Check } from 'lucide-react'
+import { toast } from 'sonner'
 import { OmnibusPrice } from './OmnibusPrice'
+import { useAddToCart } from '@/lib/api/cart'
 import type { ProductDetail } from '@/lib/api/products'
 
 export function ProductInfo({ product }: { product: ProductDetail }) {
   const [selectedId, setSelectedId] = useState(product.variants[0]?.id ?? '')
+  const [added, setAdded] = useState(false)
+  const { mutateAsync: addToCart, isPending } = useAddToCart()
 
   const selected = product.variants.find((v) => v.id === selectedId) ?? product.variants[0]
   const price = Number(selected?.price ?? product.basePrice)
@@ -96,11 +100,31 @@ export function ProductInfo({ product }: { product: ProductDetail }) {
       </div>
 
       <button
-        disabled={!inStock}
+        disabled={!inStock || isPending}
+        onClick={async () => {
+          if (!selected) return
+          try {
+            await addToCart({ variantId: selected.id, quantity: 1 })
+            setAdded(true)
+            setTimeout(() => setAdded(false), 2000)
+          } catch (err: unknown) {
+            const msg = (err as { response?: { data?: { message?: unknown } } })?.response?.data?.message
+            toast.error(Array.isArray(msg) ? msg.join(', ') : (msg as string) ?? 'Nie udało się dodać do koszyka')
+          }
+        }}
         className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-2xl font-medium text-sm bg-stone-900 text-white hover:bg-stone-700 disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed transition-colors duration-200 mt-2 cursor-pointer"
       >
-        <ShoppingBag size={16} strokeWidth={1.5} />
-        {inStock ? 'Dodaj do koszyka' : 'Niedostępny'}
+        {added ? (
+          <>
+            <Check size={16} strokeWidth={1.5} />
+            Dodano do koszyka
+          </>
+        ) : (
+          <>
+            <ShoppingBag size={16} strokeWidth={1.5} />
+            {inStock ? (isPending ? 'Dodawanie…' : 'Dodaj do koszyka') : 'Niedostępny'}
+          </>
+        )}
       </button>
     </div>
   )

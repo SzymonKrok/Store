@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { toast } from 'sonner'
 import { useCart } from '../../lib/api/cart'
 import { useCreateOrder } from '../../lib/api/orders'
 import { CouponInput } from '../../components/cart/CouponInput'
@@ -123,11 +124,9 @@ export function CheckoutClient() {
       window.location.href = paymentUrl
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: unknown } } })?.response?.data?.message
-      if (Array.isArray(msg)) {
-        setServerError(msg.join(', '))
-      } else {
-        setServerError((msg as string) ?? 'Wystąpił błąd. Spróbuj ponownie.')
-      }
+      const errorText = Array.isArray(msg) ? msg.join(', ') : (msg as string) ?? 'Wystąpił błąd. Spróbuj ponownie.'
+      setServerError(errorText)
+      toast.error(errorText)
     }
   }
 
@@ -273,7 +272,6 @@ export function CheckoutClient() {
                 <input
                   type="checkbox"
                   {...register('acceptTerms')}
-                  value="true"
                   className="mt-0.5 w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-500"
                 />
                 <span className="text-sm text-stone-600 leading-relaxed">

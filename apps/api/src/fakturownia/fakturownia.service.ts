@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PrismaService } from '../prisma/prisma.service'
 import axios from 'axios'
+import { parseShippingAddress } from '../common/shipping-address'
 
 @Injectable()
 export class FakturowniaService {
@@ -31,7 +32,7 @@ export class FakturowniaService {
       priceAtPurchase: unknown
     }>
   }): Promise<string | null> {
-    const address = order.shippingAddress as Record<string, string>
+    const address = parseShippingAddress(order.shippingAddress)
     const buyerName = order.wantsInvoice && order.companyName
       ? order.companyName
       : `${address.firstName} ${address.lastName}`

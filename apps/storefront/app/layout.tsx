@@ -7,6 +7,7 @@ import { Footer } from '../components/layout/Footer'
 import { CookieBanner } from '../components/CookieBanner'
 import { TrackingScripts } from '../components/TrackingScripts'
 import { fetchStoreSettingsServer } from '../lib/api/settings'
+import { Toaster } from 'sonner'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -38,6 +39,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <main className="pt-16">{children}</main>
           <Footer />
           <CookieBanner />
+          <Toaster position="bottom-right" richColors />
         </Providers>
       </body>
     </html>

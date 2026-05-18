@@ -3,6 +3,7 @@ import { OnEvent } from '@nestjs/event-emitter'
 import { ConfigService } from '@nestjs/config'
 import { Resend } from 'resend'
 import { FakturowniaService } from '../fakturownia/fakturownia.service'
+import { parseShippingAddress } from '../common/shipping-address'
 
 @Injectable()
 export class OrderFulfillmentListener {
@@ -40,7 +41,7 @@ export class OrderFulfillmentListener {
     const invoiceUrl = await this.fakturownia.generateInvoice(order)
 
     // 2. Send confirmation email with the invoice link if available
-    const address = order.shippingAddress as Record<string, string>
+    const address = parseShippingAddress(order.shippingAddress)
     await this.sendConfirmationEmail(order, address.email, invoiceUrl)
   }
 

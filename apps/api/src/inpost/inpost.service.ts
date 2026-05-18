@@ -5,6 +5,7 @@ import { UploadService } from '../upload/upload.service'
 import { GenerateLabelDto } from './dto/generate-label.dto'
 import { randomUUID } from 'crypto'
 import axios from 'axios'
+import { parseShippingAddress } from '../common/shipping-address'
 
 const PARCEL_DIMENSIONS: Record<'A' | 'B' | 'C', { length: number; width: number; height: number }> = {
   A: { length: 38, width: 64, height: 8 },
@@ -53,7 +54,7 @@ export class InpostService {
     if (order.status !== 'PAID') throw new BadRequestException('Order must be PAID to generate a label')
     if (order.inpostShipmentId) throw new BadRequestException('Label already generated for this order')
 
-    const address = order.shippingAddress as Record<string, string>
+    const address = parseShippingAddress(order.shippingAddress)
     const dimensions = PARCEL_DIMENSIONS[dto.parcelSize]
 
     const isLocker = order.deliveryMethod === 'PARCEL_LOCKER'
