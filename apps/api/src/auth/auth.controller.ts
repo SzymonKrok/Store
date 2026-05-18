@@ -1,9 +1,10 @@
 import {
-  Controller, Post, Body, UseGuards,
+  Controller, Get, Post, Body, UseGuards,
   Res, HttpCode, HttpStatus,
 } from '@nestjs/common'
 import { Response } from 'express'
 import { AuthService } from './auth.service'
+import { UsersService } from '../users/users.service'
 import { JwtAuthGuard } from './guards/jwt-auth.guard'
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard'
 import { CurrentUser } from './decorators/current-user.decorator'
@@ -18,7 +19,16 @@ interface AuthUser {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersService: UsersService,
+  ) {}
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  getMe(@CurrentUser() user: AuthUser) {
+    return this.usersService.getProfile(user.id)
+  }
 
   @Post('register')
   async register(

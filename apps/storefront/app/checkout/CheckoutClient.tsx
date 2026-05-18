@@ -54,7 +54,7 @@ declare global {
 }
 
 export function CheckoutClient() {
-  const { user, isLoading: authLoading } = useAuth()
+  const { user, isLoading: authLoading, refreshProfile } = useAuth()
   const { data: cart, isLoading: cartLoading } = useCart()
   const { mutateAsync: createOrder, isPending } = useCreateOrder()
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountAmount: number } | null>(null)
@@ -70,7 +70,17 @@ export function CheckoutClient() {
     formState: { errors },
   } = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutFormSchema),
-    defaultValues: { deliveryMethod: 'COURIER', wantsInvoice: false },
+    defaultValues: {
+      deliveryMethod: 'COURIER',
+      wantsInvoice: false,
+      email: user?.email ?? '',
+      firstName: user?.firstName ?? '',
+      lastName: user?.lastName ?? '',
+      phone: user?.phone ?? '',
+      street: user?.defaultAddress?.street ?? '',
+      city: user?.defaultAddress?.city ?? '',
+      postalCode: user?.defaultAddress?.postalCode ?? '',
+    },
   })
 
   const deliveryMethod = watch('deliveryMethod')
@@ -111,10 +121,11 @@ export function CheckoutClient() {
         shippingAddress: {
           firstName: rest.firstName,
           lastName: rest.lastName,
-          email: rest.email,
-          street: rest.street,
-          city: rest.city,
-          postalCode: rest.postalCode,
+          // Authenticated users: email comes from their account, not the form
+          email: user?.email ?? rest.email,
+          street: rest.street ?? '',
+          city: rest.city ?? '',
+          postalCode: rest.postalCode ?? '',
           phone: rest.phone,
         },
         couponCode: appliedCoupon?.code,
@@ -124,6 +135,8 @@ export function CheckoutClient() {
         companyName: rest.companyName,
         taxId: rest.taxId,
       })
+      // Refresh profile so next checkout visit is pre-filled (fire-and-forget)
+      if (user) refreshProfile().catch(() => {})
       // External redirect to Stripe Checkout hosted page
       window.location.href = paymentUrl
     } catch (err: unknown) {
@@ -261,7 +274,16 @@ export function CheckoutClient() {
             </div>
 
             <Field label="Email" error={errors.email?.message}>
-              <input {...register('email')} type="email" className={inputCls(!!errors.email)} placeholder="jan@example.com" />
+              {user ? (
+                <input
+                  value={user.email}
+                  type="email"
+                  readOnly
+                  className="w-full h-10 px-3 text-sm border border-stone-200 rounded-xl bg-stone-50 text-stone-500 cursor-not-allowed"
+                />
+              ) : (
+                <input {...register('email')} type="email" className={inputCls(!!errors.email)} placeholder="jan@example.com" />
+              )}
             </Field>
 
             {deliveryMethod === 'COURIER' && (

@@ -6,6 +6,16 @@ interface CreateUserData {
   passwordHash: string
 }
 
+const PROFILE_SELECT = {
+  id: true,
+  email: true,
+  role: true,
+  firstName: true,
+  lastName: true,
+  phone: true,
+  defaultAddress: true,
+} as const
+
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
@@ -16,6 +26,10 @@ export class UsersService {
 
   findById(id: string) {
     return this.prisma.user.findUnique({ where: { id } })
+  }
+
+  getProfile(id: string) {
+    return this.prisma.user.findUnique({ where: { id }, select: PROFILE_SELECT })
   }
 
   create(data: CreateUserData) {

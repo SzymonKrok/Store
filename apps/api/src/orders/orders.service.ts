@@ -56,7 +56,7 @@ export class OrdersService {
     const discountAmount = couponResult?.discountAmount ?? 0
     const total = subtotal - discountAmount
 
-    return this.prisma.$transaction(async (tx) => {
+    const createdOrder = await this.prisma.$transaction(async (tx) => {
       // Atomic stock decrement — WHERE and UPDATE are one row-locked operation, preventing overselling
       for (const item of cart.items) {
         const result = await tx.productVariant.updateMany({
@@ -131,6 +131,35 @@ export class OrdersService {
 
       return order
     })
+
+    // Auto-save profile on first order — outside transaction so it never blocks the order
+    if (userId) {
+      const existing = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { firstName: true },
+      })
+      if (!existing?.firstName) {
+        await this.prisma.user.update({
+          where: { id: userId },
+          data: {
+            firstName: dto.shippingAddress.firstName,
+            lastName: dto.shippingAddress.lastName,
+            phone: dto.shippingAddress.phone,
+            ...(dto.shippingAddress.street
+              ? {
+                  defaultAddress: {
+                    street: dto.shippingAddress.street,
+                    city: dto.shippingAddress.city,
+                    postalCode: dto.shippingAddress.postalCode,
+                  },
+                }
+              : {}),
+          },
+        }).catch((err) => this.logger.warn(`Profile auto-save failed for user ${userId}: ${err.message}`))
+      }
+    }
+
+    return createdOrder
   }
 
   async findAll(userId: string, page = 1, limit = 20) {

@@ -39,15 +39,19 @@ enum ReturnStatus {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  role         Role     @default(USER)
-  refreshToken String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  carts        Cart[]
-  orders       Order[]
+  id             String   @id @default(cuid())
+  email          String   @unique
+  passwordHash   String
+  role           Role     @default(USER)
+  refreshToken   String?
+  firstName      String?
+  lastName       String?
+  phone          String?
+  defaultAddress Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  carts          Cart[]
+  orders         Order[]
 }
 
 model Category {
