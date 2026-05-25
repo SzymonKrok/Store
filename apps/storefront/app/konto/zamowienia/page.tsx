@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight, Package } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Download, Package } from 'lucide-react'
 import { useOrders } from '../../../lib/api/orders'
 
 const STATUS_LABEL: Record<string, string> = {
@@ -66,37 +66,52 @@ export default function ZamowieniaPage() {
         <>
           <div className="space-y-3">
             {data.items.map((order) => (
-              <Link
-                key={order.id}
-                href={`/order-confirmation/${order.id}`}
-                className="block bg-white border border-stone-200 rounded-2xl p-5 hover:border-stone-400 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-mono text-stone-400 truncate">#{order.id.slice(-8).toUpperCase()}</span>
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-lg border ${STATUS_CLS[order.status] ?? 'bg-stone-100 text-stone-600 border-stone-200'}`}>
-                        {STATUS_LABEL[order.status] ?? order.status}
-                      </span>
+              <div key={order.id} className="bg-white border border-stone-200 rounded-2xl overflow-hidden hover:border-stone-400 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all">
+                <Link
+                  href={`/order-confirmation/${order.id}`}
+                  className="block p-5"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-mono text-stone-400 truncate">#{order.id.slice(-8).toUpperCase()}</span>
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-lg border ${STATUS_CLS[order.status] ?? 'bg-stone-100 text-stone-600 border-stone-200'}`}>
+                          {STATUS_LABEL[order.status] ?? order.status}
+                        </span>
+                      </div>
+                      <p className="text-sm text-stone-500">
+                        {order.items.length} {order.items.length === 1 ? 'produkt' : 'produkty'}
+                        {' · '}
+                        {new Date(order.createdAt).toLocaleDateString('pl-PL', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                        })}
+                      </p>
                     </div>
-                    <p className="text-sm text-stone-500">
-                      {order.items.length} {order.items.length === 1 ? 'produkt' : 'produkty'}
-                      {' · '}
-                      {new Date(order.createdAt).toLocaleDateString('pl-PL', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
-                    </p>
+                    <div className="text-right flex-shrink-0">
+                      <p className="font-semibold text-stone-900 tabular-nums">
+                        {Number(order.total).toFixed(2)} zł
+                      </p>
+                      <ChevronRight size={16} strokeWidth={1.5} className="text-stone-300 mt-1 ml-auto" />
+                    </div>
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="font-semibold text-stone-900 tabular-nums">
-                      {Number(order.total).toFixed(2)} zł
-                    </p>
-                    <ChevronRight size={16} strokeWidth={1.5} className="text-stone-300 mt-1 ml-auto" />
+                </Link>
+                {order.invoiceUrl && (
+                  <div className="border-t border-stone-100 px-5 py-2.5">
+                    <a
+                      href={order.invoiceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1.5 text-xs text-stone-500 hover:text-stone-900 transition-colors"
+                    >
+                      <Download size={12} strokeWidth={1.5} />
+                      Pobierz fakturę
+                    </a>
                   </div>
-                </div>
-              </Link>
+                )}
+              </div>
             ))}
           </div>
 

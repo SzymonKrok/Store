@@ -12,6 +12,7 @@ export interface Order {
   subtotal: string
   discountAmount: string
   total: string
+  invoiceUrl: string | null
   createdAt: string
   shippingAddress: ShippingAddress
   items: Array<{

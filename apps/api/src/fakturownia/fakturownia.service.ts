@@ -32,6 +32,13 @@ export class FakturowniaService {
       priceAtPurchase: unknown
     }>
   }): Promise<string | null> {
+    if (!this.apiToken || !this.subdomain) {
+      this.logger.warn(
+        `Invoice skipped for order ${order.id} — FAKTUROWNIA_API_TOKEN or FAKTUROWNIA_SUBDOMAIN is not configured`,
+      )
+      return null
+    }
+
     const address = parseShippingAddress(order.shippingAddress)
     const buyerName = order.wantsInvoice && order.companyName
       ? order.companyName
