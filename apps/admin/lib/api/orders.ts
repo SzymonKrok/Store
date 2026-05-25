@@ -17,6 +17,7 @@ export interface AdminOrder {
   stripeSessionId: string | null
   shippingAddress: Record<string, string>
   createdAt: string
+  userId: string | null
   user: { email: string } | null
   guestEmail: string | null
   items: Array<{

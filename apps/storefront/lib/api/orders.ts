@@ -7,6 +7,7 @@ import type { ShippingAddress } from '@store/validation'
 
 export interface Order {
   id: string
+  userId: string | null
   status: string
   subtotal: string
   discountAmount: string

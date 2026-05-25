@@ -42,6 +42,7 @@ export function OrdersTable({ orders, isLoading, onRowClick, statusFilter, onSta
             <TableRow>
               <TableHead>ID</TableHead>
               <TableHead>Klient</TableHead>
+              <TableHead>Typ</TableHead>
               <TableHead>Data</TableHead>
               <TableHead>Dostawa</TableHead>
               <TableHead>Status</TableHead>
@@ -70,6 +71,13 @@ export function OrdersTable({ orders, isLoading, onRowClick, statusFilter, onSta
                     </TableCell>
                     <TableCell className="text-sm">
                       {order.user?.email ?? order.guestEmail ?? '—'}
+                    </TableCell>
+                    <TableCell>
+                      {order.userId ? (
+                        <Badge className="bg-green-100 text-green-800 hover:bg-green-100 text-xs">Konto</Badge>
+                      ) : (
+                        <Badge className="bg-slate-100 text-slate-600 hover:bg-slate-100 text-xs">Gość</Badge>
+                      )}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {format(parseISO(order.createdAt), 'd MMM yyyy', { locale: pl })}

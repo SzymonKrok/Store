@@ -113,9 +113,14 @@ export function OrderSheet({ orderId, onClose }: Props) {
             <div>
               <h3 className="text-sm font-medium mb-3">Dostawa i płatność</h3>
               <div className="space-y-1.5 text-sm text-muted-foreground">
-                <p>
+                <p className="flex items-center gap-2 flex-wrap">
                   <span className="text-slate-700 font-medium">Klient: </span>
                   {order.user?.email ?? order.guestEmail ?? '—'}
+                  {order.userId ? (
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100 text-xs">Konto</Badge>
+                  ) : (
+                    <Badge className="bg-slate-100 text-slate-600 hover:bg-slate-100 text-xs">Gość</Badge>
+                  )}
                 </p>
                 <p>
                   <span className="text-slate-700 font-medium">Adres: </span>

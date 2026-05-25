@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { CheckCircle, Package, RotateCcw, X } from 'lucide-react'
 import { apiClient } from '../../../lib/axios'
 import type { Order } from '../../../lib/api/orders'
+import { GuestConversionBanner } from '../../../components/GuestConversionBanner'
 
 const RETURNABLE = ['SHIPPED', 'DELIVERED']
 
@@ -122,6 +123,12 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
         ) : (
           <div className="flex justify-center py-8">
             <div className="w-6 h-6 border-2 border-stone-200 border-t-stone-900 rounded-full animate-spin" />
+          </div>
+        )}
+
+        {order && order.userId === null && (
+          <div className="mt-4">
+            <GuestConversionBanner orderId={order.id} />
           </div>
         )}
 
