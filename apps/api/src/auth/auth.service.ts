@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import * as bcrypt from 'bcrypt'
 import { UsersService } from '../users/users.service'
 import { PrismaService } from '../prisma/prisma.service'
+import { MailService } from '../mail/mail.service'
 import type { RegisterDto, LoginDto } from '@store/validation'
 
 interface JwtPayload {
@@ -19,6 +20,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
+    private readonly mail: MailService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -30,6 +32,7 @@ export class AuthService {
 
     const tokens = await this.generateTokens(user.id, user.email, user.role)
     await this.storeRefreshToken(user.id, tokens.refreshToken)
+    void this.mail.sendWelcomeEmail(user.email)
     return tokens
   }
 
@@ -92,7 +95,9 @@ export class AuthService {
       return newUser
     })
 
-    return this.issueTokensForUser(user.id, user.email, user.role)
+    const tokens = await this.issueTokensForUser(user.id, user.email, user.role)
+    void this.mail.sendGuestConversionWelcome(user.email, user.firstName)
+    return tokens
   }
 
   async issueTokensForUser(userId: string, email: string, role: string) {

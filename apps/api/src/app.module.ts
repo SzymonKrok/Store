@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { ScheduleModule } from '@nestjs/schedule'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { PrismaModule } from './prisma/prisma.module'
+import { MailModule } from './mail/mail.module'
 import { UsersModule } from './users/users.module'
 import { AuthModule } from './auth/auth.module'
 import { CategoriesModule } from './categories/categories.module'
@@ -27,6 +28,7 @@ import { ReturnsModule } from './returns/returns.module'
     ScheduleModule.forRoot(),
     EventEmitterModule.forRoot(),
     PrismaModule,
+    MailModule,
     UsersModule,
     AuthModule,
     CategoriesModule,

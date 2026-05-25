@@ -9,6 +9,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service'
 import { CouponsService } from '../coupons/coupons.service'
 import { FakturowniaService } from '../fakturownia/fakturownia.service'
+import { MailService } from '../mail/mail.service'
 import { CreateOrderDto } from './dto/create-order.dto'
 
 const ACTIONABLE_STATUSES = ['PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED'] as const
@@ -21,6 +22,7 @@ export class OrdersService {
     private readonly prisma: PrismaService,
     private readonly couponsService: CouponsService,
     private readonly fakturownia: FakturowniaService,
+    private readonly mail: MailService,
   ) {}
 
   async create(userId: string | undefined, dto: CreateOrderDto) {
@@ -132,6 +134,17 @@ export class OrdersService {
       return order
     })
 
+    // Acknowledge guest orders immediately — before Stripe payment is confirmed
+    if (!userId && dto.shippingAddress.email) {
+      void this.mail.sendGuestOrderAcknowledged(
+        dto.shippingAddress.email,
+        createdOrder.id,
+        createdOrder.items,
+        createdOrder.total,
+        createdOrder.discountAmount,
+      )
+    }
+
     // Auto-save profile on first order — outside transaction so it never blocks the order
     if (userId) {
       const existing = await this.prisma.user.findUnique({
@@ -210,9 +223,26 @@ export class OrdersService {
   }
 
   async updateStatus(id: string, status: string) {
-    const order = await this.prisma.order.findUnique({ where: { id } })
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: { user: { select: { email: true } } },
+    })
     if (!order) throw new NotFoundException('Order not found')
-    return this.prisma.order.update({ where: { id }, data: { status: status as any } })
+    const updated = await this.prisma.order.update({ where: { id }, data: { status: status as any } })
+
+    if (status === 'SHIPPED' || status === 'DELIVERED') {
+      const customerEmail = order.user?.email ?? order.guestEmail
+      if (customerEmail) {
+        void this.mail.sendOrderStatusChanged(
+          customerEmail,
+          id,
+          status,
+          status === 'SHIPPED' ? order.trackingNumber : null,
+        )
+      }
+    }
+
+    return updated
   }
 
   async restoreStock(orderId: string, tx?: Parameters<Parameters<PrismaService['$transaction']>[0]>[0]) {
