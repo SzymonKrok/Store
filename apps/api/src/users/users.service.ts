@@ -3,7 +3,10 @@ import { PrismaService } from '../prisma/prisma.service'
 
 interface CreateUserData {
   email: string
-  passwordHash: string
+  passwordHash?: string
+  googleId?: string
+  firstName?: string
+  lastName?: string
 }
 
 const PROFILE_SELECT = {
@@ -34,6 +37,18 @@ export class UsersService {
 
   create(data: CreateUserData) {
     return this.prisma.user.create({ data })
+  }
+
+  findByGoogleId(googleId: string) {
+    return this.prisma.user.findUnique({ where: { googleId } })
+  }
+
+  createGoogleUser(data: { email: string; googleId: string; firstName?: string; lastName?: string }) {
+    return this.prisma.user.create({ data })
+  }
+
+  linkGoogleId(id: string, googleId: string) {
+    return this.prisma.user.update({ where: { id }, data: { googleId } })
   }
 
   updateRefreshToken(id: string, refreshToken: string | null) {

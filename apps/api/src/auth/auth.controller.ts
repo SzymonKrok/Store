@@ -1,15 +1,18 @@
 import {
   Controller, Get, Post, Body, UseGuards,
-  Res, HttpCode, HttpStatus,
+  Res, HttpCode, HttpStatus, Redirect,
 } from '@nestjs/common'
 import { Response } from 'express'
+import { ConfigService } from '@nestjs/config'
 import { AuthService } from './auth.service'
 import { UsersService } from '../users/users.service'
 import { JwtAuthGuard } from './guards/jwt-auth.guard'
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard'
+import { GoogleAuthGuard } from './guards/google-auth.guard'
 import { CurrentUser } from './decorators/current-user.decorator'
 import { RegisterDto } from './dto/register.dto'
 import { LoginDto } from './dto/login.dto'
+import { ConvertGuestDto } from './dto/convert-guest.dto'
 
 interface AuthUser {
   id: string
@@ -17,11 +20,18 @@ interface AuthUser {
   refreshToken?: string
 }
 
+interface GoogleUser {
+  id: string
+  email: string
+  role: string
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Get('me')
@@ -73,6 +83,35 @@ export class AuthController {
     await this.authService.logout(user.id)
     res.clearCookie('refresh_token')
     return { message: 'Logged out' }
+  }
+
+  @Post('convert-guest')
+  @HttpCode(HttpStatus.OK)
+  async convertGuest(
+    @Body() dto: ConvertGuestDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const tokens = await this.authService.convertGuest(dto.orderId, dto.password)
+    this.setRefreshCookie(res, tokens.refreshToken)
+    return { accessToken: tokens.accessToken }
+  }
+
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  googleAuth() {
+    // Passport redirects to Google; this handler body never runs
+  }
+
+  @Get('google/callback')
+  @UseGuards(GoogleAuthGuard)
+  async googleCallback(
+    @CurrentUser() user: GoogleUser,
+    @Res() res: Response,
+  ) {
+    const tokens = await this.authService.issueTokensForUser(user.id, user.email, user.role)
+    this.setRefreshCookie(res, tokens.refreshToken)
+    const storefrontUrl = this.configService.get<string>('STOREFRONT_URL') ?? 'http://localhost:3000'
+    res.redirect(`${storefrontUrl}/auth/callback?token=${tokens.accessToken}`)
   }
 
   private setRefreshCookie(res: Response, token: string) {
