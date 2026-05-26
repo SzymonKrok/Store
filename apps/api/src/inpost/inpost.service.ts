@@ -4,14 +4,25 @@ import { PrismaService } from '../prisma/prisma.service'
 import { UploadService } from '../upload/upload.service'
 import { GenerateLabelDto } from './dto/generate-label.dto'
 import { randomUUID } from 'crypto'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { parseShippingAddress } from '../common/shipping-address'
+import type {
+  CreateShipmentPayload,
+  InpostContact,
+  InpostShipmentResponse,
+  InpostApiError,
+  InpostService as InpostServiceName,
+} from './inpost.types'
 
 const PARCEL_DIMENSIONS: Record<'A' | 'B' | 'C', { length: number; width: number; height: number }> = {
   A: { length: 38, width: 64, height: 8 },
   B: { length: 38, width: 64, height: 19 },
   C: { length: 38, width: 64, height: 41 },
 }
+
+// Default size for auto-created shipments — admin can re-generate with a specific size if needed
+const AUTO_PARCEL_SIZE = 'A' as const
+const AUTO_PARCEL_WEIGHT_KG = 1
 
 @Injectable()
 export class InpostService {
@@ -27,14 +38,14 @@ export class InpostService {
   ) {
     this.apiToken = config.get<string>('INPOST_API_TOKEN') ?? ''
     this.orgId = config.get<string>('INPOST_ORG_ID') ?? ''
-    this.apiUrl = config.get<string>('INPOST_API_URL') ?? 'https://api-shipx-pl.easypack24.net'
+    this.apiUrl = config.get<string>('INPOST_API_URL') ?? 'https://sandbox-api-shipx-pl.easypack24.net'
   }
 
   private get headers() {
     return { Authorization: `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
   }
 
-  private senderDetails() {
+  private senderContact(): InpostContact {
     return {
       name: this.config.get<string>('STORE_NAME') ?? '',
       email: this.config.get<string>('STORE_EMAIL') ?? '',
@@ -48,6 +59,141 @@ export class InpostService {
     }
   }
 
+  private buildReceiverContact(
+    address: ReturnType<typeof parseShippingAddress>,
+    isLocker: boolean,
+  ): InpostContact {
+    const base = {
+      name: `${address.firstName} ${address.lastName}`,
+      email: address.email,
+      phone: address.phone,
+    }
+    if (isLocker) return base
+    return {
+      ...base,
+      address: {
+        street: address.street,
+        city: address.city,
+        post_code: address.postalCode,
+        country_code: 'PL',
+      },
+    }
+  }
+
+  private buildPayload(
+    receiver: InpostContact,
+    service: InpostServiceName,
+    lockerCode: string | null,
+    parcelSize: 'A' | 'B' | 'C',
+    parcelWeightKg: number,
+    orderId: string,
+  ): CreateShipmentPayload {
+    const payload: CreateShipmentPayload = {
+      receiver,
+      sender: this.senderContact(),
+      parcels: [
+        {
+          dimensions: { ...PARCEL_DIMENSIONS[parcelSize], unit: 'mm' },
+          weight: { amount: parcelWeightKg, unit: 'kg' },
+        },
+      ],
+      service,
+      reference: orderId,
+    }
+    if (service.startsWith('inpost_locker') && lockerCode) {
+      payload.custom_attributes = { target_point: lockerCode }
+    }
+    return payload
+  }
+
+  private logApiError(context: string, err: unknown): void {
+    const axiosErr = err as AxiosError<InpostApiError>
+    const status = axiosErr.response?.status ?? 'no response'
+    const body = axiosErr.response?.data
+    if (body && typeof body === 'object') {
+      this.logger.error(
+        `❌ ${context} — HTTP ${status}\n` +
+        `   error: ${body.error ?? ''}\n` +
+        `   message: ${body.message ?? ''}\n` +
+        `   details: ${JSON.stringify(body.details ?? {})}`,
+      )
+    } else {
+      this.logger.error(`❌ ${context} — HTTP ${status}: ${axiosErr.message}`)
+    }
+  }
+
+  /**
+   * Auto-creates a shipment on order.paid for PARCEL_LOCKER orders.
+   * Uses default parcel size (A) and weight (1 kg) — admin can re-generate via the
+   * manual generate-label endpoint if actual dimensions differ.
+   */
+  async createShipment(order: {
+    id: string
+    deliveryMethod: string
+    lockerCode: string | null
+    shippingAddress: unknown
+  }): Promise<{ shipmentId: string; trackingNumber: string } | null> {
+    if (!this.apiToken || !this.orgId) {
+      this.logger.warn(
+        `⚠️  INPOST SKIPPED for order ${order.id} — INPOST_API_TOKEN or INPOST_ORG_ID is not configured`,
+      )
+      return null
+    }
+
+    const isLocker = order.deliveryMethod === 'PARCEL_LOCKER'
+    if (!isLocker || !order.lockerCode) {
+      this.logger.warn(
+        `⚠️  createShipment called for order ${order.id} but deliveryMethod=${order.deliveryMethod} lockerCode=${order.lockerCode ?? 'null'} — skipping`,
+      )
+      return null
+    }
+
+    const address = parseShippingAddress(order.shippingAddress)
+    const receiver = this.buildReceiverContact(address, true)
+    const payload = this.buildPayload(
+      receiver,
+      'inpost_locker_standard',
+      order.lockerCode,
+      AUTO_PARCEL_SIZE,
+      AUTO_PARCEL_WEIGHT_KG,
+      order.id,
+    )
+
+    this.logger.log(
+      `\n${'·'.repeat(60)}\n📦 INPOST — creating shipment for order ${order.id}\n` +
+      `   URL: ${this.apiUrl}/v1/organizations/${this.orgId}/shipments\n` +
+      `   target_point: ${order.lockerCode}\n` +
+      `   receiver: ${receiver.name} <${receiver.email}> ${receiver.phone}\n` +
+      `${'·'.repeat(60)}`,
+    )
+
+    try {
+      const { data: shipment } = await axios.post<InpostShipmentResponse>(
+        `${this.apiUrl}/v1/organizations/${this.orgId}/shipments`,
+        payload,
+        { headers: this.headers },
+      )
+
+      this.logger.log(
+        `✅ Shipment created — id=${shipment.id} tracking=${shipment.tracking_number} status=${shipment.status}`,
+      )
+
+      await this.prisma.order.update({
+        where: { id: order.id },
+        data: { inpostShipmentId: shipment.id, trackingNumber: shipment.tracking_number },
+      })
+
+      return { shipmentId: shipment.id, trackingNumber: shipment.tracking_number }
+    } catch (err: unknown) {
+      this.logApiError(`InPost createShipment for order ${order.id}`, err)
+      return null
+    }
+  }
+
+  /**
+   * Admin-triggered: creates shipment + downloads label PDF + uploads to R2.
+   * Allows specifying the exact parcel size and weight.
+   */
   async generateLabel(orderId: string, dto: GenerateLabelDto) {
     const order = await this.prisma.order.findUnique({ where: { id: orderId } })
     if (!order) throw new NotFoundException('Order not found')
@@ -55,61 +201,59 @@ export class InpostService {
     if (order.inpostShipmentId) throw new BadRequestException('Label already generated for this order')
 
     const address = parseShippingAddress(order.shippingAddress)
-    const dimensions = PARCEL_DIMENSIONS[dto.parcelSize]
-
     const isLocker = order.deliveryMethod === 'PARCEL_LOCKER'
+    const service: InpostServiceName = isLocker ? 'inpost_locker_standard' : 'inpost_courier_standard'
 
-    const receiver = isLocker
-      ? { name: `${address.firstName} ${address.lastName}`, email: address.email, phone: address.phone }
-      : {
-          name: `${address.firstName} ${address.lastName}`,
-          email: address.email,
-          phone: address.phone,
-          address: {
-            street: address.street,
-            city: address.city,
-            post_code: address.postalCode,
-            country_code: 'PL',
-          },
-        }
-
-    const shipmentPayload: Record<string, unknown> = {
+    const receiver = this.buildReceiverContact(address, isLocker)
+    const payload = this.buildPayload(
       receiver,
-      sender: this.senderDetails(),
-      parcels: [
-        {
-          dimensions: { ...dimensions, unit: 'mm' },
-          weight: { amount: dto.parcelWeight, unit: 'kg' },
-        },
-      ],
-      service: isLocker ? 'inpost_locker_standard' : 'inpost_courier_standard',
+      service,
+      order.lockerCode,
+      dto.parcelSize,
+      dto.parcelWeight,
+      orderId,
+    )
+
+    this.logger.log(
+      `\n${'·'.repeat(60)}\n📦 INPOST — generating label for order ${orderId}\n` +
+      `   service: ${service}  size: ${dto.parcelSize}  weight: ${dto.parcelWeight}kg\n` +
+      `${'·'.repeat(60)}`,
+    )
+
+    let shipmentId: string
+    let trackingNumber: string
+
+    try {
+      const { data: shipment } = await axios.post<InpostShipmentResponse>(
+        `${this.apiUrl}/v1/organizations/${this.orgId}/shipments`,
+        payload,
+        { headers: this.headers },
+      )
+      shipmentId = shipment.id
+      trackingNumber = shipment.tracking_number
+      this.logger.log(`   Shipment created — id=${shipmentId} tracking=${trackingNumber}`)
+    } catch (err: unknown) {
+      this.logApiError(`InPost createShipment (admin) for order ${orderId}`, err)
+      throw new BadRequestException('InPost shipment creation failed — see server logs')
     }
 
-    if (isLocker && order.lockerCode) {
-      shipmentPayload.custom_attributes = { target_point: order.lockerCode }
+    let shippingLabelUrl: string
+    try {
+      const { data: labelBuffer } = await axios.get<ArrayBuffer>(
+        `${this.apiUrl}/v1/shipments/${shipmentId}/label`,
+        { headers: { ...this.headers, Accept: 'application/pdf' }, responseType: 'arraybuffer' },
+      )
+      const labelKey = `labels/${orderId}-${randomUUID()}.pdf`
+      shippingLabelUrl = await this.uploadService.uploadBuffer(
+        Buffer.from(labelBuffer),
+        labelKey,
+        'application/pdf',
+      )
+      this.logger.log(`   Label PDF uploaded: ${shippingLabelUrl}`)
+    } catch (err: unknown) {
+      this.logApiError(`InPost label download for shipment ${shipmentId}`, err)
+      throw new BadRequestException('InPost label download failed — see server logs')
     }
-
-    const { data: shipment } = await axios.post(
-      `${this.apiUrl}/v1/organizations/${this.orgId}/shipments`,
-      shipmentPayload,
-      { headers: this.headers },
-    )
-
-    const shipmentId: string = shipment.id
-    const trackingNumber: string = shipment.tracking_number
-
-    // Fetch label PDF
-    const { data: labelBuffer } = await axios.get<Buffer>(
-      `${this.apiUrl}/v1/shipments/${shipmentId}/label`,
-      { headers: { ...this.headers, Accept: 'application/pdf' }, responseType: 'arraybuffer' },
-    )
-
-    const labelKey = `labels/${orderId}-${randomUUID()}.pdf`
-    const shippingLabelUrl = await this.uploadService.uploadBuffer(
-      Buffer.from(labelBuffer),
-      labelKey,
-      'application/pdf',
-    )
 
     await this.prisma.order.update({
       where: { id: orderId },
