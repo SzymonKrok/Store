@@ -48,8 +48,20 @@ export class OrdersController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('status') status?: string,
+    @Query('search') search?: string,
+    @Query('dateFrom') dateFrom?: string,
+    @Query('dateTo') dateTo?: string,
+    @Query('productName') productName?: string,
   ) {
-    return this.ordersService.findAllAdmin(page ? Number(page) : 1, limit ? Number(limit) : 20, status)
+    return this.ordersService.findAllAdmin(
+      page ? Number(page) : 1,
+      limit ? Number(limit) : 20,
+      status,
+      search,
+      dateFrom,
+      dateTo,
+      productName,
+    )
   }
 
   @Patch('admin/orders/:id/status')

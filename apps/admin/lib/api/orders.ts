@@ -36,12 +36,24 @@ export interface AdminOrder {
   }>
 }
 
-export function useAdminOrders(page: number, status?: string) {
+export interface OrderFilters {
+  status?: string
+  search?: string
+  dateFrom?: string
+  dateTo?: string
+  productName?: string
+}
+
+export function useAdminOrders(page: number, filters: OrderFilters = {}) {
   return useQuery({
-    queryKey: ['admin-orders', page, status],
+    queryKey: ['admin-orders', page, filters],
     queryFn: async () => {
       const params = new URLSearchParams({ page: String(page), limit: '20' })
-      if (status) params.set('status', status)
+      if (filters.status) params.set('status', filters.status)
+      if (filters.search) params.set('search', filters.search)
+      if (filters.dateFrom) params.set('dateFrom', filters.dateFrom)
+      if (filters.dateTo) params.set('dateTo', filters.dateTo)
+      if (filters.productName) params.set('productName', filters.productName)
       const { data } = await apiClient.get<{
         items: AdminOrder[]
         total: number

@@ -6,6 +6,7 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
 import { CouponsService } from '../coupons/coupons.service'
 import { FakturowniaService } from '../fakturownia/fakturownia.service'
@@ -210,9 +211,53 @@ export class OrdersService {
     return order
   }
 
-  async findAllAdmin(page = 1, limit = 20, status?: string) {
+  async findAllAdmin(
+    page = 1,
+    limit = 20,
+    status?: string,
+    search?: string,
+    dateFrom?: string,
+    dateTo?: string,
+    productName?: string,
+  ) {
     const skip = (page - 1) * limit
-    const where = status ? { status: status as any } : {}
+    const where: Prisma.OrderWhereInput = {}
+
+    if (status) {
+      const statuses = status.split(',').filter(Boolean)
+      if (statuses.length === 1) {
+        where.status = statuses[0] as Prisma.EnumOrderStatusFilter
+      } else if (statuses.length > 1) {
+        where.status = { in: statuses as any[] }
+      }
+    }
+
+    if (search) {
+      where.OR = [
+        { id: { contains: search, mode: 'insensitive' } },
+        { guestEmail: { contains: search, mode: 'insensitive' } },
+        { guestName: { contains: search, mode: 'insensitive' } },
+        { user: { email: { contains: search, mode: 'insensitive' } } },
+        { user: { firstName: { contains: search, mode: 'insensitive' } } },
+      ]
+    }
+
+    if (dateFrom || dateTo) {
+      where.createdAt = {}
+      if (dateFrom) where.createdAt.gte = new Date(dateFrom)
+      if (dateTo) {
+        const to = new Date(dateTo)
+        to.setHours(23, 59, 59, 999)
+        where.createdAt.lte = to
+      }
+    }
+
+    if (productName) {
+      where.items = {
+        some: { productName: { contains: productName, mode: 'insensitive' } },
+      }
+    }
+
     const [items, total] = await this.prisma.$transaction([
       this.prisma.order.findMany({
         where,
