@@ -31,6 +31,7 @@ export interface CreateOrderPayload {
   couponCode?: string
   deliveryMethod: 'COURIER' | 'PARCEL_LOCKER'
   lockerCode?: string
+  shippingPointDetails?: { name: string; addressLine1: string; addressLine2: string }
   wantsInvoice?: boolean
   companyName?: string
   taxId?: string

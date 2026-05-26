@@ -232,15 +232,27 @@ export default function OrderDetailPage() {
                 <MetaRow
                   icon={Truck}
                   label="Metoda dostawy"
-                  value={
-                    <span className="flex items-center gap-2 justify-end">
-                      {order.deliveryMethod === 'COURIER' ? 'Kurier' : 'Paczkomat InPost'}
-                      {order.lockerCode && (
-                        <span className="font-mono text-xs text-stone-500">{order.lockerCode}</span>
-                      )}
-                    </span>
-                  }
+                  value={order.deliveryMethod === 'COURIER' ? 'Kurier' : 'Paczkomat InPost'}
                 />
+                {order.deliveryMethod === 'PARCEL_LOCKER' && (
+                  <MetaRow
+                    icon={MapPin}
+                    label="Paczkomat"
+                    value={
+                      <span className="text-right">
+                        {order.lockerCode && (
+                          <span className="font-mono font-medium text-stone-900">{order.lockerCode}</span>
+                        )}
+                        {order.shippingPointDetails?.addressLine1 && (
+                          <><br /><span className="font-normal text-stone-600">{order.shippingPointDetails.addressLine1}</span></>
+                        )}
+                        {order.shippingPointDetails?.addressLine2 && (
+                          <><br /><span className="font-normal text-stone-500">{order.shippingPointDetails.addressLine2}</span></>
+                        )}
+                      </span>
+                    }
+                  />
+                )}
                 {order.trackingNumber && (
                   <MetaRow icon={Hash} label="Numer śledzenia" value={
                     <span className="font-mono text-xs">{order.trackingNumber}</span>

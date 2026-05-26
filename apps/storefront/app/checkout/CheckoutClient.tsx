@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -19,9 +19,9 @@ const checkoutFormSchema = z
     firstName: z.string().min(1, 'Imię jest wymagane'),
     lastName: z.string().min(1, 'Nazwisko jest wymagane'),
     email: z.string().email('Nieprawidłowy adres email'),
-    street: z.string().min(1, 'Ulica jest wymagana'),
-    city: z.string().min(1, 'Miasto jest wymagane'),
-    postalCode: z.string().regex(/^\d{2}-\d{3}$/, 'Format: 00-000'),
+    street: z.string().optional(),
+    city: z.string().optional(),
+    postalCode: z.string().optional(),
     phone: z.string().min(9, 'Numer telefonu jest wymagany'),
     acceptTerms: z.literal(true, { errorMap: () => ({ message: 'Musisz zaakceptować regulamin' }) }),
     deliveryMethod: z.enum(['COURIER', 'PARCEL_LOCKER']),
@@ -40,6 +40,13 @@ const checkoutFormSchema = z
     billingNip: z.string().optional(),
   })
   .superRefine((data, ctx) => {
+    if (data.deliveryMethod === 'COURIER') {
+      if (!data.street) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Ulica jest wymagana', path: ['street'] })
+      if (!data.city) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Miasto jest wymagane', path: ['city'] })
+      if (!data.postalCode || !/^\d{2}-\d{3}$/.test(data.postalCode)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Format: 00-000', path: ['postalCode'] })
+      }
+    }
     if (data.deliveryMethod === 'PARCEL_LOCKER' && !data.lockerCode) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Wybierz paczkomat', path: ['lockerCode'] })
     }
@@ -84,6 +91,9 @@ export function CheckoutClient() {
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountAmount: number } | null>(null)
   const [serverError, setServerError] = useState<string | null>(null)
   const [guestChosen, setGuestChosen] = useState(false)
+  const [selectedLocker, setSelectedLocker] = useState<{
+    name: string; addressLine1: string; addressLine2: string
+  } | null>(null)
   const geowidgetContainerRef = useRef<HTMLDivElement>(null)
 
   const {
@@ -114,28 +124,60 @@ export function CheckoutClient() {
   const billingDifferent = watch('billingDifferent')
   const billingAccountType = watch('billingAccountType')
 
-  // Lazy-load InPost Geowidget script when parcel locker selected
+  // Register global callback once — called by geowidget when a point is selected
+  const onPointSelected = useCallback((point: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    name?: string; point_name?: string; address?: { line1?: string; line2?: string }
+  }) => {
+    const id = point.name ?? point.point_name ?? ''
+    setValue('lockerCode', id, { shouldValidate: true })
+    setSelectedLocker({
+      name: id,
+      addressLine1: point.address?.line1 ?? '',
+      addressLine2: point.address?.line2 ?? '',
+    })
+  }, [setValue])
+
   useEffect(() => {
-    if (deliveryMethod !== 'PARCEL_LOCKER') return
-    if (document.getElementById('inpost-geowidget-script')) return
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(window as any).inpostPointSelected = onPointSelected
+    return () => { delete (window as any).inpostPointSelected }
+  }, [onPointSelected])
+
+  // Load/init geowidget when PARCEL_LOCKER is selected; clear locker when switching away
+  useEffect(() => {
+    if (deliveryMethod !== 'PARCEL_LOCKER') {
+      setValue('lockerCode', undefined)
+      setSelectedLocker(null)
+      return
+    }
+
+    function initWidget() {
+      if (!geowidgetContainerRef.current) return
+      const token = process.env.NEXT_PUBLIC_INPOST_GEOWIDGET_TOKEN ?? ''
+      geowidgetContainerRef.current.innerHTML =
+        `<inpost-geowidget token="${token}" language="pl" onpoint="inpostPointSelected"></inpost-geowidget>`
+    }
+
+    if (!document.getElementById('inpost-geowidget-css')) {
+      const link = document.createElement('link')
+      link.id = 'inpost-geowidget-css'
+      link.rel = 'stylesheet'
+      link.href = 'https://geowidget.inpost.pl/inpost-geowidget.css'
+      document.head.appendChild(link)
+    }
+
+    if (document.getElementById('inpost-geowidget-script')) {
+      initWidget()
+      return
+    }
 
     const script = document.createElement('script')
     script.id = 'inpost-geowidget-script'
     script.src = 'https://geowidget.inpost.pl/inpost-geowidget.js'
     script.defer = true
-    script.onload = () => {
-      if (geowidgetContainerRef.current) {
-        const token = process.env.NEXT_PUBLIC_INPOST_GEOWIDGET_TOKEN ?? ''
-        geowidgetContainerRef.current.innerHTML =
-          `<inpost-geowidget token="${token}" language="pl" onpoint="inpostPointSelected"></inpost-geowidget>`
-      }
-    }
+    script.onload = initWidget
     document.head.appendChild(script)
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(window as any).inpostPointSelected = (point: { point_name: string }) => {
-      setValue('lockerCode', point.point_name, { shouldValidate: true })
-    }
   }, [deliveryMethod, setValue])
 
   const items = cart?.items ?? []
@@ -169,6 +211,7 @@ export function CheckoutClient() {
         couponCode: appliedCoupon?.code,
         deliveryMethod: rest.deliveryMethod,
         lockerCode: rest.lockerCode,
+        shippingPointDetails: selectedLocker ?? undefined,
         wantsInvoice: rest.wantsInvoice,
         companyName: rest.companyName,
         taxId: rest.taxId,
@@ -289,16 +332,28 @@ export function CheckoutClient() {
 
             {/* InPost Geowidget */}
             {deliveryMethod === 'PARCEL_LOCKER' && (
-              <div>
+              <div className="space-y-2">
                 <div ref={geowidgetContainerRef} className="min-h-[400px] border border-stone-200 rounded-xl overflow-hidden" />
-                {watch('lockerCode') && (
-                  <p className="text-sm text-green-700 mt-1">
-                    Wybrany paczkomat: <span className="font-medium">{watch('lockerCode')}</span>
-                  </p>
-                )}
-                {errors.lockerCode && (
-                  <p className="text-xs text-red-500 mt-1">{errors.lockerCode.message}</p>
-                )}
+                {watch('lockerCode') ? (
+                  <div className="flex items-start gap-2.5 p-3 bg-green-50 border border-green-200 rounded-xl">
+                    <div className="mt-0.5 w-5 h-5 rounded-full bg-green-700 flex items-center justify-center shrink-0">
+                      <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                        <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-green-900 font-mono">{watch('lockerCode')}</p>
+                      {selectedLocker?.addressLine1 && (
+                        <p className="text-xs text-green-800 mt-0.5">{selectedLocker.addressLine1}</p>
+                      )}
+                      {selectedLocker?.addressLine2 && (
+                        <p className="text-xs text-green-700">{selectedLocker.addressLine2}</p>
+                      )}
+                    </div>
+                  </div>
+                ) : errors.lockerCode ? (
+                  <p className="text-xs text-red-500">{errors.lockerCode.message}</p>
+                ) : null}
               </div>
             )}
 

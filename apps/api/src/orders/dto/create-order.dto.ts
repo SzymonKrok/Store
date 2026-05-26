@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsBoolean, IsEnum, ValidateNested, Matches, ValidateIf } from 'class-validator'
+import { IsString, IsOptional, IsBoolean, IsEnum, ValidateNested, Matches, ValidateIf, IsObject } from 'class-validator'
 import { Type } from 'class-transformer'
 
 class ShippingAddressDto {
@@ -12,14 +12,17 @@ class ShippingAddressDto {
   email!: string
 
   @IsString()
-  street!: string
+  @IsOptional()
+  street?: string
 
   @IsString()
-  city!: string
+  @IsOptional()
+  city?: string
 
   @IsString()
+  @IsOptional()
   @Matches(/^\d{2}-\d{3}$/, { message: 'postalCode must be in format 00-000' })
-  postalCode!: string
+  postalCode?: string
 
   @IsString()
   phone!: string
@@ -80,6 +83,10 @@ export class CreateOrderDto {
   @IsString()
   @IsOptional()
   lockerCode?: string
+
+  @IsObject()
+  @IsOptional()
+  shippingPointDetails?: Record<string, unknown>
 
   @IsBoolean()
   @IsOptional()

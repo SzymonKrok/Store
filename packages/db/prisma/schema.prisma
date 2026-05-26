@@ -192,7 +192,8 @@ model Order {
   shippingAddress  Json
   billingAddress   Json?
   deliveryMethod   DeliveryMethod @default(COURIER)
-  lockerCode       String?
+  lockerCode            String?
+  shippingPointDetails  Json?
   wantsInvoice     Boolean        @default(false)
   companyName      String?
   taxId            String?

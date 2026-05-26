@@ -9,6 +9,7 @@ export interface AdminOrder {
   total: string
   deliveryMethod: string
   lockerCode: string | null
+  shippingPointDetails: { name: string; addressLine1: string; addressLine2: string } | null
   wantsInvoice: boolean
   companyName: string | null
   taxId: string | null

@@ -96,6 +96,7 @@ export class OrdersService {
           billingAddress: billingAddress as object,
           deliveryMethod: dto.deliveryMethod ?? 'COURIER',
           lockerCode: dto.lockerCode ?? null,
+          shippingPointDetails: dto.shippingPointDetails as object ?? null,
           wantsInvoice: dto.wantsInvoice ?? false,
           companyName: dto.companyName ?? null,
           taxId: dto.taxId ?? null,
