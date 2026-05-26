@@ -18,6 +18,7 @@ export interface AdminOrder {
   trackingNumber: string | null
   stripeSessionId: string | null
   shippingAddress: Record<string, string>
+  billingAddress: Record<string, string> | null
   createdAt: string
   updatedAt: string
   userId: string | null

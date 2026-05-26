@@ -25,10 +25,33 @@ class ShippingAddressDto {
   phone!: string
 }
 
+class BillingAddressDto {
+  @IsString()
+  firstName!: string
+
+  @IsString()
+  lastName!: string
+
+  @IsString()
+  street!: string
+
+  @IsString()
+  city!: string
+
+  @IsString()
+  @Matches(/^\d{2}-\d{3}$/, { message: 'postalCode must be in format 00-000' })
+  postalCode!: string
+}
+
 export class CreateOrderDto {
   @ValidateNested()
   @Type(() => ShippingAddressDto)
   shippingAddress!: ShippingAddressDto
+
+  @ValidateNested()
+  @Type(() => BillingAddressDto)
+  @IsOptional()
+  billingAddress?: BillingAddressDto
 
   @IsString()
   @IsOptional()

@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PrismaService } from '../prisma/prisma.service'
 import axios from 'axios'
-import { parseShippingAddress } from '../common/shipping-address'
+import { parseShippingAddress, parseBillingAddress } from '../common/shipping-address'
 
 @Injectable()
 export class FakturowniaService {
@@ -30,6 +30,7 @@ export class FakturowniaService {
     companyName: string | null
     taxId: string | null
     shippingAddress: unknown
+    billingAddress?: unknown
     items: Array<{
       productName: string
       quantity: number
@@ -58,9 +59,12 @@ export class FakturowniaService {
       return null
     }
 
+    // Billing address is always present (backend copies shipping when no separate billing provided)
+    const billing = parseBillingAddress(order.billingAddress ?? order.shippingAddress)
+
     const buyerName = order.wantsInvoice && order.companyName
       ? order.companyName
-      : `${address.firstName} ${address.lastName}`
+      : `${billing.firstName} ${billing.lastName}`
 
     const positions = order.items.map((item, idx) => {
       const priceGross = Number(item.priceAtPurchase)
@@ -83,6 +87,9 @@ export class FakturowniaService {
       seller_name: this.sellerName,
       buyer_name: buyerName,
       buyer_email: address.email,
+      buyer_street: billing.street,
+      buyer_city: billing.city,
+      buyer_post_code: billing.postalCode,
       positions,
     }
 

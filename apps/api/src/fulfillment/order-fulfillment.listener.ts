@@ -22,6 +22,7 @@ export class OrderFulfillmentListener {
     companyName: string | null
     taxId: string | null
     shippingAddress: unknown
+    billingAddress?: unknown
     items: Array<{
       productName: string
       variantSku: string

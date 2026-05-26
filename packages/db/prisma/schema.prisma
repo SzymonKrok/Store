@@ -190,6 +190,7 @@ model Order {
   couponId        String?
   coupon          Coupon?       @relation(fields: [couponId], references: [id])
   shippingAddress  Json
+  billingAddress   Json?
   deliveryMethod   DeliveryMethod @default(COURIER)
   lockerCode       String?
   wantsInvoice     Boolean        @default(false)

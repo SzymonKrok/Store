@@ -48,6 +48,15 @@ export const shippingAddressSchema = z.object({
 })
 export type ShippingAddress = z.infer<typeof shippingAddressSchema>
 
+export const billingAddressSchema = z.object({
+  firstName: z.string().min(1, 'Imię jest wymagane'),
+  lastName: z.string().min(1, 'Nazwisko jest wymagane'),
+  street: z.string().min(1, 'Ulica jest wymagana'),
+  city: z.string().min(1, 'Miasto jest wymagane'),
+  postalCode: z.string().regex(/^\d{2}-\d{3}$/, 'Format: 00-000'),
+})
+export type BillingAddress = z.infer<typeof billingAddressSchema>
+
 export const checkoutSchema = z
   .object({
     shippingAddress: shippingAddressSchema,

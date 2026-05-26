@@ -3,7 +3,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { apiClient } from '../axios'
 import { getOrCreateSessionId, clearSessionId } from './cart'
-import type { ShippingAddress } from '@store/validation'
+import type { ShippingAddress, BillingAddress } from '@store/validation'
 
 export interface Order {
   id: string
@@ -27,6 +27,7 @@ export interface Order {
 
 export interface CreateOrderPayload {
   shippingAddress: ShippingAddress
+  billingAddress?: BillingAddress
   couponCode?: string
   deliveryMethod: 'COURIER' | 'PARCEL_LOCKER'
   lockerCode?: string

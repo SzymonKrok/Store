@@ -20,3 +20,22 @@ export function parseShippingAddress(raw: unknown): ShippingAddress {
     phone: String(d.phone ?? ''),
   }
 }
+
+export interface BillingAddress {
+  firstName: string
+  lastName: string
+  street: string
+  city: string
+  postalCode: string
+}
+
+export function parseBillingAddress(raw: unknown): BillingAddress {
+  const d = (raw ?? {}) as Record<string, unknown>
+  return {
+    firstName: String(d.firstName ?? ''),
+    lastName: String(d.lastName ?? ''),
+    street: String(d.street ?? ''),
+    city: String(d.city ?? ''),
+    postalCode: String(d.postalCode ?? ''),
+  }
+}

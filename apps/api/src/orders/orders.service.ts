@@ -74,6 +74,13 @@ export class OrdersService {
       }
 
       // Create order with snapshots
+      const billingAddress = dto.billingAddress ?? {
+        firstName: dto.shippingAddress.firstName,
+        lastName: dto.shippingAddress.lastName,
+        street: dto.shippingAddress.street,
+        city: dto.shippingAddress.city,
+        postalCode: dto.shippingAddress.postalCode,
+      }
       const order = await tx.order.create({
         data: {
           userId: userId ?? null,
@@ -86,6 +93,7 @@ export class OrdersService {
           total,
           couponId: couponResult?.coupon.id ?? null,
           shippingAddress: dto.shippingAddress as object,
+          billingAddress: billingAddress as object,
           deliveryMethod: dto.deliveryMethod ?? 'COURIER',
           lockerCode: dto.lockerCode ?? null,
           wantsInvoice: dto.wantsInvoice ?? false,

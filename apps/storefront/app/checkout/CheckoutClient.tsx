@@ -29,6 +29,12 @@ const checkoutFormSchema = z
     wantsInvoice: z.boolean().default(false),
     companyName: z.string().optional(),
     taxId: z.string().optional(),
+    billingDifferent: z.boolean().default(false),
+    billingFirstName: z.string().optional(),
+    billingLastName: z.string().optional(),
+    billingStreet: z.string().optional(),
+    billingCity: z.string().optional(),
+    billingPostalCode: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.deliveryMethod === 'PARCEL_LOCKER' && !data.lockerCode) {
@@ -40,6 +46,15 @@ const checkoutFormSchema = z
       }
       if (!data.taxId || !/^\d{10}$/.test(data.taxId)) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'NIP musi zawierać 10 cyfr', path: ['taxId'] })
+      }
+    }
+    if (data.billingDifferent) {
+      if (!data.billingFirstName) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Imię jest wymagane', path: ['billingFirstName'] })
+      if (!data.billingLastName) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Nazwisko jest wymagane', path: ['billingLastName'] })
+      if (!data.billingStreet) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Ulica jest wymagana', path: ['billingStreet'] })
+      if (!data.billingCity) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Miasto jest wymagane', path: ['billingCity'] })
+      if (!data.billingPostalCode || !/^\d{2}-\d{3}$/.test(data.billingPostalCode)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Format: 00-000', path: ['billingPostalCode'] })
       }
     }
   })
@@ -73,6 +88,7 @@ export function CheckoutClient() {
     defaultValues: {
       deliveryMethod: 'COURIER',
       wantsInvoice: false,
+      billingDifferent: false,
       email: user?.email ?? '',
       firstName: user?.firstName ?? '',
       lastName: user?.lastName ?? '',
@@ -85,6 +101,7 @@ export function CheckoutClient() {
 
   const deliveryMethod = watch('deliveryMethod')
   const wantsInvoice = watch('wantsInvoice')
+  const billingDifferent = watch('billingDifferent')
 
   // Lazy-load InPost Geowidget script when parcel locker selected
   useEffect(() => {
@@ -128,6 +145,13 @@ export function CheckoutClient() {
           postalCode: rest.postalCode ?? '',
           phone: rest.phone,
         },
+        billingAddress: rest.billingDifferent ? {
+          firstName: rest.billingFirstName!,
+          lastName: rest.billingLastName!,
+          street: rest.billingStreet!,
+          city: rest.billingCity!,
+          postalCode: rest.billingPostalCode!,
+        } : undefined,
         couponCode: appliedCoupon?.code,
         deliveryMethod: rest.deliveryMethod,
         lockerCode: rest.lockerCode,
@@ -335,6 +359,63 @@ export function CheckoutClient() {
                     maxLength={10}
                   />
                 </Field>
+              </div>
+            )}
+
+            {/* Billing address toggle */}
+            <div className="pt-1 border-t border-stone-100">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  {...register('billingDifferent')}
+                  className="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-500"
+                />
+                <span className="text-sm text-stone-600">Adres rozliczeniowy jest inny niż adres dostawy</span>
+              </label>
+            </div>
+
+            {billingDifferent && (
+              <div className="space-y-4 p-4 bg-stone-50 border border-stone-200 rounded-xl">
+                <p className="text-sm font-medium text-stone-700">Adres rozliczeniowy</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Field label="Imię" error={errors.billingFirstName?.message}>
+                    <input
+                      {...register('billingFirstName')}
+                      className={inputCls(!!errors.billingFirstName)}
+                      placeholder="Jan"
+                    />
+                  </Field>
+                  <Field label="Nazwisko" error={errors.billingLastName?.message}>
+                    <input
+                      {...register('billingLastName')}
+                      className={inputCls(!!errors.billingLastName)}
+                      placeholder="Kowalski"
+                    />
+                  </Field>
+                </div>
+                <Field label="Ulica i numer" error={errors.billingStreet?.message}>
+                  <input
+                    {...register('billingStreet')}
+                    className={inputCls(!!errors.billingStreet)}
+                    placeholder="ul. Kwiatowa 1"
+                  />
+                </Field>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Field label="Miasto" error={errors.billingCity?.message}>
+                    <input
+                      {...register('billingCity')}
+                      className={inputCls(!!errors.billingCity)}
+                      placeholder="Warszawa"
+                    />
+                  </Field>
+                  <Field label="Kod pocztowy" error={errors.billingPostalCode?.message}>
+                    <input
+                      {...register('billingPostalCode')}
+                      className={inputCls(!!errors.billingPostalCode)}
+                      placeholder="00-000"
+                    />
+                  </Field>
+                </div>
               </div>
             )}
 

@@ -18,6 +18,7 @@ import {
   Clock,
   CreditCard,
   Truck,
+  Receipt,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
@@ -246,6 +247,27 @@ export default function OrderDetailPage() {
                   } />
                 )}
               </div>
+
+              {/* Billing address — shown only when it differs from shipping */}
+              {order.billingAddress && order.billingAddress.street !== order.shippingAddress.street && (
+                <>
+                  <Separator className="bg-stone-100 my-4" />
+                  <div className="space-y-3">
+                    <p className="text-[11px] font-semibold text-stone-400 uppercase tracking-widest">Adres rozliczeniowy</p>
+                    <MetaRow
+                      icon={Receipt}
+                      label="Adres"
+                      value={
+                        <span>
+                          {order.billingAddress.firstName} {order.billingAddress.lastName}<br />
+                          {order.billingAddress.street}<br />
+                          {order.billingAddress.postalCode} {order.billingAddress.city}
+                        </span>
+                      }
+                    />
+                  </div>
+                </>
+              )}
 
               {order.wantsInvoice && (
                 <>
