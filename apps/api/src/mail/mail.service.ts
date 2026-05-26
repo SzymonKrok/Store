@@ -1,6 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Resend } from 'resend'
+import { render } from '@react-email/render'
+import { OrderConfirmationEmail } from './templates/OrderConfirmationEmail'
+import { WelcomeEmail } from './templates/WelcomeEmail'
+import { GuestOrderAcknowledgedEmail } from './templates/GuestOrderAcknowledgedEmail'
+import { OrderStatusShippedEmail } from './templates/OrderStatusShippedEmail'
+import { OrderStatusDeliveredEmail } from './templates/OrderStatusDeliveredEmail'
+import { AbandonedCartEmail } from './templates/AbandonedCartEmail'
+import { ReturnRequestEmail } from './templates/ReturnRequestEmail'
 
 interface OrderItem {
   productName: string
@@ -40,60 +48,29 @@ export class MailService {
     email: string,
     order: OrderConfirmationData,
     invoiceUrl: string | null,
+    pdfBuffer: Buffer | null = null,
   ): Promise<void> {
-    const itemsHtml = order.items
-      .map(
-        (i) =>
-          `<tr>
-            <td style="padding:8px 0;border-bottom:1px solid #e7e5e4;">${i.productName}</td>
-            <td style="padding:8px 0;border-bottom:1px solid #e7e5e4;color:#78716c;">${i.variantSku} × ${i.quantity}</td>
-            <td style="padding:8px 0;border-bottom:1px solid #e7e5e4;text-align:right;">
-              ${(Number(i.priceAtPurchase) * i.quantity).toFixed(2)} zł
-            </td>
-          </tr>`,
-      )
-      .join('')
+    const html = await render(
+      OrderConfirmationEmail({
+        orderId: order.id,
+        items: order.items.map((i) => ({
+          name: i.productName,
+          sku: i.variantSku,
+          quantity: i.quantity,
+          priceGross: Number(i.priceAtPurchase),
+        })),
+        total: Number(order.total),
+        discountAmount: Number(order.discountAmount),
+        storefrontUrl: this.storefrontUrl,
+        hasPdfAttachment: pdfBuffer !== null,
+      }),
+    )
 
-    const discount = Number(order.discountAmount)
-    const discountRow =
-      discount > 0
-        ? `<tr>
-            <td colspan="2" style="padding:8px 0;color:#15803d;">Rabat</td>
-            <td style="padding:8px 0;text-align:right;color:#15803d;">−${discount.toFixed(2)} zł</td>
-          </tr>`
-        : ''
-
-    const invoiceButton = invoiceUrl
-      ? `<p style="margin:24px 0 0;">
-          <a href="${invoiceUrl}" style="background:#1C1917;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;">
-            Pobierz fakturę
-          </a>
-        </p>`
-      : ''
-
-    await this.send({
+    await this.sendWithAttachments({
       to: email,
-      subject: `Potwierdzenie zamówienia #${order.id}`,
-      html: `
-        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1c1917;">
-          <h2 style="font-size:24px;margin-bottom:4px;">Dziękujemy za zamówienie!</h2>
-          <p style="color:#78716c;margin-bottom:24px;">
-            Numer zamówienia: <code style="font-family:monospace;background:#f5f5f4;padding:2px 6px;border-radius:4px;">${order.id}</code>
-          </p>
-          <table style="width:100%;border-collapse:collapse;">
-            ${itemsHtml}
-            ${discountRow}
-            <tr>
-              <td colspan="2" style="padding:12px 0;font-weight:600;">Razem</td>
-              <td style="padding:12px 0;text-align:right;font-weight:600;">${Number(order.total).toFixed(2)} zł</td>
-            </tr>
-          </table>
-          ${invoiceButton}
-          <p style="margin-top:32px;">
-            <a href="${this.storefrontUrl}/sklep" style="color:#1c1917;">Kontynuuj zakupy →</a>
-          </p>
-        </div>
-      `,
+      subject: `Potwierdzenie zamówienia #${order.id.slice(-8).toUpperCase()}`,
+      html,
+      attachments: pdfBuffer ? [{ filename: 'Faktura_VAT.pdf', content: pdfBuffer }] : [],
     })
   }
 
@@ -106,185 +83,151 @@ export class MailService {
     total: unknown,
     discountAmount: unknown,
   ): Promise<void> {
-    const itemsHtml = items
-      .map(
-        (i) =>
-          `<tr>
-            <td style="padding:8px 0;border-bottom:1px solid #e7e5e4;">${i.productName}</td>
-            <td style="padding:8px 0;border-bottom:1px solid #e7e5e4;color:#78716c;">× ${i.quantity}</td>
-            <td style="padding:8px 0;border-bottom:1px solid #e7e5e4;text-align:right;">
-              ${(Number(i.priceAtPurchase) * i.quantity).toFixed(2)} zł
-            </td>
-          </tr>`,
-      )
-      .join('')
-
-    const discount = Number(discountAmount)
-    const discountRow =
-      discount > 0
-        ? `<tr>
-            <td colspan="2" style="padding:8px 0;color:#15803d;">Rabat</td>
-            <td style="padding:8px 0;text-align:right;color:#15803d;">−${discount.toFixed(2)} zł</td>
-          </tr>`
-        : ''
+    const html = await render(
+      GuestOrderAcknowledgedEmail({
+        orderId,
+        items: items.map((i) => ({
+          name: i.productName,
+          sku: i.variantSku,
+          quantity: i.quantity,
+          priceGross: Number(i.priceAtPurchase),
+        })),
+        total: Number(total),
+        discountAmount: Number(discountAmount),
+        storefrontUrl: this.storefrontUrl,
+      }),
+    )
 
     await this.send({
       to: email,
-      subject: `Przyjęliśmy Twoje zamówienie #${orderId}`,
-      html: `
-        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1c1917;">
-          <h2 style="font-size:24px;margin-bottom:4px;">Zamówienie przyjęte!</h2>
-          <p style="color:#78716c;margin-bottom:8px;">
-            Numer zamówienia: <code style="font-family:monospace;background:#f5f5f4;padding:2px 6px;border-radius:4px;">${orderId}</code>
-          </p>
-          <p style="color:#78716c;margin-bottom:24px;">
-            Twoje zamówienie oczekuje na płatność. Po jej potwierdzeniu wyślemy osobną wiadomość z podsumowaniem.
-          </p>
-          <table style="width:100%;border-collapse:collapse;">
-            ${itemsHtml}
-            ${discountRow}
-            <tr>
-              <td colspan="2" style="padding:12px 0;font-weight:600;">Razem</td>
-              <td style="padding:12px 0;text-align:right;font-weight:600;">${Number(total).toFixed(2)} zł</td>
-            </tr>
-          </table>
-          <p style="margin-top:32px;font-size:13px;color:#78716c;">
-            Chcesz śledzić zamówienie?
-            <a href="${this.storefrontUrl}/order-confirmation/${orderId}" style="color:#1c1917;">Kliknij tutaj</a>.
-          </p>
-        </div>
-      `,
+      subject: `Zamówienie #${orderId.slice(-8).toUpperCase()} — oczekuje na płatność`,
+      html,
     })
   }
 
-  // ─── Order status changed (SHIPPED / DELIVERED) ───────────────────────────
+  // ─── Order status: SHIPPED ────────────────────────────────────────────────
 
-  async sendOrderStatusChanged(
+  async sendOrderShipped(
     email: string,
     orderId: string,
-    status: 'SHIPPED' | 'DELIVERED',
     trackingNumber?: string | null,
   ): Promise<void> {
-    const isShipped = status === 'SHIPPED'
-    const heading = isShipped ? 'Twoje zamówienie zostało wysłane!' : 'Twoje zamówienie zostało dostarczone!'
-    const body = isShipped
-      ? 'Twoja paczka jest już w drodze.'
-      : 'Twoja paczka dotarła na miejsce. Miłego korzystania!'
-
-    const trackingSection =
-      isShipped && trackingNumber
-        ? `<p style="margin:16px 0;padding:12px 16px;background:#f5f5f4;border-radius:8px;font-size:14px;">
-            Numer śledzenia: <code style="font-family:monospace;">${trackingNumber}</code>
-          </p>`
-        : ''
+    const html = await render(
+      OrderStatusShippedEmail({
+        orderId,
+        trackingNumber,
+        storefrontUrl: this.storefrontUrl,
+      }),
+    )
 
     await this.send({
       to: email,
-      subject: `${isShipped ? 'Wysłano' : 'Dostarczono'} zamówienie #${orderId}`,
-      html: `
-        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1c1917;">
-          <h2 style="font-size:24px;margin-bottom:8px;">${heading}</h2>
-          <p style="color:#78716c;margin-bottom:8px;">
-            Zamówienie: <code style="font-family:monospace;background:#f5f5f4;padding:2px 6px;border-radius:4px;">${orderId}</code>
-          </p>
-          <p style="color:#78716c;">${body}</p>
-          ${trackingSection}
-          <p style="margin-top:32px;">
-            <a href="${this.storefrontUrl}/order-confirmation/${orderId}" style="background:#1C1917;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;">
-              Szczegóły zamówienia
-            </a>
-          </p>
-        </div>
-      `,
+      subject: `Zamówienie #${orderId.slice(-8).toUpperCase()} zostało wysłane`,
+      html,
+    })
+  }
+
+  // ─── Order status: DELIVERED ──────────────────────────────────────────────
+
+  async sendOrderDelivered(email: string, orderId: string): Promise<void> {
+    const html = await render(
+      OrderStatusDeliveredEmail({
+        orderId,
+        storefrontUrl: this.storefrontUrl,
+      }),
+    )
+
+    await this.send({
+      to: email,
+      subject: `Zamówienie #${orderId.slice(-8).toUpperCase()} zostało dostarczone`,
+      html,
     })
   }
 
   // ─── Welcome email (after registration) ───────────────────────────────────
 
   async sendWelcomeEmail(email: string, firstName?: string | null): Promise<void> {
-    const greeting = firstName ? `Cześć, ${firstName}!` : 'Witaj!'
-    await this.send({
-      to: email,
-      subject: 'Witaj w Store!',
-      html: `
-        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1c1917;">
-          <h2 style="font-size:24px;margin-bottom:8px;">${greeting}</h2>
-          <p style="color:#78716c;margin-bottom:24px;">
-            Twoje konto zostało pomyślnie utworzone. Możesz teraz śledzić swoje zamówienia i zarządzać kontem.
-          </p>
-          <p>
-            <a href="${this.storefrontUrl}/konto" style="background:#1C1917;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;">
-              Przejdź do konta
-            </a>
-          </p>
-        </div>
-      `,
-    })
+    const html = await render(
+      WelcomeEmail({ firstName, variant: 'new', storefrontUrl: this.storefrontUrl }),
+    )
+
+    await this.send({ to: email, subject: 'Witaj w Sklepie!', html })
   }
 
   // ─── Guest-to-user conversion welcome ─────────────────────────────────────
 
   async sendGuestConversionWelcome(email: string, firstName?: string | null): Promise<void> {
-    const greeting = firstName ? `Cześć, ${firstName}!` : 'Witaj!'
-    await this.send({
-      to: email,
-      subject: 'Konto zostało utworzone',
-      html: `
-        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1c1917;">
-          <h2 style="font-size:24px;margin-bottom:8px;">${greeting}</h2>
-          <p style="color:#78716c;margin-bottom:24px;">
-            Twoje konto zostało pomyślnie utworzone na podstawie danych z zamówienia.
-            Możesz teraz śledzić wszystkie swoje zamówienia w jednym miejscu.
-          </p>
-          <p>
-            <a href="${this.storefrontUrl}/konto/zamowienia" style="background:#1C1917;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;">
-              Zobacz moje zamówienia
-            </a>
-          </p>
-        </div>
-      `,
-    })
+    const html = await render(
+      WelcomeEmail({ firstName, variant: 'conversion', storefrontUrl: this.storefrontUrl }),
+    )
+
+    await this.send({ to: email, subject: 'Konto zostało utworzone', html })
   }
 
   // ─── Abandoned cart recovery ──────────────────────────────────────────────
 
   async sendAbandonedCartRecovery(email: string, items: AbandonedCartItem[]): Promise<void> {
-    const itemsList = items
-      .map((i) => `<li>${i.variant.product.name} &times; ${i.quantity}</li>`)
-      .join('')
+    const html = await render(
+      AbandonedCartEmail({
+        items: items.map((i) => ({ name: i.variant.product.name, quantity: i.quantity })),
+        storefrontUrl: this.storefrontUrl,
+      }),
+    )
+
+    await this.send({ to: email, subject: 'Produkty czekają w Twoim koszyku', html })
+  }
+
+  // ─── Return request confirmation ──────────────────────────────────────────
+
+  async sendReturnRequestConfirmation(
+    email: string,
+    orderId: string,
+    reason: string,
+  ): Promise<void> {
+    const html = await render(
+      ReturnRequestEmail({ orderId, reason, storefrontUrl: this.storefrontUrl }),
+    )
 
     await this.send({
       to: email,
-      subject: 'Zapomniałeś o swoim koszyku!',
-      html: `
-        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1c1917;">
-          <h2 style="font-size:24px;margin-bottom:8px;">Masz produkty w koszyku!</h2>
-          <p style="color:#78716c;margin-bottom:16px;">Zostawiłeś coś w swoim koszyku:</p>
-          <ul style="color:#1c1917;margin-bottom:24px;">${itemsList}</ul>
-          <p>
-            <a href="${this.storefrontUrl}/sklep" style="background:#1C1917;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;">
-              Wróć do sklepu
-            </a>
-          </p>
-        </div>
-      `,
+      subject: `Wniosek zwrotu #${orderId.slice(-8).toUpperCase()} — przyjęty`,
+      html,
     })
   }
 
-  // ─── Internal send helper ─────────────────────────────────────────────────
+  // ─── Internal send helpers ────────────────────────────────────────────────
 
   private async send(params: { to: string; subject: string; html: string }): Promise<void> {
+    return this.sendWithAttachments({ ...params, attachments: [] })
+  }
+
+  private async sendWithAttachments(params: {
+    to: string
+    subject: string
+    html: string
+    attachments: Array<{ filename: string; content: Buffer }>
+  }): Promise<void> {
     try {
       await this.resend.emails.send({
         from: `Store <${this.from}>`,
         to: params.to,
         subject: params.subject,
         html: params.html,
+        attachments: params.attachments.map((a) => ({
+          filename: a.filename,
+          content: a.content,
+        })),
       })
-      this.logger.log(`Email sent → ${params.to} [${params.subject}]`)
+      const attachNote = params.attachments.length > 0
+        ? ` (+${params.attachments.length} attachment)`
+        : ''
+      this.logger.log(`Email sent → ${params.to} [${params.subject}]${attachNote}`)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err)
-      this.logger.error(`Email failed → ${params.to} [${params.subject}]: ${message}`, err instanceof Error ? err.stack : undefined)
+      this.logger.error(
+        `Email failed → ${params.to} [${params.subject}]: ${message}`,
+        err instanceof Error ? err.stack : undefined,
+      )
     }
   }
 }

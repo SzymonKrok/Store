@@ -233,12 +233,11 @@ export class OrdersService {
     if (status === 'SHIPPED' || status === 'DELIVERED') {
       const customerEmail = order.user?.email ?? order.guestEmail
       if (customerEmail) {
-        void this.mail.sendOrderStatusChanged(
-          customerEmail,
-          id,
-          status,
-          status === 'SHIPPED' ? order.trackingNumber : null,
-        )
+        if (status === 'SHIPPED') {
+          void this.mail.sendOrderShipped(customerEmail, id, order.trackingNumber)
+        } else {
+          void this.mail.sendOrderDelivered(customerEmail, id)
+        }
       }
     }
 
@@ -268,7 +267,7 @@ export class OrdersService {
     if (!(ACTIONABLE_STATUSES as readonly string[]).includes(order.status)) {
       throw new BadRequestException(`Cannot generate invoice for order in status ${order.status}`)
     }
-    const invoiceUrl = await this.fakturownia.generateInvoice(order)
-    return { invoiceUrl }
+    const result = await this.fakturownia.generateInvoice(order)
+    return { invoiceUrl: result?.url ?? null }
   }
 }

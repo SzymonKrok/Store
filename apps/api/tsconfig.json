@@ -4,6 +4,7 @@
     "outDir": "./dist",
     "declaration": false,
     "declarationMap": false,
+    "jsx": "react-jsx",
     "paths": {
       "@store/db": ["../../packages/db/src/index.ts"],
       "@store/validation": ["../../packages/validation/src/index.ts"]

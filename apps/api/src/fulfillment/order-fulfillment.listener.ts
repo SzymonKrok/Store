@@ -29,9 +29,24 @@ export class OrderFulfillmentListener {
       priceAtPurchase: unknown
     }>
   }) {
-    const invoiceUrl = await this.fakturownia.generateInvoice(order)
+    this.logger.log(`\n${'─'.repeat(60)}\n🔔 ORDER FULFILLMENT — order.paid caught for order ${order.id}\n   Step 1: Calling FakturowniaService.generateInvoice...\n${'─'.repeat(60)}`)
+    const invoiceResult = await this.fakturownia.generateInvoice(order)
     const address = parseShippingAddress(order.shippingAddress)
-    this.logger.log(`Order ${order.id} paid — sending confirmation to ${address.email}`)
-    void this.mail.sendOrderConfirmation(address.email, order, invoiceUrl)
+
+    let pdfBuffer: Buffer | null = null
+    if (invoiceResult) {
+      this.logger.log(`   Step 2: Downloading invoice PDF (fakturowniaId=${invoiceResult.fakturowniaId})...`)
+      pdfBuffer = await this.fakturownia.downloadInvoicePdf(invoiceResult.fakturowniaId)
+    }
+
+    if (invoiceResult && pdfBuffer) {
+      this.logger.log(`\n${'─'.repeat(60)}\n✅ FULFILLMENT COMPLETE — order ${order.id}\n   invoiceUrl: ${invoiceResult.url}\n   PDF: ${pdfBuffer.length} bytes — will be attached to email\n   Sending confirmation email to: ${address.email}\n${'─'.repeat(60)}`)
+    } else if (invoiceResult && !pdfBuffer) {
+      this.logger.error(`\n${'─'.repeat(60)}\n⚠️  FULFILLMENT PARTIAL — order ${order.id}\n   Invoice generated (${invoiceResult.url}) but PDF download FAILED\n   Sending email without attachment to: ${address.email}\n${'─'.repeat(60)}`)
+    } else {
+      this.logger.error(`\n${'─'.repeat(60)}\n⚠️  FULFILLMENT PARTIAL — order ${order.id}\n   INVOICE GENERATION FAILED (see FakturowniaService error above)\n   Sending email without attachment to: ${address.email}\n${'─'.repeat(60)}`)
+    }
+
+    void this.mail.sendOrderConfirmation(address.email, order, invoiceResult?.url ?? null, pdfBuffer)
   }
 }

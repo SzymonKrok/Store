@@ -95,7 +95,7 @@ export class PaymentsService {
       include: { items: true },
     })
 
+    this.logger.log(`\n${'='.repeat(60)}\n🟢 STRIPE WEBHOOK ✓ — Order ${orderId} marked PAID\n   Emitting event: order.paid → OrderFulfillmentListener\n${'='.repeat(60)}`)
     this.eventEmitter.emit('order.paid', updatedOrder)
-    this.logger.log(`Order ${orderId} marked PAID via Stripe webhook, order.paid event emitted`)
   }
 }

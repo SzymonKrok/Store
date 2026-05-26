@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   NotFoundException,
   BadRequestException,
   ConflictException,
@@ -7,6 +8,7 @@ import {
 } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { OrdersService } from '../orders/orders.service'
+import { MailService } from '../mail/mail.service'
 import { CreateReturnDto } from './dto/create-return.dto'
 import { UpdateReturnStatusDto } from './dto/update-return-status.dto'
 import { ReturnStatus } from '@prisma/client'
@@ -16,15 +18,21 @@ const RETURNABLE_ORDER_STATUSES = ['SHIPPED', 'DELIVERED'] as const
 
 @Injectable()
 export class ReturnsService {
+  private readonly logger = new Logger(ReturnsService.name)
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly ordersService: OrdersService,
+    private readonly mail: MailService,
   ) {}
 
   async createReturn(orderId: string, dto: CreateReturnDto, userId?: string) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
-      include: { returnRequest: true },
+      include: {
+        returnRequest: true,
+        user: { select: { email: true } },
+      },
     })
 
     if (!order) throw new NotFoundException('Zamówienie nie zostało znalezione')
@@ -51,9 +59,19 @@ export class ReturnsService {
       throw new ConflictException('Wniosek zwrotu dla tego zamówienia już istnieje')
     }
 
-    return this.prisma.returnRequest.create({
+    const returnRequest = await this.prisma.returnRequest.create({
       data: { orderId, reason: dto.reason, bankAccount: dto.bankAccount },
     })
+
+    const customerEmail = order.user?.email ?? order.guestEmail
+    if (customerEmail) {
+      void this.mail.sendReturnRequestConfirmation(customerEmail, orderId, dto.reason)
+        .catch((err: unknown) => {
+          this.logger.error(`Failed to send return confirmation to ${customerEmail}: ${err instanceof Error ? err.message : String(err)}`)
+        })
+    }
+
+    return returnRequest
   }
 
   async findAll(page = 1, limit = 20, status?: ReturnStatus) {
