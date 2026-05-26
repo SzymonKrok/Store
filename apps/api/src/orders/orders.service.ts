@@ -193,7 +193,11 @@ export class OrdersService {
   async findOne(id: string, userId?: string, isAdmin = false) {
     const order = await this.prisma.order.findUnique({
       where: { id },
-      include: { items: true, coupon: true },
+      include: {
+        items: true,
+        coupon: true,
+        user: { select: { email: true, firstName: true, lastName: true, phone: true } },
+      },
     })
     if (!order) throw new NotFoundException('Order not found')
     if (!isAdmin) {

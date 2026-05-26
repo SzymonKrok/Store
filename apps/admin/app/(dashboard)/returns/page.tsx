@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { toast } from 'sonner'
+
 import { format, parseISO } from 'date-fns'
 import { pl } from 'date-fns/locale'
 import { Badge } from '@/components/ui/badge'
@@ -15,7 +16,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
-import { OrderSheet } from '@/components/orders/OrderSheet'
+import { useRouter } from 'next/navigation'
 import { useAdminReturns, useUpdateReturnStatus, type ReturnStatus } from '@/lib/api/returns'
 
 const STATUS_LABELS: Record<ReturnStatus, string> = {
@@ -35,7 +36,7 @@ const ALL_STATUSES: ReturnStatus[] = ['RETURN_REQUESTED', 'RETURN_APPROVED', 'RE
 export default function ReturnsPage() {
   const [page, setPage] = useState(1)
   const [filterStatus, setFilterStatus] = useState<string>('')
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null)
+  const router = useRouter()
 
   const { data, isLoading } = useAdminReturns(page, filterStatus || undefined)
   const { mutateAsync: updateStatus } = useUpdateReturnStatus()
@@ -102,7 +103,7 @@ export default function ReturnsPage() {
                     </TableCell>
                     <TableCell>
                       <button
-                        onClick={() => setSelectedOrderId(rr.order.id)}
+                        onClick={() => router.push(`/orders/${rr.order.id}`)}
                         className="font-mono text-xs text-primary hover:underline"
                       >
                         #{rr.order.id.slice(0, 8).toUpperCase()}
@@ -176,7 +177,6 @@ export default function ReturnsPage() {
         </Pagination>
       )}
 
-      <OrderSheet orderId={selectedOrderId} onClose={() => setSelectedOrderId(null)} />
     </div>
   )
 }

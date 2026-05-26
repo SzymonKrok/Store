@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAdminOrders } from '@/lib/api/orders'
 import { OrdersTable } from '@/components/orders/OrdersTable'
-import { OrderSheet } from '@/components/orders/OrderSheet'
 import {
   Pagination,
   PaginationContent,
@@ -15,7 +15,7 @@ import {
 export default function OrdersPage() {
   const [page, setPage] = useState(1)
   const [statusFilter, setStatusFilter] = useState('ALL')
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null)
+  const router = useRouter()
 
   const { data, isLoading } = useAdminOrders(page, statusFilter === 'ALL' ? undefined : statusFilter)
 
@@ -26,7 +26,7 @@ export default function OrdersPage() {
       <OrdersTable
         orders={data?.items}
         isLoading={isLoading}
-        onRowClick={setSelectedOrderId}
+        onRowClick={(id) => router.push(`/orders/${id}`)}
         statusFilter={statusFilter}
         onStatusFilter={(v) => { setStatusFilter(v); setPage(1) }}
       />
@@ -51,8 +51,6 @@ export default function OrdersPage() {
           </PaginationContent>
         </Pagination>
       )}
-
-      <OrderSheet orderId={selectedOrderId} onClose={() => setSelectedOrderId(null)} />
     </div>
   )
 }

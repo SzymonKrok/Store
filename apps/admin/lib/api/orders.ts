@@ -13,13 +13,19 @@ export interface AdminOrder {
   companyName: string | null
   taxId: string | null
   invoiceUrl: string | null
+  fakturowniaId: string | null
   shippingLabelUrl: string | null
+  trackingNumber: string | null
   stripeSessionId: string | null
   shippingAddress: Record<string, string>
   createdAt: string
+  updatedAt: string
   userId: string | null
-  user: { email: string } | null
+  user: { email: string; firstName: string | null; lastName: string | null; phone: string | null } | null
   guestEmail: string | null
+  guestName: string | null
+  guestPhone: string | null
+  coupon: { code: string } | null
   items: Array<{
     id: string
     productName: string
@@ -63,7 +69,10 @@ export function useUpdateOrderStatus() {
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
       await apiClient.patch(`/admin/orders/${id}/status`, { status })
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-orders'] }),
+    onSuccess: (_, { id }) => {
+      qc.invalidateQueries({ queryKey: ['admin-orders'] })
+      qc.invalidateQueries({ queryKey: ['admin-order', id] })
+    },
   })
 }
 

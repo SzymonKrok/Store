@@ -79,8 +79,8 @@ export function OrdersTable({ orders, isLoading, onRowClick, statusFilter, onSta
                         <Badge className="bg-slate-100 text-slate-600 hover:bg-slate-100 text-xs">Gość</Badge>
                       )}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {format(parseISO(order.createdAt), 'd MMM yyyy', { locale: pl })}
+                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                      {format(parseISO(order.createdAt), 'd MMM yyyy, HH:mm', { locale: pl })}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-xs">
