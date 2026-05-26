@@ -62,9 +62,19 @@ export class FakturowniaService {
     // Billing address is always present (backend copies shipping when no separate billing provided)
     const billing = parseBillingAddress(order.billingAddress ?? order.shippingAddress)
 
-    const buyerName = order.wantsInvoice && order.companyName
-      ? order.companyName
-      : `${billing.firstName} ${billing.lastName}`
+    // B2B billing path takes priority; legacy wantsInvoice path is fallback for backward compat
+    let buyerName: string
+    let buyerTaxNo: string | null = null
+
+    if (billing.accountType === 'COMPANY' && billing.companyName) {
+      buyerName = billing.companyName
+      buyerTaxNo = billing.nip ?? null
+    } else if (order.wantsInvoice && order.companyName) {
+      buyerName = order.companyName
+      buyerTaxNo = order.taxId ?? null
+    } else {
+      buyerName = `${billing.firstName} ${billing.lastName}`
+    }
 
     const positions = order.items.map((item, idx) => {
       const priceGross = Number(item.priceAtPurchase)
@@ -97,8 +107,8 @@ export class FakturowniaService {
       invoiceData.seller_tax_no = this.sellerTaxNo
     }
 
-    if (order.wantsInvoice && order.taxId) {
-      invoiceData.buyer_tax_no = order.taxId
+    if (buyerTaxNo) {
+      invoiceData.buyer_tax_no = buyerTaxNo
     }
 
     try {

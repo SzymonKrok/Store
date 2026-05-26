@@ -30,11 +30,14 @@ const checkoutFormSchema = z
     companyName: z.string().optional(),
     taxId: z.string().optional(),
     billingDifferent: z.boolean().default(false),
+    billingAccountType: z.enum(['PRIVATE', 'COMPANY']).default('PRIVATE'),
     billingFirstName: z.string().optional(),
     billingLastName: z.string().optional(),
     billingStreet: z.string().optional(),
     billingCity: z.string().optional(),
     billingPostalCode: z.string().optional(),
+    billingCompanyName: z.string().optional(),
+    billingNip: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.deliveryMethod === 'PARCEL_LOCKER' && !data.lockerCode) {
@@ -55,6 +58,12 @@ const checkoutFormSchema = z
       if (!data.billingCity) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Miasto jest wymagane', path: ['billingCity'] })
       if (!data.billingPostalCode || !/^\d{2}-\d{3}$/.test(data.billingPostalCode)) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Format: 00-000', path: ['billingPostalCode'] })
+      }
+      if (data.billingAccountType === 'COMPANY') {
+        if (!data.billingCompanyName) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Nazwa firmy jest wymagana', path: ['billingCompanyName'] })
+        if (!data.billingNip || !/^\d{10}$/.test(data.billingNip)) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'NIP musi zawierać 10 cyfr', path: ['billingNip'] })
+        }
       }
     }
   })
@@ -89,6 +98,7 @@ export function CheckoutClient() {
       deliveryMethod: 'COURIER',
       wantsInvoice: false,
       billingDifferent: false,
+      billingAccountType: 'PRIVATE' as const,
       email: user?.email ?? '',
       firstName: user?.firstName ?? '',
       lastName: user?.lastName ?? '',
@@ -102,6 +112,7 @@ export function CheckoutClient() {
   const deliveryMethod = watch('deliveryMethod')
   const wantsInvoice = watch('wantsInvoice')
   const billingDifferent = watch('billingDifferent')
+  const billingAccountType = watch('billingAccountType')
 
   // Lazy-load InPost Geowidget script when parcel locker selected
   useEffect(() => {
@@ -146,11 +157,14 @@ export function CheckoutClient() {
           phone: rest.phone,
         },
         billingAddress: rest.billingDifferent ? {
+          accountType: rest.billingAccountType,
           firstName: rest.billingFirstName!,
           lastName: rest.billingLastName!,
           street: rest.billingStreet!,
           city: rest.billingCity!,
           postalCode: rest.billingPostalCode!,
+          companyName: rest.billingAccountType === 'COMPANY' ? rest.billingCompanyName : undefined,
+          nip: rest.billingAccountType === 'COMPANY' ? rest.billingNip : undefined,
         } : undefined,
         couponCode: appliedCoupon?.code,
         deliveryMethod: rest.deliveryMethod,
@@ -377,6 +391,31 @@ export function CheckoutClient() {
             {billingDifferent && (
               <div className="space-y-4 p-4 bg-stone-50 border border-stone-200 rounded-xl">
                 <p className="text-sm font-medium text-stone-700">Adres rozliczeniowy</p>
+
+                {/* Account type toggle */}
+                <div className="grid grid-cols-2 gap-3">
+                  {(['PRIVATE', 'COMPANY'] as const).map((type) => (
+                    <label
+                      key={type}
+                      className={`flex items-center gap-2 border rounded-xl p-3 cursor-pointer transition-colors bg-white ${
+                        billingAccountType === type
+                          ? 'border-stone-900'
+                          : 'border-stone-200 hover:border-stone-300'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        value={type}
+                        {...register('billingAccountType')}
+                        className="sr-only"
+                      />
+                      <span className={`text-sm font-medium ${billingAccountType === type ? 'text-stone-900' : 'text-stone-500'}`}>
+                        {type === 'PRIVATE' ? 'Osoba prywatna' : 'Firma'}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Field label="Imię" error={errors.billingFirstName?.message}>
                     <input
@@ -393,6 +432,27 @@ export function CheckoutClient() {
                     />
                   </Field>
                 </div>
+
+                {billingAccountType === 'COMPANY' && (
+                  <div className="space-y-4">
+                    <Field label="Nazwa firmy" error={errors.billingCompanyName?.message}>
+                      <input
+                        {...register('billingCompanyName')}
+                        className={inputCls(!!errors.billingCompanyName)}
+                        placeholder="Firma Sp. z o.o."
+                      />
+                    </Field>
+                    <Field label="NIP" error={errors.billingNip?.message}>
+                      <input
+                        {...register('billingNip')}
+                        className={inputCls(!!errors.billingNip)}
+                        placeholder="1234567890"
+                        maxLength={10}
+                      />
+                    </Field>
+                  </div>
+                )}
+
                 <Field label="Ulica i numer" error={errors.billingStreet?.message}>
                   <input
                     {...register('billingStreet')}

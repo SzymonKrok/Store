@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsBoolean, IsEnum, ValidateNested, Matches } from 'class-validator'
+import { IsString, IsOptional, IsBoolean, IsEnum, ValidateNested, Matches, ValidateIf } from 'class-validator'
 import { Type } from 'class-transformer'
 
 class ShippingAddressDto {
@@ -26,6 +26,10 @@ class ShippingAddressDto {
 }
 
 class BillingAddressDto {
+  @IsEnum(['PRIVATE', 'COMPANY'])
+  @IsOptional()
+  accountType?: 'PRIVATE' | 'COMPANY'
+
   @IsString()
   firstName!: string
 
@@ -41,6 +45,15 @@ class BillingAddressDto {
   @IsString()
   @Matches(/^\d{2}-\d{3}$/, { message: 'postalCode must be in format 00-000' })
   postalCode!: string
+
+  @IsString()
+  @ValidateIf((o) => o.accountType === 'COMPANY')
+  companyName?: string
+
+  @IsString()
+  @Matches(/^\d{10}$/, { message: 'NIP must be 10 digits' })
+  @ValidateIf((o) => o.accountType === 'COMPANY')
+  nip?: string
 }
 
 export class CreateOrderDto {

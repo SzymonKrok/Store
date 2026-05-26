@@ -253,7 +253,18 @@ export default function OrderDetailPage() {
                 <>
                   <Separator className="bg-stone-100 my-4" />
                   <div className="space-y-3">
-                    <p className="text-[11px] font-semibold text-stone-400 uppercase tracking-widest">Adres rozliczeniowy</p>
+                    <p className="text-[11px] font-semibold text-stone-400 uppercase tracking-widest flex items-center gap-2">
+                      Adres rozliczeniowy
+                      {order.billingAddress.accountType === 'COMPANY' && (
+                        <span className="bg-blue-50 text-blue-700 border border-blue-200 rounded px-1.5 py-0.5 text-[10px] font-medium tracking-normal normal-case">Firma</span>
+                      )}
+                    </p>
+                    {order.billingAddress.accountType === 'COMPANY' && (
+                      <>
+                        <MetaRow icon={Building2} label="Firma" value={order.billingAddress.companyName} />
+                        <MetaRow icon={Hash} label="NIP" value={order.billingAddress.nip} />
+                      </>
+                    )}
                     <MetaRow
                       icon={Receipt}
                       label="Adres"
