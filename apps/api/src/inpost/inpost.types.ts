@@ -2,6 +2,7 @@
 
 export interface InpostAddress {
   street: string
+  building_number: string
   city: string
   post_code: string
   country_code: string

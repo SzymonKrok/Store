@@ -24,6 +24,35 @@ const PARCEL_DIMENSIONS: Record<'A' | 'B' | 'C', { length: number; width: number
 const AUTO_PARCEL_SIZE = 'A' as const
 const AUTO_PARCEL_WEIGHT_KG = 1
 
+/**
+ * Normalises a Polish phone number to the +48XXXXXXXXX format required by InPost.
+ * Accepts: "123456789", "48123456789", "+48 123 456 789", "+48123456789"
+ */
+function normalizePhone(raw: string): string {
+  const stripped = raw.replace(/[^+\d]/g, '')
+  if (/^\+48\d{9}$/.test(stripped)) return stripped
+  if (/^48\d{9}$/.test(stripped)) return `+${stripped}`
+  if (/^\d{9}$/.test(stripped)) return `+48${stripped}`
+  return stripped // pass through; InPost will return a clear validation error
+}
+
+/**
+ * Splits a Polish street string (e.g. "ul. Kwiatowa 12/4") into the
+ * { street, building_number } pair that InPost requires.
+ * Street prefix (ul., al., os., pl.) is stripped from the street name.
+ */
+function splitStreet(full: string): { street: string; building_number: string } {
+  const trimmed = full.trim()
+  // Match last token that looks like a building number: digits + optional letter + optional /floor
+  const match = trimmed.match(/^(.*?)\s+(\d+[a-zA-Z]?(?:\/\d+[a-zA-Z]?)?)$/)
+  if (match) {
+    const streetName = match[1].replace(/^(ul\.|al\.|os\.|pl\.)\s*/i, '').trim()
+    return { street: streetName, building_number: match[2] }
+  }
+  // Fallback: no building number detected — send full string as street; InPost will validate
+  return { street: trimmed.replace(/^(ul\.|al\.|os\.|pl\.)\s*/i, '').trim(), building_number: '' }
+}
+
 @Injectable()
 export class InpostService {
   private readonly logger = new Logger(InpostService.name)
@@ -49,9 +78,10 @@ export class InpostService {
     return {
       name: this.config.get<string>('STORE_NAME') ?? '',
       email: this.config.get<string>('STORE_EMAIL') ?? '',
-      phone: this.config.get<string>('STORE_PHONE') ?? '',
+      phone: normalizePhone(this.config.get<string>('STORE_PHONE') ?? ''),
       address: {
         street: this.config.get<string>('STORE_STREET') ?? '',
+        building_number: this.config.get<string>('STORE_BUILDING_NUMBER') ?? '1',
         city: this.config.get<string>('STORE_CITY') ?? '',
         post_code: this.config.get<string>('STORE_POSTAL_CODE') ?? '',
         country_code: 'PL',
@@ -66,13 +96,15 @@ export class InpostService {
     const base = {
       name: `${address.firstName} ${address.lastName}`,
       email: address.email,
-      phone: address.phone,
+      phone: normalizePhone(address.phone),
     }
     if (isLocker) return base
+    const { street, building_number } = splitStreet(address.street)
     return {
       ...base,
       address: {
-        street: address.street,
+        street,
+        building_number,
         city: address.city,
         post_code: address.postalCode,
         country_code: 'PL',
