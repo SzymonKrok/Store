@@ -124,9 +124,10 @@ export default function OrderDetailPage() {
   async function handleGenerateLabel() {
     try {
       await generateLabel({ id, parcelSize, parcelWeight: Number(parcelWeight) })
-      toast.success('Etykieta wygenerowana')
-    } catch {
-      toast.error('Błąd generowania etykiety')
+      toast.success('Przesyłka utworzona w InPost')
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: unknown } } })?.response?.data?.message
+      toast.error(typeof msg === 'string' ? msg : 'Błąd generowania etykiety')
     }
   }
 
@@ -219,16 +220,18 @@ export default function OrderDetailPage() {
                 <MetaRow icon={Mail} label="E-mail" value={customerEmail} />
                 <MetaRow icon={Phone} label="Telefon" value={customerPhone} />
                 <Separator className="bg-stone-100" />
-                <MetaRow
-                  icon={MapPin}
-                  label="Adres dostawy"
-                  value={
-                    <span>
-                      {order.shippingAddress.street && <>{order.shippingAddress.street}<br /></>}
-                      {order.shippingAddress.postalCode} {order.shippingAddress.city}
-                    </span>
-                  }
-                />
+                {order.deliveryMethod === 'COURIER' && (
+                  <MetaRow
+                    icon={MapPin}
+                    label="Adres dostawy"
+                    value={
+                      <span>
+                        {order.shippingAddress.street && <>{order.shippingAddress.street}<br /></>}
+                        {order.shippingAddress.postalCode} {order.shippingAddress.city}
+                      </span>
+                    }
+                  />
+                )}
                 <MetaRow
                   icon={Truck}
                   label="Metoda dostawy"
@@ -455,15 +458,20 @@ export default function OrderDetailPage() {
             </SectionCard>
 
             {/* Shipping label */}
-            <SectionCard title="Etykieta InPost">
-              {order.shippingLabelUrl ? (
-                <Button variant="outline" size="sm" className="w-full border-stone-200 text-stone-700" asChild>
-                  <a href={order.shippingLabelUrl} target="_blank" rel="noreferrer">
-                    <Package size={14} className="mr-2" strokeWidth={1.5} />
-                    Pobierz etykietę
-                    <ExternalLink size={11} className="ml-auto" strokeWidth={1.5} />
-                  </a>
-                </Button>
+            <SectionCard title="Przesyłka InPost">
+              {order.inpostShipmentId ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-emerald-700 font-medium">
+                    <Package size={14} strokeWidth={1.5} />
+                    Przesyłka utworzona
+                  </div>
+                  <p className="text-[11px] text-stone-500 font-mono break-all">
+                    ID: {order.inpostShipmentId}
+                  </p>
+                  <p className="text-[11px] text-stone-400 leading-relaxed">
+                    Pobierz etykietę w panelu InPost Web Manager.
+                  </p>
+                </div>
               ) : (
                 <TooltipProvider>
                   <Tooltip>
@@ -503,7 +511,7 @@ export default function OrderDetailPage() {
                           disabled={!actionable || isGeneratingLabel}
                         >
                           <Package size={13} className="mr-2" strokeWidth={1.5} />
-                          {isGeneratingLabel ? 'Generowanie…' : 'Generuj etykietę'}
+                          {isGeneratingLabel ? 'Tworzenie przesyłki…' : 'Utwórz przesyłkę'}
                         </Button>
                       </div>
                     </TooltipTrigger>

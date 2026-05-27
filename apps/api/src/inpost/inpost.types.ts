@@ -9,7 +9,12 @@ export interface InpostAddress {
 }
 
 export interface InpostContact {
-  name: string
+  // Locker services accept a single name field.
+  // Courier services require first_name + last_name (person) or company_name (business).
+  name?: string
+  first_name?: string
+  last_name?: string
+  company_name?: string
   email: string
   phone: string
   address?: InpostAddress
@@ -51,10 +56,10 @@ export interface CreateShipmentPayload {
 }
 
 export interface InpostShipmentResponse {
-  id: string
+  id: string | number
   href: string
   status: string
-  tracking_number: string
+  tracking_number: string | null
   service: InpostService
   reference: string | null
   comments: string | null
