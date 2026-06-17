@@ -58,12 +58,16 @@ function StarDisplay({ value, size = 14 }: { value: number; size?: number }) {
   )
 }
 
+type SortKey = 'newest' | 'oldest' | 'highest' | 'lowest'
+
 export function ReviewsSection({ productId }: { productId: string }) {
   const qc = useQueryClient()
   const [formOpen, setFormOpen] = useState(false)
   const [rating, setRating] = useState(0)
   const [name, setName] = useState('')
   const [comment, setComment] = useState('')
+  const [filterStar, setFilterStar] = useState<number | null>(null)
+  const [sort, setSort] = useState<SortKey>('newest')
 
   const { data: reviews = [], isLoading } = useQuery<Review[]>({
     queryKey: ['reviews', productId],
@@ -97,6 +101,15 @@ export function ReviewsSection({ productId }: { productId: string }) {
   const avgRating = reviews.length
     ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
     : 0
+
+  const filtered = reviews
+    .filter((r) => filterStar === null || r.rating === filterStar)
+    .sort((a, b) => {
+      if (sort === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      if (sort === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      if (sort === 'highest') return b.rating - a.rating
+      return a.rating - b.rating
+    })
 
   return (
     <section className="border-t border-stone-100 py-14" aria-labelledby="reviews-heading">
@@ -221,6 +234,55 @@ export function ReviewsSection({ productId }: { productId: string }) {
         )}
       </AnimatePresence>
 
+      {/* Filter + sort bar — only when there are reviews */}
+      {!isLoading && reviews.length > 0 && (
+        <div className="flex flex-wrap items-center gap-3 mb-6">
+          {/* Star filter chips */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <button
+              onClick={() => setFilterStar(null)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-colors cursor-pointer ${
+                filterStar === null
+                  ? 'bg-amber-800 text-white border-amber-800'
+                  : 'bg-white text-stone-600 border-stone-200 hover:border-amber-400'
+              }`}
+            >
+              Wszystkie
+            </button>
+            {[5, 4, 3, 2, 1].map((n) => {
+              const count = reviews.filter((r) => r.rating === n).length
+              if (count === 0) return null
+              return (
+                <button
+                  key={n}
+                  onClick={() => setFilterStar(filterStar === n ? null : n)}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-medium border transition-colors cursor-pointer ${
+                    filterStar === n
+                      ? 'bg-amber-800 text-white border-amber-800'
+                      : 'bg-white text-stone-600 border-stone-200 hover:border-amber-400'
+                  }`}
+                >
+                  <Star size={11} strokeWidth={1.5} className={filterStar === n ? 'fill-white text-white' : 'fill-amber-400 text-amber-400'} />
+                  {n} <span className="text-xs opacity-70">({count})</span>
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Sort select */}
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value as SortKey)}
+            className="ml-auto bg-white border border-stone-200 text-stone-700 text-xs rounded-xl px-3 py-2 hover:border-amber-400 focus:outline-none focus:border-amber-600 transition-colors cursor-pointer"
+          >
+            <option value="newest">Najnowsze</option>
+            <option value="oldest">Najstarsze</option>
+            <option value="highest">Najwyższa ocena</option>
+            <option value="lowest">Najniższa ocena</option>
+          </select>
+        </div>
+      )}
+
       {/* Reviews list */}
       {isLoading ? (
         <div className="space-y-4">
@@ -253,9 +315,19 @@ export function ReviewsSection({ productId }: { productId: string }) {
           </div>
           <StarDisplay value={0} size={16} />
         </div>
+      ) : filtered.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 gap-3">
+          <p className="text-sm text-stone-400">Brak opinii z oceną {filterStar}★</p>
+          <button
+            onClick={() => setFilterStar(null)}
+            className="text-xs text-amber-700 hover:underline cursor-pointer"
+          >
+            Pokaż wszystkie
+          </button>
+        </div>
       ) : (
         <div className="space-y-4">
-          {reviews.map((review) => (
+          {filtered.map((review) => (
             <motion.div
               key={review.id}
               initial={{ opacity: 0, y: 12 }}
