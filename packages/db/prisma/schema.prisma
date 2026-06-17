@@ -77,10 +77,24 @@ model Product {
   variants     ProductVariant[]
   images       ProductImage[]
   priceHistory PriceHistory[]
+  reviews      Review[]
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 
   @@index([categoryId])
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  authorName String
+  rating     Int
+  comment    String
+  approved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([productId, approved])
 }
 
 model ProductVariant {

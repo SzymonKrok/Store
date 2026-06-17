@@ -21,6 +21,7 @@ import { InpostModule } from './inpost/inpost.module'
 import { AdminModule } from './admin/admin.module'
 import { SettingsModule } from './settings/settings.module'
 import { ReturnsModule } from './returns/returns.module'
+import { ReviewsModule } from './reviews/reviews.module'
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { ReturnsModule } from './returns/returns.module'
     AdminModule,
     SettingsModule,
     ReturnsModule,
+    ReviewsModule,
   ],
 })
 export class AppModule {}

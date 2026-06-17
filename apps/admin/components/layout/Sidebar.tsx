@@ -11,6 +11,7 @@ import {
   Ticket,
   Settings,
   Undo2,
+  Star,
   LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -20,6 +21,7 @@ const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/orders', label: 'Zamówienia', icon: ShoppingCart },
   { href: '/returns', label: 'Zwroty', icon: Undo2 },
+  { href: '/reviews', label: 'Opinie', icon: Star },
   { href: '/products', label: 'Produkty', icon: Package },
   { href: '/categories', label: 'Kategorie', icon: Tag },
   { href: '/users', label: 'Użytkownicy', icon: Users },

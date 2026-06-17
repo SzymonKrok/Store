@@ -3,14 +3,20 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Star, MessageSquare, Check } from 'lucide-react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { format, parseISO } from 'date-fns'
+import { pl } from 'date-fns/locale'
+import { apiClient } from '@/lib/axios'
 
-function StarPicker({
-  value,
-  onChange,
-}: {
-  value: number
-  onChange: (v: number) => void
-}) {
+interface Review {
+  id: string
+  authorName: string
+  rating: number
+  comment: string
+  createdAt: string
+}
+
+function StarPicker({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   const [hovered, setHovered] = useState(0)
   const active = hovered || value
 
@@ -29,11 +35,7 @@ function StarPicker({
           <Star
             size={28}
             strokeWidth={1.5}
-            className={
-              n <= active
-                ? 'text-amber-400 fill-amber-400'
-                : 'text-stone-300 fill-stone-100'
-            }
+            className={n <= active ? 'text-amber-400 fill-amber-400' : 'text-stone-300 fill-stone-100'}
           />
         </button>
       ))}
@@ -49,44 +51,52 @@ function StarDisplay({ value, size = 14 }: { value: number; size?: number }) {
           key={n}
           size={size}
           strokeWidth={1.5}
-          className={
-            n <= value
-              ? 'text-amber-400 fill-amber-400'
-              : 'text-stone-200 fill-stone-100'
-          }
+          className={n <= value ? 'text-amber-400 fill-amber-400' : 'text-stone-200 fill-stone-100'}
         />
       ))}
     </div>
   )
 }
 
-interface ReviewsSectionProps {
-  productId: string
-}
-
-export function ReviewsSection({ productId: _ }: ReviewsSectionProps) {
+export function ReviewsSection({ productId }: { productId: string }) {
+  const qc = useQueryClient()
   const [formOpen, setFormOpen] = useState(false)
   const [rating, setRating] = useState(0)
   const [name, setName] = useState('')
   const [comment, setComment] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
+
+  const { data: reviews = [], isLoading } = useQuery<Review[]>({
+    queryKey: ['reviews', productId],
+    queryFn: async () => {
+      const { data } = await apiClient.get<Review[]>(`/reviews?productId=${productId}`)
+      return data
+    },
+  })
+
+  const { mutateAsync: submitReview, isPending, isSuccess } = useMutation({
+    mutationFn: async () => {
+      await apiClient.post('/reviews', { productId, authorName: name, rating, comment })
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['reviews', productId] })
+      setTimeout(() => {
+        setFormOpen(false)
+        setRating(0)
+        setName('')
+        setComment('')
+      }, 2500)
+    },
+  })
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!rating) return
-    setSubmitting(true)
-    await new Promise((r) => setTimeout(r, 900))
-    setSubmitting(false)
-    setSubmitted(true)
-    setTimeout(() => {
-      setSubmitted(false)
-      setFormOpen(false)
-      setRating(0)
-      setName('')
-      setComment('')
-    }, 2500)
+    await submitReview()
   }
+
+  const avgRating = reviews.length
+    ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
+    : 0
 
   return (
     <section className="border-t border-stone-100 py-14" aria-labelledby="reviews-heading">
@@ -101,9 +111,17 @@ export function ReviewsSection({ productId: _ }: ReviewsSectionProps) {
           >
             Opinie klientów
           </h2>
+          {reviews.length > 0 && (
+            <div className="flex items-center gap-2 mt-2">
+              <StarDisplay value={Math.round(avgRating)} size={14} />
+              <span className="text-sm text-stone-500">
+                {avgRating.toFixed(1)} · {reviews.length} {reviews.length === 1 ? 'opinia' : reviews.length < 5 ? 'opinie' : 'opinii'}
+              </span>
+            </div>
+          )}
         </div>
 
-        {!formOpen && !submitted && (
+        {!formOpen && !isSuccess && (
           <button
             onClick={() => setFormOpen(true)}
             className="px-5 py-2.5 rounded-xl border border-stone-300 text-sm font-medium text-stone-700 hover:border-stone-500 hover:text-stone-900 transition-colors cursor-pointer"
@@ -113,6 +131,7 @@ export function ReviewsSection({ productId: _ }: ReviewsSectionProps) {
         )}
       </div>
 
+      {/* Review form */}
       <AnimatePresence>
         {formOpen && (
           <motion.div
@@ -123,7 +142,7 @@ export function ReviewsSection({ productId: _ }: ReviewsSectionProps) {
             className="bg-white border border-stone-200 rounded-2xl p-6 sm:p-8 mb-10"
           >
             <AnimatePresence mode="wait">
-              {submitted ? (
+              {isSuccess ? (
                 <motion.div
                   key="success"
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -138,11 +157,7 @@ export function ReviewsSection({ productId: _ }: ReviewsSectionProps) {
                   <p className="text-sm text-stone-400">Twoja recenzja czeka na moderację.</p>
                 </motion.div>
               ) : (
-                <motion.form
-                  key="form"
-                  onSubmit={handleSubmit}
-                  className="space-y-5"
-                >
+                <motion.form key="form" onSubmit={handleSubmit} className="space-y-5">
                   <h3 className="font-medium text-stone-900 text-base">Twoja opinia</h3>
 
                   <div className="space-y-1.5">
@@ -150,9 +165,6 @@ export function ReviewsSection({ productId: _ }: ReviewsSectionProps) {
                       Ocena <span aria-hidden="true" className="text-amber-700">*</span>
                     </label>
                     <StarPicker value={rating} onChange={setRating} />
-                    {!rating && (
-                      <p className="text-xs text-stone-400">Wybierz liczbę gwiazdek</p>
-                    )}
                   </div>
 
                   <div className="space-y-1.5">
@@ -189,10 +201,10 @@ export function ReviewsSection({ productId: _ }: ReviewsSectionProps) {
                   <div className="flex items-center gap-3 pt-1">
                     <button
                       type="submit"
-                      disabled={submitting || !rating}
+                      disabled={isPending || !rating}
                       className="px-6 py-2.5 bg-amber-800 text-white text-sm font-medium rounded-xl hover:bg-amber-900 disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed transition-colors cursor-pointer"
                     >
-                      {submitting ? 'Wysyłanie…' : 'Wyślij opinię'}
+                      {isPending ? 'Wysyłanie…' : 'Wyślij opinię'}
                     </button>
                     <button
                       type="button"
@@ -209,27 +221,62 @@ export function ReviewsSection({ productId: _ }: ReviewsSectionProps) {
         )}
       </AnimatePresence>
 
-      {/* Empty state */}
-      <div className="flex flex-col items-center justify-center py-16 gap-4">
-        <div className="w-14 h-14 rounded-2xl bg-stone-100 flex items-center justify-center">
-          <MessageSquare size={24} strokeWidth={1} className="text-stone-400" />
+      {/* Reviews list */}
+      {isLoading ? (
+        <div className="space-y-4">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="bg-white border border-stone-200 rounded-2xl p-5 animate-pulse">
+              <div className="h-3 w-24 bg-stone-100 rounded mb-3" />
+              <div className="h-3 w-full bg-stone-100 rounded mb-2" />
+              <div className="h-3 w-2/3 bg-stone-100 rounded" />
+            </div>
+          ))}
         </div>
-        <div className="text-center">
-          <p className="font-medium text-stone-900 mb-1.5">Brak opinii</p>
-          <p className="text-sm text-stone-400 leading-relaxed max-w-xs">
-            Ten produkt nie ma jeszcze żadnych recenzji.{' '}
-            {!formOpen && (
-              <button
-                onClick={() => setFormOpen(true)}
-                className="text-amber-700 hover:underline cursor-pointer"
-              >
-                Napisz pierwszą!
-              </button>
-            )}
-          </p>
+      ) : reviews.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-stone-100 flex items-center justify-center">
+            <MessageSquare size={24} strokeWidth={1} className="text-stone-400" />
+          </div>
+          <div className="text-center">
+            <p className="font-medium text-stone-900 mb-1.5">Brak opinii</p>
+            <p className="text-sm text-stone-400 leading-relaxed max-w-xs">
+              Ten produkt nie ma jeszcze żadnych recenzji.{' '}
+              {!formOpen && (
+                <button
+                  onClick={() => setFormOpen(true)}
+                  className="text-amber-700 hover:underline cursor-pointer"
+                >
+                  Napisz pierwszą!
+                </button>
+              )}
+            </p>
+          </div>
+          <StarDisplay value={0} size={16} />
         </div>
-        <StarDisplay value={0} size={16} />
-      </div>
+      ) : (
+        <div className="space-y-4">
+          {reviews.map((review) => (
+            <motion.div
+              key={review.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+              className="bg-white border border-stone-200 rounded-2xl p-5 sm:p-6"
+            >
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div>
+                  <p className="text-sm font-semibold text-stone-900">{review.authorName}</p>
+                  <p className="text-xs text-stone-400 mt-0.5">
+                    {format(parseISO(review.createdAt), 'd MMMM yyyy', { locale: pl })}
+                  </p>
+                </div>
+                <StarDisplay value={review.rating} size={13} />
+              </div>
+              <p className="text-sm text-stone-600 leading-relaxed">{review.comment}</p>
+            </motion.div>
+          ))}
+        </div>
+      )}
     </section>
   )
 }
