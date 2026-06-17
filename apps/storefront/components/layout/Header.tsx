@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ShoppingBag, Search, Menu, X, User, LogOut, Package } from 'lucide-react'
@@ -31,6 +32,12 @@ export function Header() {
     const onScroll = () => setScrolled(window.scrollY > 24)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    const handler = () => setCartOpen(true)
+    window.addEventListener('cart:open', handler)
+    return () => window.removeEventListener('cart:open', handler)
   }, [])
 
   useEffect(() => {
@@ -65,11 +72,8 @@ export function Header() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link
-              href="/"
-              className="font-display text-2xl font-medium tracking-[0.18em] text-stone-900 uppercase"
-            >
-              Store
+            <Link href="/" aria-label="WOODEN. — strona główna">
+              <Image src="/logo.svg" alt="WOODEN." width={200} height={67} className="h-16 w-auto object-contain" priority />
             </Link>
 
             <nav className="hidden md:flex items-center gap-8">
@@ -195,12 +199,8 @@ export function Header() {
             className="fixed inset-0 z-[100] bg-white flex flex-col"
           >
             <div className="flex items-center justify-between h-16 px-4 border-b border-stone-100">
-              <Link
-                href="/"
-                onClick={() => setMobileOpen(false)}
-                className="font-display text-2xl font-medium tracking-[0.18em] text-stone-900 uppercase"
-              >
-                Store
+              <Link href="/" onClick={() => setMobileOpen(false)} aria-label="WOODEN. — strona główna">
+                <Image src="/logo.svg" alt="WOODEN." width={200} height={67} className="h-16 w-auto object-contain" />
               </Link>
               <button
                 aria-label="Zamknij menu"

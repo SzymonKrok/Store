@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" width="100%" height="100%">
+  <defs>
+    <style>
+      .main-text {
+        font-family: 'Georgia', 'Times New Roman', serif;
+        font-size: 68px;
+        fill: #1c1917; /* Ciemny kolor główny */
+        letter-spacing: 4px;
+      }
+      .slogan-text {
+        font-family: 'Georgia', 'Times New Roman', serif;
+        font-size: 22px;
+        fill: #fbbf24; /* Miodowy/złoty akcent */
+        font-style: italic;
+        letter-spacing: 1px;
+      }
+      .icon-path {
+        fill: none;
+        stroke: #fbbf24; /* Kolor ikony dopasowany do sloganu */
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .icon-grain {
+        fill: none;
+        stroke: #fbbf24;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+      }
+    </style>
+  </defs>
+
+  <g transform="translate(40, 45)">
+    <path class="icon-path" d="M 30 5 C 25 5, 25 10, 25 15 C 25 25, 10 30, 10 40 L 10 95 C 10 102, 15 105, 20 105 L 50 105 C 55 105, 60 102, 60 95 L 60 40 C 60 30, 45 25, 45 15 C 45 10, 45 5, 40 5 Z" />
+    
+    <circle cx="35" cy="14" r="3" class="icon-path" style="stroke-width: 2;" />
+    
+    <path class="icon-grain" d="M 20 45 Q 30 65 20 95" />
+    <path class="icon-grain" d="M 35 35 Q 45 65 35 100" />
+    <path class="icon-grain" d="M 50 45 Q 40 65 50 90" />
+  </g>
+
+  <text x="130" y="115" class="main-text">WOODEN.</text>
+
+  <text x="310" y="155" class="slogan-text" text-anchor="middle">Crafted for taste</text>
+</svg>

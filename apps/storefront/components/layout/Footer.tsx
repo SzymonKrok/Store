@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 const columns = [
   {
@@ -41,11 +42,8 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
           <div className="col-span-2 md:col-span-1">
-            <Link
-              href="/"
-              className="font-display text-2xl font-medium tracking-[0.18em] text-amber-200 uppercase italic"
-            >
-              Store
+            <Link href="/" aria-label="WOODEN. — strona główna">
+              <Image src="/logo-white.svg" alt="WOODEN." width={200} height={67} className="h-16 w-auto object-contain" />
             </Link>
             <p className="mt-4 text-sm text-stone-400 leading-relaxed max-w-[180px]">
               Wyjątkowe produkty z naturalnego drewna, tworzone z pasją i rzemiosłem.
@@ -75,7 +73,7 @@ export function Footer() {
 
         <div className="mt-14 pt-8 border-t border-stone-800 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-stone-500">
-            © {new Date().getFullYear()} Store. Wszelkie prawa zastrzeżone.
+            © {new Date().getFullYear()} WOODEN. Wszelkie prawa zastrzeżone.
           </p>
           <p className="text-xs text-stone-500">Wykonane z ♥ w Polsce</p>
         </div>

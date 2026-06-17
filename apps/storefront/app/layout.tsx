@@ -23,8 +23,8 @@ const cormorant = Cormorant({
 })
 
 export const metadata: Metadata = {
-  title: 'Store',
-  description: 'Wyjątkowe produkty dla wymagających klientów.',
+  title: 'WOODEN.',
+  description: 'Wyjątkowe produkty z naturalnego drewna, tworzone z pasją i rzemiosłem.',
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

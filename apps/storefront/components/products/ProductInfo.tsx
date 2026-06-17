@@ -1,15 +1,16 @@
 'use client'
 
 import { useState } from 'react'
-import { ShoppingBag, Package, Check } from 'lucide-react'
+import { ShoppingBag, Package } from 'lucide-react'
 import { toast } from 'sonner'
 import { OmnibusPrice } from './OmnibusPrice'
+import { AddedToCartPopup } from './AddedToCartPopup'
 import { useAddToCart } from '@/lib/api/cart'
 import type { ProductDetail } from '@/lib/api/products'
 
 export function ProductInfo({ product }: { product: ProductDetail }) {
   const [selectedId, setSelectedId] = useState(product.variants[0]?.id ?? '')
-  const [added, setAdded] = useState(false)
+  const [showPopup, setShowPopup] = useState(false)
   const { mutateAsync: addToCart, isPending } = useAddToCart()
 
   const selected = product.variants.find((v) => v.id === selectedId) ?? product.variants[0]
@@ -105,8 +106,7 @@ export function ProductInfo({ product }: { product: ProductDetail }) {
           if (!selected) return
           try {
             await addToCart({ variantId: selected.id, quantity: 1 })
-            setAdded(true)
-            setTimeout(() => setAdded(false), 2000)
+            setShowPopup(true)
           } catch (err: unknown) {
             const msg = (err as { response?: { data?: { message?: unknown } } })?.response?.data?.message
             toast.error(Array.isArray(msg) ? msg.join(', ') : (msg as string) ?? 'Nie udało się dodać do koszyka')
@@ -114,18 +114,22 @@ export function ProductInfo({ product }: { product: ProductDetail }) {
         }}
         className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-2xl font-medium text-sm bg-amber-800 text-white hover:bg-amber-900 disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed transition-colors duration-200 mt-2 cursor-pointer"
       >
-        {added ? (
-          <>
-            <Check size={16} strokeWidth={1.5} />
-            Dodano do koszyka
-          </>
-        ) : (
-          <>
-            <ShoppingBag size={16} strokeWidth={1.5} />
-            {inStock ? (isPending ? 'Dodawanie…' : 'Dodaj do koszyka') : 'Niedostępny'}
-          </>
-        )}
+        <ShoppingBag size={16} strokeWidth={1.5} />
+        {inStock ? (isPending ? 'Dodawanie…' : 'Dodaj do koszyka') : 'Niedostępny'}
       </button>
+
+      <AddedToCartPopup
+        isOpen={showPopup}
+        onClose={() => setShowPopup(false)}
+        product={{
+          name: product.name,
+          imageUrl: product.images[0]?.url,
+          price,
+          variantLabel: attributeKeys.length > 0
+            ? attributeKeys.map((k) => `${k}: ${selected?.attributes[k]}`).join(', ')
+            : undefined,
+        }}
+      />
     </div>
   )
 }

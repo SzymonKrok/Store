@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard,
@@ -45,8 +46,8 @@ export function Sidebar() {
 
   return (
     <aside className="fixed left-0 top-0 h-full w-64 bg-slate-900 flex flex-col z-10">
-      <div className="px-6 py-5 border-b border-slate-800">
-        <span className="text-white font-semibold text-lg tracking-tight">Store Admin</span>
+      <div className="px-6 py-4 border-b border-slate-800">
+        <Image src="/logo-white.svg" alt="WOODEN." width={180} height={60} className="h-14 w-auto object-contain" />
       </div>
 
       <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">

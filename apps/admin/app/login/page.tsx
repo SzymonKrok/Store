@@ -6,7 +6,8 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import axios from 'axios'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import Image from 'next/image'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -51,8 +52,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
       <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-xl font-semibold text-slate-900">Store Admin</CardTitle>
+        <CardHeader className="items-center pb-2">
+          <Image src="/logo.svg" alt="WOODEN." width={260} height={87} className="h-28 w-auto object-contain mb-1" />
+          <p className="text-xs text-slate-400 mt-1">Panel administracyjny</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
