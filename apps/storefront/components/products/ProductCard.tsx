@@ -18,7 +18,8 @@ export function ProductCard({ product }: { product: ProductSummary }) {
   return (
     <motion.div variants={cardVariants} layout>
       <Link href={`/sklep/${product.slug}`} className="group block">
-        <div className="bg-white rounded-2xl overflow-hidden border border-stone-200 transition-all duration-300 group-hover:border-stone-300 group-hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+        <div className="bg-white rounded-2xl overflow-hidden border border-stone-200 transition-all duration-300 group-hover:border-amber-200 group-hover:shadow-[0_12px_40px_rgba(0,0,0,0.09)]">
+          {/* Image */}
           <div className="relative aspect-square overflow-hidden bg-stone-100">
             <Image
               src={image ? image.url : placeholderSrc}
@@ -27,14 +28,28 @@ export function ProductCard({ product }: { product: ProductSummary }) {
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
+            {/* Warm amber overlay on hover */}
+            <div className="absolute inset-0 bg-amber-900/0 group-hover:bg-amber-900/[0.04] transition-colors duration-300" />
           </div>
-          <div className="p-4">
-            <h3 className="text-stone-900 font-medium text-sm leading-snug line-clamp-2 mb-1.5">
+
+          {/* Info */}
+          <div className="p-4 pb-5">
+            {product.category?.name && (
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-700 mb-1.5">
+                {product.category.name}
+              </p>
+            )}
+            <h3 className="text-stone-900 font-medium text-sm leading-snug line-clamp-2 mb-2.5">
               {product.name}
             </h3>
-            <p className="text-stone-700 font-semibold text-base tabular-nums">
-              {price.toFixed(2)} zł
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-amber-800 font-semibold text-base tabular-nums">
+                {price.toFixed(2)} zł
+              </p>
+              <span className="text-[10px] font-medium text-stone-400 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                Zobacz →
+              </span>
+            </div>
           </div>
         </div>
       </Link>

@@ -21,7 +21,7 @@ export function ProductInfo({ product }: { product: ProductDetail }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-green-800">
+      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
         {product.category.name}
       </span>
 
@@ -31,7 +31,7 @@ export function ProductInfo({ product }: { product: ProductDetail }) {
 
       <div>
         <div className="flex items-baseline gap-3">
-          <p className="text-2xl font-semibold text-stone-900 tabular-nums">
+          <p className="text-2xl font-semibold text-amber-800 tabular-nums">
             {price.toFixed(2)} zł
           </p>
           {compareAtPrice !== null && compareAtPrice > price && (
@@ -71,10 +71,10 @@ export function ProductInfo({ product }: { product: ProductDetail }) {
                         disabled={outOfStock}
                         className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all duration-200 cursor-pointer ${
                           isSelected
-                            ? 'border-stone-900 bg-stone-900 text-white'
+                            ? 'border-amber-800 bg-amber-800 text-white'
                             : outOfStock
                               ? 'border-stone-200 text-stone-300 cursor-not-allowed line-through'
-                              : 'border-stone-200 text-stone-700 hover:border-stone-500'
+                              : 'border-stone-200 text-stone-700 hover:border-amber-600'
                         }`}
                       >
                         {val}
@@ -112,7 +112,7 @@ export function ProductInfo({ product }: { product: ProductDetail }) {
             toast.error(Array.isArray(msg) ? msg.join(', ') : (msg as string) ?? 'Nie udało się dodać do koszyka')
           }
         }}
-        className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-2xl font-medium text-sm bg-stone-900 text-white hover:bg-stone-700 disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed transition-colors duration-200 mt-2 cursor-pointer"
+        className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-2xl font-medium text-sm bg-amber-800 text-white hover:bg-amber-900 disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed transition-colors duration-200 mt-2 cursor-pointer"
       >
         {added ? (
           <>

@@ -151,6 +151,22 @@ export class InpostService {
   }
 
   /**
+   * InPost assigns a tracking number asynchronously after confirming the shipment.
+   * It's typically available within milliseconds, so one follow-up GET is enough.
+   */
+  private async resolveTrackingNumber(shipmentId: string): Promise<string | null> {
+    try {
+      const { data } = await axios.get<InpostShipmentResponse>(
+        `${this.apiUrl}/v1/shipments/${shipmentId}`,
+        { headers: this.headers },
+      )
+      return data.tracking_number ?? null
+    } catch {
+      return null
+    }
+  }
+
+  /**
    * Auto-creates a shipment on order.paid for PARCEL_LOCKER orders.
    */
   async createShipment(order: {
@@ -189,7 +205,7 @@ export class InpostService {
         { headers: this.headers },
       )
       const sid = String(shipment.id)
-      const tn = shipment.tracking_number ?? null
+      const tn = shipment.tracking_number ?? await this.resolveTrackingNumber(sid)
       this.logger.log(`✅ Shipment created — id=${sid} tracking=${tn} status=${shipment.status}`)
       await this.prisma.order.update({ where: { id: order.id }, data: { inpostShipmentId: sid, trackingNumber: tn } })
       return { shipmentId: sid, trackingNumber: tn }
@@ -227,7 +243,7 @@ export class InpostService {
         { headers: this.headers },
       )
       const shipmentId = String(shipment.id)
-      const trackingNumber = shipment.tracking_number ?? null
+      const trackingNumber = shipment.tracking_number ?? await this.resolveTrackingNumber(shipmentId)
       this.logger.log(`✅ Shipment created — id=${shipmentId} tracking=${trackingNumber} status=${shipment.status}`)
 
       await this.prisma.order.update({

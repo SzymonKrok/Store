@@ -84,6 +84,21 @@ declare global {
   }
 }
 
+const DELIVERY_OPTIONS = [
+  {
+    value: 'COURIER' as const,
+    label: 'InPost Kurier',
+    description: 'Dostawa 1–2 dni robocze',
+    price: '14,99 zł',
+  },
+  {
+    value: 'PARCEL_LOCKER' as const,
+    label: 'Paczkomat InPost',
+    description: 'Odbiór w ciągu 24h',
+    price: '9,99 zł',
+  },
+]
+
 export function CheckoutClient() {
   const { user, isLoading: authLoading, refreshProfile } = useAuth()
   const { data: cart, isLoading: cartLoading } = useCart()
@@ -94,6 +109,7 @@ export function CheckoutClient() {
   const [selectedLocker, setSelectedLocker] = useState<{
     name: string; addressLine1: string; addressLine2: string
   } | null>(null)
+  const [widgetState, setWidgetState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle')
   const geowidgetContainerRef = useRef<HTMLDivElement>(null)
 
   const {
@@ -149,34 +165,62 @@ export function CheckoutClient() {
     if (deliveryMethod !== 'PARCEL_LOCKER') {
       setValue('lockerCode', undefined)
       setSelectedLocker(null)
+      setWidgetState('idle')
+      return
+    }
+
+    const token = process.env.NEXT_PUBLIC_INPOST_GEOWIDGET_TOKEN ?? ''
+    if (!token) {
+      console.error('[InPost] NEXT_PUBLIC_INPOST_GEOWIDGET_TOKEN is not set — widget cannot load')
+      setWidgetState('error')
       return
     }
 
     function initWidget() {
       if (!geowidgetContainerRef.current) return
-      const token = process.env.NEXT_PUBLIC_INPOST_GEOWIDGET_TOKEN ?? ''
+      console.log('[InPost] initWidget — container:', geowidgetContainerRef.current, 'token prefix:', token.slice(0, 20))
       geowidgetContainerRef.current.innerHTML =
-        `<inpost-geowidget token="${token}" language="pl" onpoint="inpostPointSelected"></inpost-geowidget>`
+        `<inpost-geowidget token="${token}" language="pl" config="parcelcollect" onpoint="inpostPointSelected" style="display:block;width:100%;height:100%;"></inpost-geowidget>`
+      setWidgetState('ready')
+      // Leaflet captures the map viewport size at init time; dispatch resize so it recalculates
+      requestAnimationFrame(() => window.dispatchEvent(new Event('resize')))
     }
 
     if (!document.getElementById('inpost-geowidget-css')) {
       const link = document.createElement('link')
       link.id = 'inpost-geowidget-css'
       link.rel = 'stylesheet'
-      link.href = 'https://geowidget.inpost.pl/inpost-geowidget.css'
+      link.href = 'https://sandbox-easy-geowidget-sdk.easypack24.net/inpost-geowidget.css'
       document.head.appendChild(link)
     }
 
-    if (document.getElementById('inpost-geowidget-script')) {
+    // Use customElements.get() — not getElementById — to know if the script has actually executed
+    if (customElements.get('inpost-geowidget')) {
+      console.log('[InPost] Custom element already registered — calling initWidget directly')
       initWidget()
+      return
+    }
+
+    setWidgetState('loading')
+
+    const existingScript = document.getElementById('inpost-geowidget-script')
+    if (existingScript) {
+      // Script element is in the DOM but hasn't finished executing yet — wait for it
+      console.log('[InPost] Script element found but custom element not yet registered — waiting for load event')
+      existingScript.addEventListener('load', initWidget, { once: true })
+      existingScript.addEventListener('error', () => setWidgetState('error'), { once: true })
       return
     }
 
     const script = document.createElement('script')
     script.id = 'inpost-geowidget-script'
-    script.src = 'https://geowidget.inpost.pl/inpost-geowidget.js'
-    script.defer = true
+    script.src = 'https://sandbox-easy-geowidget-sdk.easypack24.net/inpost-geowidget.js'
+    script.async = true
     script.onload = initWidget
+    script.onerror = () => {
+      console.error('[InPost] Failed to load geowidget script from', script.src)
+      setWidgetState('error')
+    }
     document.head.appendChild(script)
   }, [deliveryMethod, setValue])
 
@@ -248,7 +292,7 @@ export function CheckoutClient() {
         <div className="space-y-3">
           <Link
             href="/logowanie?redirect=/checkout"
-            className="flex items-center justify-between w-full px-5 py-4 bg-stone-900 text-white rounded-2xl hover:bg-stone-700 transition-colors group"
+            className="flex items-center justify-between w-full px-5 py-4 bg-amber-800 text-white rounded-2xl hover:bg-amber-900 transition-colors group"
           >
             <div className="flex items-center gap-3">
               <User size={18} strokeWidth={1.5} />
@@ -307,24 +351,26 @@ export function CheckoutClient() {
             <div>
               <p className="text-sm font-medium text-stone-700 mb-2">Metoda dostawy</p>
               <div className="grid grid-cols-2 gap-3">
-                {(['COURIER', 'PARCEL_LOCKER'] as const).map((method) => (
+                {DELIVERY_OPTIONS.map((option) => (
                   <label
-                    key={method}
-                    className={`flex items-center gap-2 border rounded-xl p-3 cursor-pointer transition-colors ${
-                      deliveryMethod === method
+                    key={option.value}
+                    className={`flex flex-col gap-1 border rounded-xl p-3.5 cursor-pointer transition-colors ${
+                      deliveryMethod === option.value
                         ? 'border-stone-900 bg-stone-50'
                         : 'border-stone-200 hover:border-stone-300'
                     }`}
                   >
                     <input
                       type="radio"
-                      value={method}
+                      value={option.value}
                       {...register('deliveryMethod')}
                       className="sr-only"
                     />
-                    <span className="text-sm font-medium text-stone-900">
-                      {method === 'COURIER' ? 'Kurier' : 'Paczkomat InPost'}
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-stone-900">{option.label}</span>
+                      <span className="text-sm font-semibold text-stone-900">{option.price}</span>
+                    </div>
+                    <span className="text-xs text-stone-400">{option.description}</span>
                   </label>
                 ))}
               </div>
@@ -333,21 +379,35 @@ export function CheckoutClient() {
             {/* InPost Geowidget */}
             {deliveryMethod === 'PARCEL_LOCKER' && (
               <div className="space-y-2">
-                <div ref={geowidgetContainerRef} className="min-h-[400px] border border-stone-200 rounded-xl overflow-hidden" />
+                <div className="relative border border-stone-200 rounded-xl" style={{ height: 520 }}>
+                  <div ref={geowidgetContainerRef} className="w-full h-full rounded-xl overflow-hidden" />
+                  {widgetState === 'loading' && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-stone-50">
+                      <div className="w-8 h-8 border-2 border-stone-200 border-t-stone-900 rounded-full animate-spin" />
+                      <p className="text-xs text-stone-400">Ładowanie mapy paczkomatów…</p>
+                    </div>
+                  )}
+                  {widgetState === 'error' && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-stone-50 px-6 text-center">
+                      <p className="text-sm font-medium text-stone-700">Nie udało się załadować mapy paczkomatów</p>
+                      <p className="text-xs text-stone-400">Odśwież stronę lub spróbuj ponownie za chwilę</p>
+                    </div>
+                  )}
+                </div>
                 {watch('lockerCode') ? (
-                  <div className="flex items-start gap-2.5 p-3 bg-green-50 border border-green-200 rounded-xl">
-                    <div className="mt-0.5 w-5 h-5 rounded-full bg-green-700 flex items-center justify-center shrink-0">
+                  <div className="flex items-start gap-2.5 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                    <div className="mt-0.5 w-5 h-5 rounded-full bg-amber-700 flex items-center justify-center shrink-0">
                       <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
                         <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-green-900 font-mono">{watch('lockerCode')}</p>
+                      <p className="text-sm font-semibold text-amber-900 font-mono">{watch('lockerCode')}</p>
                       {selectedLocker?.addressLine1 && (
-                        <p className="text-xs text-green-800 mt-0.5">{selectedLocker.addressLine1}</p>
+                        <p className="text-xs text-amber-800 mt-0.5">{selectedLocker.addressLine1}</p>
                       )}
                       {selectedLocker?.addressLine2 && (
-                        <p className="text-xs text-green-700">{selectedLocker.addressLine2}</p>
+                        <p className="text-xs text-amber-700">{selectedLocker.addressLine2}</p>
                       )}
                     </div>
                   </div>
@@ -563,7 +623,7 @@ export function CheckoutClient() {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full py-3.5 bg-stone-900 text-white font-medium rounded-2xl hover:bg-stone-700 transition-colors disabled:opacity-60 cursor-pointer"
+              className="w-full py-3.5 bg-amber-800 text-white font-medium rounded-2xl hover:bg-amber-900 transition-colors disabled:opacity-60 cursor-pointer"
             >
               {isPending ? 'Przekierowuję do płatności...' : 'Przejdź do płatności'}
             </button>

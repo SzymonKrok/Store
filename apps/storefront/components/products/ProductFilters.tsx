@@ -27,13 +27,13 @@ export function ProductFilters({ query }: ProductFiltersProps) {
   }
 
   const selectClass =
-    'bg-white border border-stone-200 text-stone-700 text-sm rounded-xl px-3 py-2 hover:border-stone-400 focus:outline-none focus:border-stone-600 transition-colors cursor-pointer'
+    'bg-white border border-stone-200 text-stone-700 text-sm rounded-xl px-3 py-2 hover:border-amber-400 focus:outline-none focus:border-amber-600 transition-colors cursor-pointer'
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <div className="flex items-center gap-1.5 text-stone-500">
+      <div className="flex items-center gap-1.5 text-amber-700">
         <SlidersHorizontal size={14} strokeWidth={1.5} />
-        <span className="text-xs font-semibold uppercase tracking-widest">Filtry</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.2em]">Filtry</span>
       </div>
 
       <select
@@ -65,7 +65,7 @@ export function ProductFilters({ query }: ProductFiltersProps) {
           placeholder="Min zł"
           value={query.minPrice ?? ''}
           onChange={(e) => updateParam('minPrice', e.target.value || undefined)}
-          className="bg-white border border-stone-200 text-stone-700 text-sm rounded-xl px-3 py-2 w-24 hover:border-stone-400 focus:outline-none focus:border-stone-600 transition-colors"
+          className="bg-white border border-stone-200 text-stone-700 text-sm rounded-xl px-3 py-2 w-24 hover:border-amber-400 focus:outline-none focus:border-amber-600 transition-colors"
         />
         <span className="text-stone-400 text-sm">—</span>
         <input
@@ -73,7 +73,7 @@ export function ProductFilters({ query }: ProductFiltersProps) {
           placeholder="Max zł"
           value={query.maxPrice ?? ''}
           onChange={(e) => updateParam('maxPrice', e.target.value || undefined)}
-          className="bg-white border border-stone-200 text-stone-700 text-sm rounded-xl px-3 py-2 w-24 hover:border-stone-400 focus:outline-none focus:border-stone-600 transition-colors"
+          className="bg-white border border-stone-200 text-stone-700 text-sm rounded-xl px-3 py-2 w-24 hover:border-amber-400 focus:outline-none focus:border-amber-600 transition-colors"
         />
       </div>
     </div>

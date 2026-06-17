@@ -5,11 +5,21 @@ import { apiClient } from '../axios'
 
 const SESSION_KEY = 'cart_session_id'
 
+function uuid(): string {
+  // randomUUID() requires a secure context (HTTPS / localhost); use getRandomValues() as fallback
+  if (typeof crypto.randomUUID === 'function') return crypto.randomUUID()
+  const b = new Uint8Array(16)
+  crypto.getRandomValues(b)
+  b[6] = (b[6] & 0x0f) | 0x40
+  b[8] = (b[8] & 0x3f) | 0x80
+  return [...b].map((v, i) => ([3, 5, 7, 9].includes(i) ? '-' : '') + v.toString(16).padStart(2, '0')).join('')
+}
+
 export function getOrCreateSessionId(): string {
   if (typeof window === 'undefined') return ''
   let id = localStorage.getItem(SESSION_KEY)
   if (!id) {
-    id = crypto.randomUUID()
+    id = uuid()
     localStorage.setItem(SESSION_KEY, id)
   }
   return id

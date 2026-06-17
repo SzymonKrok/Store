@@ -57,7 +57,7 @@ export default function ZamowieniaPage() {
           </div>
           <Link
             href="/sklep"
-            className="inline-flex items-center justify-center px-5 py-2.5 bg-stone-900 text-white text-sm font-medium rounded-xl hover:bg-stone-700 transition-colors"
+            className="inline-flex items-center justify-center px-5 py-2.5 bg-amber-800 text-white text-sm font-medium rounded-xl hover:bg-amber-900 transition-colors"
           >
             Przeglądaj sklep
           </Link>
@@ -66,7 +66,7 @@ export default function ZamowieniaPage() {
         <>
           <div className="space-y-3">
             {data.items.map((order) => (
-              <div key={order.id} className="bg-white border border-stone-200 rounded-2xl overflow-hidden hover:border-stone-400 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all">
+              <div key={order.id} className="bg-white border border-stone-200 rounded-2xl overflow-hidden hover:border-amber-300 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all">
                 <Link
                   href={`/order-confirmation/${order.id}`}
                   className="block p-5"

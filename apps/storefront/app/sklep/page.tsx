@@ -47,20 +47,37 @@ export default async function ShopPage({
 
   return (
     <main className="min-h-screen bg-stone-50">
-      <div className="relative overflow-hidden bg-white border-b border-stone-100">
-        <div className="absolute top-0 right-0 w-72 h-72 bg-green-50 rounded-full blur-3xl opacity-70 translate-x-1/3 -translate-y-1/3 pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 w-56 h-56 bg-stone-100 rounded-full blur-3xl opacity-60 pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-800 mb-2">
-            Kolekcja
-          </p>
-          <h1 className="font-display text-4xl sm:text-5xl font-medium text-stone-900 tracking-tight italic">
-            Sklep
+      {/* Dark hero banner — same language as CraftSection & HeroSection */}
+      <div className="relative overflow-hidden bg-stone-900">
+        {/* Ambient warm glow */}
+        <div className="absolute top-0 right-0 w-[480px] h-[480px] bg-amber-900/30 rounded-full blur-[120px] translate-x-1/3 -translate-y-1/3 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-amber-800/15 rounded-full blur-[100px] translate-x-[-30%] translate-y-1/3 pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20 relative">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="block w-8 h-px bg-amber-400" />
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-400">
+              Kolekcja
+            </p>
+          </div>
+
+          <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-medium text-white leading-[1.05]">
+            Nasze wyroby
+            <br />
+            <span className="italic text-amber-200/70">z drewna</span>
           </h1>
+
+          <p className="mt-7 text-stone-400 text-[0.95rem] leading-relaxed max-w-sm">
+            Ręcznie tworzone meble i przedmioty — każdy kawałek nosi w sobie historię naturalnego
+            drewna i rzemieślniczej precyzji.
+          </p>
+
+          <div className="mt-10 w-16 h-px bg-amber-700" />
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      {/* Grid */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Suspense fallback={null}>
           <ProductGrid initialData={initialData} initialQuery={query} />
         </Suspense>

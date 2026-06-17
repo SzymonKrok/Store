@@ -37,24 +37,24 @@ const columns = [
 
 export function Footer() {
   return (
-    <footer className="bg-white border-t border-stone-200 mt-24">
+    <footer className="bg-stone-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
           <div className="col-span-2 md:col-span-1">
             <Link
               href="/"
-              className="font-display text-2xl font-medium tracking-[0.18em] text-stone-900 uppercase"
+              className="font-display text-2xl font-medium tracking-[0.18em] text-amber-200 uppercase italic"
             >
               Store
             </Link>
-            <p className="mt-4 text-sm text-stone-500 leading-relaxed max-w-[180px]">
-              Wyjątkowe produkty dla wymagających klientów.
+            <p className="mt-4 text-sm text-stone-400 leading-relaxed max-w-[180px]">
+              Wyjątkowe produkty z naturalnego drewna, tworzone z pasją i rzemiosłem.
             </p>
           </div>
 
           {columns.map(({ title, links }) => (
             <div key={title}>
-              <h3 className="text-xs font-semibold text-stone-900 uppercase tracking-[0.15em] mb-5">
+              <h3 className="text-xs font-semibold text-amber-400/70 uppercase tracking-[0.2em] mb-5">
                 {title}
               </h3>
               <ul className="space-y-3">
@@ -62,7 +62,7 @@ export function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-sm text-stone-500 hover:text-stone-900 transition-colors duration-200"
+                      className="text-sm text-stone-400 hover:text-stone-100 transition-colors duration-200"
                     >
                       {link.label}
                     </Link>
@@ -73,11 +73,11 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-14 pt-8 border-t border-stone-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-stone-400">
+        <div className="mt-14 pt-8 border-t border-stone-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-xs text-stone-500">
             © {new Date().getFullYear()} Store. Wszelkie prawa zastrzeżone.
           </p>
-          <p className="text-xs text-stone-400">Wykonane z ♥ w Polsce</p>
+          <p className="text-xs text-stone-500">Wykonane z ♥ w Polsce</p>
         </div>
       </div>
     </footer>

@@ -45,8 +45,8 @@ export function CouponInput({ subtotal, onApply, appliedCode }: CouponInputProps
   if (appliedCode) {
     return (
       <div className="flex items-center gap-2 py-2">
-        <Tag size={13} strokeWidth={1.5} className="text-green-700 flex-shrink-0" />
-        <span className="text-sm text-green-700 font-medium flex-1">{appliedCode}</span>
+        <Tag size={13} strokeWidth={1.5} className="text-amber-700 flex-shrink-0" />
+        <span className="text-sm text-amber-700 font-medium flex-1">{appliedCode}</span>
         <button
           onClick={handleRemove}
           className="text-xs text-stone-400 hover:text-stone-700 transition-colors cursor-pointer"

@@ -68,8 +68,8 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
 
       <main className="max-w-2xl mx-auto px-4 py-16">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-50 mb-4">
-            <CheckCircle size={32} strokeWidth={1.5} className="text-green-700" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-50 mb-4">
+            <CheckCircle size={32} strokeWidth={1.5} className="text-amber-700" />
           </div>
           <h1 className="font-display text-3xl font-medium italic text-stone-900 mb-2">
             Dziękujemy za zamówienie!
@@ -105,7 +105,7 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
             </div>
             <div className="px-6 py-4 border-t border-stone-100 space-y-1.5 text-sm">
               {parseFloat(order.discountAmount) > 0 && (
-                <div className="flex justify-between text-green-700">
+                <div className="flex justify-between text-amber-700">
                   <span>Rabat</span>
                   <span>−{parseFloat(order.discountAmount).toFixed(2)} zł</span>
                 </div>
@@ -147,7 +147,7 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
         )}
 
         {returnDone && (
-          <div className="mt-4 flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-sm text-green-800">
+          <div className="mt-4 flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-800">
             <CheckCircle size={15} strokeWidth={1.5} />
             Wniosek zwrotu został złożony. Skontaktujemy się z Tobą wkrótce.
           </div>
@@ -156,7 +156,7 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
             href="/sklep"
-            className="inline-flex items-center justify-center px-8 py-3 bg-stone-900 text-white font-medium rounded-2xl hover:bg-stone-700 transition-colors"
+            className="inline-flex items-center justify-center px-8 py-3 bg-amber-800 text-white font-medium rounded-2xl hover:bg-amber-900 transition-colors"
           >
             Kontynuuj zakupy
           </Link>
@@ -233,7 +233,7 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
                 <button
                   type="submit"
                   disabled={returning}
-                  className="flex-1 bg-stone-900 text-white text-sm font-medium py-2.5 rounded-xl hover:bg-stone-800 disabled:opacity-50 transition-colors"
+                  className="flex-1 bg-amber-800 text-white text-sm font-medium py-2.5 rounded-xl hover:bg-amber-900 disabled:opacity-50 transition-colors"
                 >
                   {returning ? 'Wysyłanie…' : 'Złóż wniosek'}
                 </button>

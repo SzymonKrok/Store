@@ -49,8 +49,8 @@ export function ImageGallery({ images }: { images: ProductImage[] }) {
               onClick={() => setSelected(i)}
               className={`relative flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-colors cursor-pointer ${
                 i === selected
-                  ? 'border-stone-900'
-                  : 'border-stone-200 hover:border-stone-400'
+                  ? 'border-amber-700'
+                  : 'border-stone-200 hover:border-amber-400'
               }`}
             >
               <Image

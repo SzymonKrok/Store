@@ -92,7 +92,7 @@ export function ReviewsSection({ productId: _ }: ReviewsSectionProps) {
     <section className="border-t border-stone-100 py-14" aria-labelledby="reviews-heading">
       <div className="flex items-end justify-between mb-10 flex-wrap gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-800 mb-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 mb-2">
             Społeczność
           </p>
           <h2
@@ -147,7 +147,7 @@ export function ReviewsSection({ productId: _ }: ReviewsSectionProps) {
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold uppercase tracking-widest text-stone-500">
-                      Ocena <span aria-hidden="true" className="text-green-800">*</span>
+                      Ocena <span aria-hidden="true" className="text-amber-700">*</span>
                     </label>
                     <StarPicker value={rating} onChange={setRating} />
                     {!rating && (
@@ -157,7 +157,7 @@ export function ReviewsSection({ productId: _ }: ReviewsSectionProps) {
 
                   <div className="space-y-1.5">
                     <label htmlFor="review-name" className="text-xs font-semibold uppercase tracking-widest text-stone-500">
-                      Imię <span aria-hidden="true" className="text-green-800">*</span>
+                      Imię <span aria-hidden="true" className="text-amber-700">*</span>
                     </label>
                     <input
                       id="review-name"
@@ -173,7 +173,7 @@ export function ReviewsSection({ productId: _ }: ReviewsSectionProps) {
 
                   <div className="space-y-1.5">
                     <label htmlFor="review-comment" className="text-xs font-semibold uppercase tracking-widest text-stone-500">
-                      Komentarz <span aria-hidden="true" className="text-green-800">*</span>
+                      Komentarz <span aria-hidden="true" className="text-amber-700">*</span>
                     </label>
                     <textarea
                       id="review-comment"
@@ -190,7 +190,7 @@ export function ReviewsSection({ productId: _ }: ReviewsSectionProps) {
                     <button
                       type="submit"
                       disabled={submitting || !rating}
-                      className="px-6 py-2.5 bg-stone-900 text-white text-sm font-medium rounded-xl hover:bg-stone-700 disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                      className="px-6 py-2.5 bg-amber-800 text-white text-sm font-medium rounded-xl hover:bg-amber-900 disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed transition-colors cursor-pointer"
                     >
                       {submitting ? 'Wysyłanie…' : 'Wyślij opinię'}
                     </button>
@@ -221,7 +221,7 @@ export function ReviewsSection({ productId: _ }: ReviewsSectionProps) {
             {!formOpen && (
               <button
                 onClick={() => setFormOpen(true)}
-                className="text-green-800 hover:underline cursor-pointer"
+                className="text-amber-700 hover:underline cursor-pointer"
               >
                 Napisz pierwszą!
               </button>

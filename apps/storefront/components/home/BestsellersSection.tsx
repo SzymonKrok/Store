@@ -28,7 +28,7 @@ export async function BestsellersSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedSection className="flex items-end justify-between mb-12">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-green-800 mb-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-700 mb-3">
               Polecane
             </p>
             <h2 className="font-display text-4xl font-medium text-stone-900">

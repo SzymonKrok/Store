@@ -10,14 +10,14 @@ const values = [
 
 export function ValuePropositions() {
   return (
-    <section className="py-20 bg-white border-y border-stone-100">
+    <section className="py-20 bg-amber-950/[0.04] border-y border-stone-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {values.map((v, i) => (
             <AnimatedSection key={v.title} delay={i * 0.08}>
               <div className="flex flex-col items-center text-center gap-3.5">
-                <div className="w-11 h-11 rounded-2xl bg-stone-100 flex items-center justify-center">
-                  <v.icon size={19} className="text-stone-700" strokeWidth={1.5} />
+                <div className="w-11 h-11 rounded-2xl bg-amber-100 flex items-center justify-center">
+                  <v.icon size={19} className="text-amber-800" strokeWidth={1.5} />
                 </div>
                 <h3 className="text-sm font-semibold text-stone-900 tracking-wide leading-snug">
                   {v.title}

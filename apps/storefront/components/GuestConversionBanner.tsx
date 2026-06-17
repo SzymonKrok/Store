@@ -19,7 +19,7 @@ export function GuestConversionBanner({ orderId }: Props) {
 
   if (done) {
     return (
-      <div className="flex items-start gap-3 bg-green-50 border border-green-200 rounded-2xl px-5 py-4 text-sm text-green-800">
+      <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 text-sm text-amber-800">
         <CheckCircle size={16} strokeWidth={1.5} className="mt-0.5 shrink-0" />
         <p>
           Konto zostało utworzone. Możesz teraz śledzić zamówienia w zakładce{' '}
@@ -101,7 +101,7 @@ export function GuestConversionBanner({ orderId }: Props) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="h-10 px-4 bg-stone-900 text-white text-sm font-medium rounded-xl hover:bg-stone-700 transition-colors disabled:opacity-60 whitespace-nowrap cursor-pointer"
+          className="h-10 px-4 bg-amber-800 text-white text-sm font-medium rounded-xl hover:bg-amber-900 transition-colors disabled:opacity-60 whitespace-nowrap cursor-pointer"
         >
           {isSubmitting ? 'Tworzenie…' : 'Utwórz konto'}
         </button>

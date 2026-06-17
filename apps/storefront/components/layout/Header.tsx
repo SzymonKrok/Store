@@ -166,7 +166,7 @@ export function Header() {
                     initial={{ scale: 0.7 }}
                     animate={{ scale: 1 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute -top-0.5 -right-0.5 w-4 h-4 flex items-center justify-center bg-stone-900 text-white text-[10px] font-medium rounded-full leading-none"
+                    className="absolute -top-0.5 -right-0.5 w-4 h-4 flex items-center justify-center bg-amber-700 text-white text-[10px] font-medium rounded-full leading-none"
                   >
                     {itemCount > 9 ? '9+' : itemCount}
                   </motion.span>
@@ -222,7 +222,7 @@ export function Header() {
                   <Link
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
-                    className="font-display text-4xl font-medium text-stone-900 hover:text-green-800 transition-colors tracking-wide italic"
+                    className="font-display text-4xl font-medium text-stone-900 hover:text-amber-700 transition-colors tracking-wide italic"
                   >
                     {link.label}
                   </Link>

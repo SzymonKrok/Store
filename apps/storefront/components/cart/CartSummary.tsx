@@ -16,7 +16,7 @@ export function CartSummary({ subtotal, discountAmount = 0, couponCode }: CartSu
         <span>{subtotal.toFixed(2)} zł</span>
       </div>
       {discountAmount > 0 && couponCode && (
-        <div className="flex justify-between text-green-700">
+        <div className="flex justify-between text-amber-700">
           <span>Rabat ({couponCode})</span>
           <span>−{discountAmount.toFixed(2)} zł</span>
         </div>

@@ -54,7 +54,7 @@ export function CookieBanner() {
         >
           <div className="bg-white border border-stone-200 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.10)] p-5">
             <div className="flex items-start gap-3 mb-4">
-              <Cookie size={18} strokeWidth={1.5} className="text-green-800 mt-0.5 shrink-0" />
+              <Cookie size={18} strokeWidth={1.5} className="text-amber-700 mt-0.5 shrink-0" />
               <div>
                 <p className="text-sm font-medium text-stone-900 mb-1">Używamy plików cookie</p>
                 <p className="text-xs text-stone-500 leading-relaxed">
@@ -73,7 +73,7 @@ export function CookieBanner() {
             <div className="flex gap-2">
               <button
                 onClick={accept}
-                className="flex-1 bg-stone-900 text-white text-xs font-medium py-2.5 rounded-xl hover:bg-stone-800 transition-colors"
+                className="flex-1 bg-amber-800 text-white text-xs font-medium py-2.5 rounded-xl hover:bg-amber-900 transition-colors"
               >
                 Akceptuję wszystkie
               </button>

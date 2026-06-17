@@ -66,12 +66,12 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             {/* Body */}
             {isLoading ? (
               <div className="flex-1 flex items-center justify-center">
-                <div className="w-6 h-6 border-2 border-stone-200 border-t-stone-900 rounded-full animate-spin" />
+                <div className="w-6 h-6 border-2 border-stone-200 border-t-amber-700 rounded-full animate-spin" />
               </div>
             ) : items.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center gap-5 px-8">
-                <div className="w-16 h-16 rounded-2xl bg-stone-100 flex items-center justify-center">
-                  <ShoppingBag size={28} strokeWidth={1} className="text-stone-400" />
+                <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center">
+                  <ShoppingBag size={28} strokeWidth={1} className="text-amber-300" />
                 </div>
                 <div className="text-center">
                   <p className="font-medium text-stone-900 mb-1.5">Koszyk jest pusty</p>
@@ -82,7 +82,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 <Link
                   href="/sklep"
                   onClick={onClose}
-                  className="inline-flex items-center justify-center px-6 py-2.5 bg-stone-900 text-white text-sm font-medium rounded-xl hover:bg-stone-700 transition-colors cursor-pointer"
+                  className="inline-flex items-center justify-center px-6 py-2.5 bg-amber-800 text-white text-sm font-medium rounded-xl hover:bg-amber-900 transition-colors cursor-pointer"
                 >
                   Przeglądaj sklep
                 </Link>
@@ -111,7 +111,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   <Link
                     href="/checkout"
                     onClick={onClose}
-                    className="block w-full text-center py-3 bg-stone-900 text-white text-sm font-medium rounded-2xl hover:bg-stone-700 transition-colors cursor-pointer"
+                    className="block w-full text-center py-3 bg-amber-800 text-white text-sm font-medium rounded-2xl hover:bg-amber-900 transition-colors cursor-pointer"
                   >
                     Przejdź do kasy
                   </Link>

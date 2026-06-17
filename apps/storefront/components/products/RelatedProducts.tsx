@@ -31,7 +31,7 @@ export async function RelatedProducts({
   return (
     <AnimatedSection className="border-t border-stone-100 pt-14 pb-4">
       <div className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-800 mb-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 mb-2">
           Odkryj więcej
         </p>
         <h2 className="font-display text-3xl font-medium text-stone-900 italic tracking-tight">
@@ -45,7 +45,7 @@ export async function RelatedProducts({
           const price = Number(product.variants[0]?.price ?? product.basePrice)
           return (
             <Link key={product.id} href={`/sklep/${product.slug}`} className="group block">
-              <div className="bg-white rounded-2xl overflow-hidden border border-stone-200 transition-all duration-300 group-hover:border-stone-300 group-hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+              <div className="bg-white rounded-2xl overflow-hidden border border-stone-200 transition-all duration-300 group-hover:border-amber-200 group-hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
                 <div className="relative aspect-square overflow-hidden bg-stone-100">
                   <Image
                     src={image ? image.url : `https://picsum.photos/seed/${product.id}/400/400`}
@@ -59,7 +59,7 @@ export async function RelatedProducts({
                   <h3 className="text-stone-900 font-medium text-sm leading-snug line-clamp-2 mb-1.5">
                     {product.name}
                   </h3>
-                  <p className="text-stone-700 font-semibold text-base tabular-nums">
+                  <p className="text-amber-800 font-semibold text-base tabular-nums">
                     {price.toFixed(2)} zł
                   </p>
                 </div>
