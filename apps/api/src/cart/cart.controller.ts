@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Patch, Delete, Body, Param, Headers, UseGuards } from '@nestjs/common'
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiHeader, ApiParam, ApiResponse } from '@nestjs/swagger'
 import { CartService } from './cart.service'
 import { AddCartItemDto } from './dto/add-cart-item.dto'
 import { UpdateCartItemDto } from './dto/update-cart-item.dto'
@@ -13,12 +14,15 @@ interface JwtPayload {
   role: string
 }
 
+@ApiTags('Cart')
+@ApiHeader({ name: 'x-cart-session', description: 'Guest cart session ID', required: false })
 @Controller('cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
   @Get()
   @UseGuards(OptionalJwtAuthGuard)
+  @ApiOperation({ summary: 'Get current cart (user or guest)' })
   getCart(
     @CurrentUser() user: JwtPayload | null,
     @Headers('x-cart-session') sessionId?: string,
@@ -28,6 +32,8 @@ export class CartController {
 
   @Post('items')
   @UseGuards(OptionalJwtAuthGuard)
+  @ApiOperation({ summary: 'Add item to cart' })
+  @ApiResponse({ status: 201, description: 'Item added, returns updated cart' })
   addItem(
     @CurrentUser() user: JwtPayload | null,
     @Headers('x-cart-session') sessionId: string | undefined,
@@ -38,6 +44,8 @@ export class CartController {
 
   @Patch('items/:itemId')
   @UseGuards(OptionalJwtAuthGuard)
+  @ApiOperation({ summary: 'Update item quantity in cart' })
+  @ApiParam({ name: 'itemId' })
   updateItem(
     @CurrentUser() user: JwtPayload | null,
     @Headers('x-cart-session') sessionId: string | undefined,
@@ -49,6 +57,8 @@ export class CartController {
 
   @Delete('items/:itemId')
   @UseGuards(OptionalJwtAuthGuard)
+  @ApiOperation({ summary: 'Remove item from cart' })
+  @ApiParam({ name: 'itemId' })
   removeItem(
     @CurrentUser() user: JwtPayload | null,
     @Headers('x-cart-session') sessionId: string | undefined,
@@ -59,6 +69,8 @@ export class CartController {
 
   @Post('merge')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Merge guest cart into authenticated user cart after login' })
   mergeCarts(
     @CurrentUser() user: JwtPayload,
     @Body() dto: MergeCartDto,

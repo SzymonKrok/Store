@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "concurrently --kill-others --names \"apps,stripe\" --prefix-colors \"cyan,yellow\" \"turbo run dev\" \"stripe listen --forward-to localhost:4000/api/webhooks/stripe\"",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
@@ -13,6 +13,7 @@
     "stripe:listen": "stripe listen --forward-to localhost:4000/api/webhooks/stripe"
   },
   "devDependencies": {
+    "concurrently": "^10.0.3",
     "turbo": "^2.0.0"
   },
   "packageManager": "pnpm@9.15.0"

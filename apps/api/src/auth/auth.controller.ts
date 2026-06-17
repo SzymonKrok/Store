@@ -4,6 +4,7 @@ import {
 } from '@nestjs/common'
 import { Response } from 'express'
 import { ConfigService } from '@nestjs/config'
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger'
 import { AuthService } from './auth.service'
 import { UsersService } from '../users/users.service'
 import { JwtAuthGuard } from './guards/jwt-auth.guard'
@@ -26,6 +27,7 @@ interface GoogleUser {
   role: string
 }
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -36,11 +38,17 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current authenticated user profile' })
+  @ApiResponse({ status: 200, description: 'User profile' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   getMe(@CurrentUser() user: AuthUser) {
     return this.usersService.getProfile(user.id)
   }
 
   @Post('register')
+  @ApiOperation({ summary: 'Register a new user account' })
+  @ApiResponse({ status: 201, description: 'Returns access token; sets refresh_token cookie' })
   async register(
     @Body() dto: RegisterDto,
     @Res({ passthrough: true }) res: Response,
@@ -52,6 +60,9 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Log in with email and password' })
+  @ApiResponse({ status: 200, description: 'Returns access token; sets refresh_token cookie' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
@@ -64,6 +75,8 @@ export class AuthController {
   @Post('refresh')
   @UseGuards(JwtRefreshGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Refresh access token using the refresh_token cookie' })
+  @ApiResponse({ status: 200, description: 'Returns new access token; rotates refresh_token cookie' })
   async refresh(
     @CurrentUser() user: AuthUser,
     @Res({ passthrough: true }) res: Response,
@@ -76,6 +89,8 @@ export class AuthController {
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Invalidate refresh token and clear cookie' })
   async logout(
     @CurrentUser() user: AuthUser,
     @Res({ passthrough: true }) res: Response,
@@ -87,6 +102,8 @@ export class AuthController {
 
   @Post('convert-guest')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Convert a guest order into a full user account' })
+  @ApiResponse({ status: 200, description: 'Account created and logged in; returns access token' })
   async convertGuest(
     @Body() dto: ConvertGuestDto,
     @Res({ passthrough: true }) res: Response,
@@ -98,12 +115,15 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(GoogleAuthGuard)
+  @ApiOperation({ summary: 'Initiate Google OAuth2 login flow' })
+  @ApiResponse({ status: 302, description: 'Redirects to Google consent screen' })
   googleAuth() {
     // Passport redirects to Google; this handler body never runs
   }
 
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
+  @ApiOperation({ summary: 'Google OAuth2 callback — redirects to storefront with access token' })
   async googleCallback(
     @CurrentUser() user: GoogleUser,
     @Res() res: Response,
@@ -118,7 +138,7 @@ export class AuthController {
     res.cookie('refresh_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/api/auth/refresh',
     })
