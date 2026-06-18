@@ -7,6 +7,11 @@ export interface StoreSettings {
   fbPixelId: string | null
   termsOfService: string
   privacyPolicy: string
+  showQuantitySelector: boolean
+  showStockBadge: boolean
+  showReviews: boolean
+  showBestsellers: boolean
+  enableGuestCheckout: boolean
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api'
@@ -28,6 +33,6 @@ export async function fetchStoreSettingsServer(): Promise<StoreSettings> {
     if (!res.ok) return { id: 1, ga4Id: null, fbPixelId: null, termsOfService: '', privacyPolicy: '' }
     return res.json() as Promise<StoreSettings>
   } catch {
-    return { id: 1, ga4Id: null, fbPixelId: null, termsOfService: '', privacyPolicy: '' }
+    return { id: 1, ga4Id: null, fbPixelId: null, termsOfService: '', privacyPolicy: '', showQuantitySelector: true, showStockBadge: true, showReviews: true, showBestsellers: true, enableGuestCheckout: true }
   }
 }

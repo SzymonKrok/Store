@@ -42,7 +42,7 @@ export function useAdminProduct(id: string) {
   return useQuery({
     queryKey: ['admin-product', id],
     queryFn: async () => {
-      const { data } = await apiClient.get<AdminProduct>(`/products/${id}`)
+      const { data } = await apiClient.get<AdminProduct>(`/products/by-id/${id}`)
       return data
     },
     enabled: !!id,

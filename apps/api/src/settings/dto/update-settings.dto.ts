@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator'
+import { IsOptional, IsString, IsBoolean } from 'class-validator'
 
 export class UpdateSettingsDto {
   @IsOptional()
@@ -16,4 +16,24 @@ export class UpdateSettingsDto {
   @IsOptional()
   @IsString()
   privacyPolicy?: string
+
+  @IsOptional()
+  @IsBoolean()
+  showQuantitySelector?: boolean
+
+  @IsOptional()
+  @IsBoolean()
+  showStockBadge?: boolean
+
+  @IsOptional()
+  @IsBoolean()
+  showReviews?: boolean
+
+  @IsOptional()
+  @IsBoolean()
+  showBestsellers?: boolean
+
+  @IsOptional()
+  @IsBoolean()
+  enableGuestCheckout?: boolean
 }

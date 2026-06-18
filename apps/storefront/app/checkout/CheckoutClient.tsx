@@ -99,7 +99,7 @@ const DELIVERY_OPTIONS = [
   },
 ]
 
-export function CheckoutClient() {
+export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestCheckout?: boolean }) {
   const { user, isLoading: authLoading, refreshProfile } = useAuth()
   const { data: cart, isLoading: cartLoading } = useCart()
   const { mutateAsync: createOrder, isPending } = useCreateOrder()
@@ -286,7 +286,11 @@ export function CheckoutClient() {
       <div className="max-w-lg mx-auto px-4 py-20">
         <div className="text-center mb-8">
           <h1 className="font-display text-3xl font-medium text-stone-900 italic mb-2">Przejdź do kasy</h1>
-          <p className="text-stone-500 text-sm">Zaloguj się, aby przyspieszyć zakupy, lub kontynuuj jako gość.</p>
+          <p className="text-stone-500 text-sm">
+            {enableGuestCheckout
+              ? 'Zaloguj się, aby przyspieszyć zakupy, lub kontynuuj jako gość.'
+              : 'Zaloguj się, aby złożyć zamówienie.'}
+          </p>
         </div>
 
         <div className="space-y-3">
@@ -304,16 +308,18 @@ export function CheckoutClient() {
             <ArrowRight size={16} strokeWidth={1.5} className="opacity-60 group-hover:opacity-100 transition-opacity" />
           </Link>
 
-          <button
-            onClick={() => setGuestChosen(true)}
-            className="flex items-center justify-between w-full px-5 py-4 bg-white border border-stone-200 text-stone-700 rounded-2xl hover:border-stone-400 transition-colors group cursor-pointer"
-          >
-            <div className="text-left">
-              <p className="font-medium text-sm">Kontynuuj jako gość</p>
-              <p className="text-stone-400 text-xs mt-0.5">Bez rejestracji, szybka realizacja</p>
-            </div>
-            <ArrowRight size={16} strokeWidth={1.5} className="opacity-40 group-hover:opacity-70 transition-opacity" />
-          </button>
+          {enableGuestCheckout && (
+            <button
+              onClick={() => setGuestChosen(true)}
+              className="flex items-center justify-between w-full px-5 py-4 bg-white border border-stone-200 text-stone-700 rounded-2xl hover:border-stone-400 transition-colors group cursor-pointer"
+            >
+              <div className="text-left">
+                <p className="font-medium text-sm">Kontynuuj jako gość</p>
+                <p className="text-stone-400 text-xs mt-0.5">Bez rejestracji, szybka realizacja</p>
+              </div>
+              <ArrowRight size={16} strokeWidth={1.5} className="opacity-40 group-hover:opacity-70 transition-opacity" />
+            </button>
+          )}
 
           <p className="text-center text-xs text-stone-400 pt-1">
             Nie masz konta?{' '}

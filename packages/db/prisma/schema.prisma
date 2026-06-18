@@ -241,11 +241,16 @@ model ReturnRequest {
 }
 
 model StoreSettings {
-  id             Int     @id @default(1)
-  ga4Id          String?
-  fbPixelId      String?
-  termsOfService String  @default("")
-  privacyPolicy  String  @default("")
+  id                   Int     @id @default(1)
+  ga4Id                String?
+  fbPixelId            String?
+  termsOfService       String  @default("")
+  privacyPolicy        String  @default("")
+  showQuantitySelector Boolean @default(true)
+  showStockBadge       Boolean @default(true)
+  showReviews          Boolean @default(true)
+  showBestsellers      Boolean @default(true)
+  enableGuestCheckout  Boolean @default(true)
 }
 
 model OrderItem {

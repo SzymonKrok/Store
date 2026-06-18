@@ -7,6 +7,7 @@ import { ProductInfo } from '@/components/products/ProductInfo'
 import { RelatedProducts, RelatedProductsSkeleton } from '@/components/products/RelatedProducts'
 import { ReviewsSection } from '@/components/products/ReviewsSection'
 import type { ProductDetail } from '@/lib/api/products'
+import { fetchStoreSettingsServer } from '@/lib/api/settings'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api'
 
@@ -48,7 +49,7 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const product = await fetchProduct(slug)
+  const [product, settings] = await Promise.all([fetchProduct(slug), fetchStoreSettingsServer()])
   if (!product) notFound()
 
   return (
@@ -74,7 +75,11 @@ export default async function ProductPage({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <ImageGallery images={product.images} />
-          <ProductInfo product={product} />
+          <ProductInfo
+            product={product}
+            showQuantitySelector={settings.showQuantitySelector}
+            showStockBadge={settings.showStockBadge}
+          />
         </div>
 
         <Suspense fallback={<RelatedProductsSkeleton />}>
@@ -84,7 +89,7 @@ export default async function ProductPage({
           />
         </Suspense>
 
-        <ReviewsSection productId={product.id} />
+        {settings.showReviews && <ReviewsSection productId={product.id} />}
       </div>
     </main>
   )

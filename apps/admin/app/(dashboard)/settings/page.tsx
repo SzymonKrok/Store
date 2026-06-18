@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
-import { Settings, FileText } from 'lucide-react'
+import { Settings, FileText, ToggleLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useStoreSettings, useUpdateStoreSettings } from '@/lib/api/settings'
 
-type Tab = 'analytics' | 'legal'
+type Tab = 'analytics' | 'legal' | 'features'
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>('analytics')
@@ -21,6 +21,11 @@ export default function SettingsPage() {
   const [fbPixelId, setFbPixelId] = useState('')
   const [terms, setTerms] = useState('')
   const [privacy, setPrivacy] = useState('')
+  const [showQuantitySelector, setShowQuantitySelector] = useState(true)
+  const [showStockBadge, setShowStockBadge] = useState(true)
+  const [showReviews, setShowReviews] = useState(true)
+  const [showBestsellers, setShowBestsellers] = useState(true)
+  const [enableGuestCheckout, setEnableGuestCheckout] = useState(true)
 
   useEffect(() => {
     if (settings) {
@@ -28,6 +33,11 @@ export default function SettingsPage() {
       setFbPixelId(settings.fbPixelId ?? '')
       setTerms(settings.termsOfService)
       setPrivacy(settings.privacyPolicy)
+      setShowQuantitySelector(settings.showQuantitySelector)
+      setShowStockBadge(settings.showStockBadge)
+      setShowReviews(settings.showReviews)
+      setShowBestsellers(settings.showBestsellers)
+      setEnableGuestCheckout(settings.enableGuestCheckout)
     }
   }, [settings])
 
@@ -49,9 +59,19 @@ export default function SettingsPage() {
     }
   }
 
+  async function handleSaveFeatures() {
+    try {
+      await save({ showQuantitySelector, showStockBadge, showReviews, showBestsellers, enableGuestCheckout })
+      toast.success('Ustawienia funkcji zapisane')
+    } catch {
+      toast.error('Błąd podczas zapisywania')
+    }
+  }
+
   const tabs: { id: Tab; label: string; icon: typeof Settings }[] = [
     { id: 'analytics', label: 'Analityka', icon: Settings },
     { id: 'legal', label: 'Strony Prawne', icon: FileText },
+    { id: 'features', label: 'Funkcje sklepu', icon: ToggleLeft },
   ]
 
   return (
@@ -121,6 +141,75 @@ export default function SettingsPage() {
 
               <Button onClick={handleSaveAnalytics} disabled={isPending}>
                 {isPending ? 'Zapisywanie…' : 'Zapisz analitykę'}
+              </Button>
+            </div>
+          )}
+
+          {activeTab === 'features' && (
+            <div className="space-y-6">
+              <div className="bg-white rounded-lg border border-slate-200 divide-y divide-slate-100">
+                {([
+                  {
+                    key: 'showQuantitySelector' as const,
+                    value: showQuantitySelector,
+                    set: setShowQuantitySelector,
+                    label: 'Wybór ilości na stronie produktu',
+                    description: 'Wyświetla pole +/− pozwalające klientowi wybrać ilość przed dodaniem do koszyka.',
+                  },
+                  {
+                    key: 'showStockBadge' as const,
+                    value: showStockBadge,
+                    set: setShowStockBadge,
+                    label: 'Stan magazynowy na stronie produktu',
+                    description: 'Pokazuje "W magazynie (X szt.)" lub "Brak w magazynie" na karcie produktu.',
+                  },
+                  {
+                    key: 'showReviews' as const,
+                    value: showReviews,
+                    set: setShowReviews,
+                    label: 'Sekcja opinii na stronie produktu',
+                    description: 'Wyświetla opinie klientów i formularz dodawania recenzji pod produktem.',
+                  },
+                  {
+                    key: 'showBestsellers' as const,
+                    value: showBestsellers,
+                    set: setShowBestsellers,
+                    label: 'Sekcja bestsellerów na stronie głównej',
+                    description: 'Pokazuje karuzelę / siatkę bestsellerów na stronie głównej sklepu.',
+                  },
+                  {
+                    key: 'enableGuestCheckout' as const,
+                    value: enableGuestCheckout,
+                    set: setEnableGuestCheckout,
+                    label: 'Zakup bez rejestracji (gość)',
+                    description: 'Pozwala klientom składać zamówienia bez zakładania konta.',
+                  },
+                ] as const).map(({ value, set, label, description }) => (
+                  <div key={label} className="flex items-center justify-between gap-4 px-6 py-4">
+                    <div>
+                      <p className="text-sm font-medium text-slate-900">{label}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{description}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => set(!value)}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
+                        value ? 'bg-primary' : 'bg-slate-200'
+                      }`}
+                      role="switch"
+                      aria-checked={value}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${
+                          value ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <Button onClick={handleSaveFeatures} disabled={isPending}>
+                {isPending ? 'Zapisywanie…' : 'Zapisz ustawienia funkcji'}
               </Button>
             </div>
           )}

@@ -25,6 +25,16 @@ export class ProductsController {
     return this.productsService.findAll(query)
   }
 
+  @Get('by-id/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get product by ID — admin use, no isActive filter' })
+  @ApiParam({ name: 'id' })
+  findById(@Param('id') id: string) {
+    return this.productsService.findById(id)
+  }
+
   @Get(':slug')
   @ApiOperation({ summary: 'Get product details by slug (includes variants and Omnibus price history)' })
   @ApiParam({ name: 'slug' })

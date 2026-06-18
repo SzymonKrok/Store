@@ -49,6 +49,19 @@ export class ProductsService {
     return { items, total, page, limit, totalPages: Math.ceil(total / limit) }
   }
 
+  async findById(id: string) {
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+      include: {
+        category: true,
+        variants: { orderBy: { sku: 'asc' } },
+        images: { orderBy: { position: 'asc' } },
+      },
+    })
+    if (!product) throw new NotFoundException('Product not found')
+    return product
+  }
+
   async findOne(slug: string) {
     const product = await this.prisma.product.findUnique({
       where: { slug, isActive: true },

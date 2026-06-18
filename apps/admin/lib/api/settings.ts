@@ -7,6 +7,11 @@ export interface StoreSettings {
   fbPixelId: string | null
   termsOfService: string
   privacyPolicy: string
+  showQuantitySelector: boolean
+  showStockBadge: boolean
+  showReviews: boolean
+  showBestsellers: boolean
+  enableGuestCheckout: boolean
 }
 
 export function useStoreSettings() {

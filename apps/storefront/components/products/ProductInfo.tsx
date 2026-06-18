@@ -1,15 +1,22 @@
 'use client'
 
 import { useState } from 'react'
-import { ShoppingBag, Package } from 'lucide-react'
+import { ShoppingBag, Package, Minus, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { OmnibusPrice } from './OmnibusPrice'
 import { AddedToCartPopup } from './AddedToCartPopup'
 import { useAddToCart } from '@/lib/api/cart'
 import type { ProductDetail } from '@/lib/api/products'
 
-export function ProductInfo({ product }: { product: ProductDetail }) {
+interface ProductInfoProps {
+  product: ProductDetail
+  showQuantitySelector?: boolean
+  showStockBadge?: boolean
+}
+
+export function ProductInfo({ product, showQuantitySelector = true, showStockBadge = true }: ProductInfoProps) {
   const [selectedId, setSelectedId] = useState(product.variants[0]?.id ?? '')
+  const [qty, setQty] = useState(1)
   const [showPopup, setShowPopup] = useState(false)
   const { mutateAsync: addToCart, isPending } = useAddToCart()
 
@@ -89,23 +96,54 @@ export function ProductInfo({ product }: { product: ProductDetail }) {
         </div>
       )}
 
-      <div className="flex items-center gap-2">
-        <Package
-          size={13}
-          strokeWidth={1.5}
-          className={inStock ? 'text-emerald-600' : 'text-red-500'}
-        />
-        <span className={`text-xs font-medium ${inStock ? 'text-emerald-600' : 'text-red-500'}`}>
-          {inStock ? `W magazynie (${selected?.stock} szt.)` : 'Brak w magazynie'}
-        </span>
-      </div>
+      {showStockBadge && (
+        <div className="flex items-center gap-2">
+          <Package
+            size={13}
+            strokeWidth={1.5}
+            className={inStock ? 'text-emerald-600' : 'text-red-500'}
+          />
+          <span className={`text-xs font-medium ${inStock ? 'text-emerald-600' : 'text-red-500'}`}>
+            {inStock ? `W magazynie (${selected?.stock} szt.)` : 'Brak w magazynie'}
+          </span>
+        </div>
+      )}
+
+      {showQuantitySelector && inStock && (
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-semibold uppercase tracking-[0.15em] text-stone-500">Ilość</span>
+          <div className="flex items-center border border-stone-200 rounded-xl overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setQty((q) => Math.max(1, q - 1))}
+              disabled={qty <= 1}
+              className="px-3 py-2 text-stone-600 hover:bg-stone-100 disabled:text-stone-300 transition-colors cursor-pointer"
+              aria-label="Zmniejsz ilość"
+            >
+              <Minus size={14} strokeWidth={1.5} />
+            </button>
+            <span className="px-4 py-2 text-sm font-medium text-stone-900 tabular-nums min-w-[2.5rem] text-center">
+              {qty}
+            </span>
+            <button
+              type="button"
+              onClick={() => setQty((q) => Math.min(selected?.stock ?? 99, q + 1))}
+              disabled={qty >= (selected?.stock ?? 99)}
+              className="px-3 py-2 text-stone-600 hover:bg-stone-100 disabled:text-stone-300 transition-colors cursor-pointer"
+              aria-label="Zwiększ ilość"
+            >
+              <Plus size={14} strokeWidth={1.5} />
+            </button>
+          </div>
+        </div>
+      )}
 
       <button
         disabled={!inStock || isPending}
         onClick={async () => {
           if (!selected) return
           try {
-            await addToCart({ variantId: selected.id, quantity: 1 })
+            await addToCart({ variantId: selected.id, quantity: qty })
             setShowPopup(true)
           } catch (err: unknown) {
             const msg = (err as { response?: { data?: { message?: unknown } } })?.response?.data?.message
