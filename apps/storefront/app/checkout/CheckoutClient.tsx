@@ -640,17 +640,27 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
             <h2 className="font-medium text-stone-900 text-lg">Podsumowanie</h2>
 
             <div className="space-y-3 max-h-64 overflow-y-auto">
-              {items.map((item) => (
-                <div key={item.id} className="flex justify-between text-sm text-stone-700">
-                  <span className="truncate flex-1 pr-2">
-                    {item.variant.product.name}{' '}
-                    <span className="text-stone-400">×{item.quantity}</span>
-                  </span>
-                  <span className="flex-shrink-0 font-medium">
-                    {(parseFloat(item.variant.price) * item.quantity).toFixed(2)} zł
-                  </span>
-                </div>
-              ))}
+              {items.map((item) => {
+                const attrs = Object.entries(item.variant.attributes)
+                return (
+                  <div key={item.id} className="flex justify-between gap-2 text-sm text-stone-700">
+                    <div className="min-w-0 flex-1">
+                      <span className="truncate block">
+                        {item.variant.product.name}{' '}
+                        <span className="text-stone-400">×{item.quantity}</span>
+                      </span>
+                      {attrs.length > 0 && (
+                        <span className="text-xs text-stone-400">
+                          {attrs.map(([k, v]) => `${k}: ${v}`).join(', ')}
+                        </span>
+                      )}
+                    </div>
+                    <span className="flex-shrink-0 font-medium">
+                      {(parseFloat(item.variant.price) * item.quantity).toFixed(2)} zł
+                    </span>
+                  </div>
+                )
+              })}
             </div>
 
             <div className="border-t border-stone-100 pt-4 space-y-3">

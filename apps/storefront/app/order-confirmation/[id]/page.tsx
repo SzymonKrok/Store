@@ -91,17 +91,26 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
               <span className="font-medium text-stone-900 text-sm">Produkty</span>
             </div>
             <div className="divide-y divide-stone-100">
-              {order.items.map((item) => (
-                <div key={item.id} className="px-6 py-3 flex justify-between text-sm">
-                  <div>
-                    <p className="font-medium text-stone-900">{item.productName}</p>
-                    <p className="text-stone-400 text-xs">{item.variantSku} × {item.quantity}</p>
+              {order.items.map((item) => {
+                const attrs = Object.entries(item.variantAttributes ?? {})
+                return (
+                  <div key={item.id} className="px-6 py-3 flex justify-between text-sm">
+                    <div>
+                      <p className="font-medium text-stone-900">{item.productName}</p>
+                      {attrs.length > 0 ? (
+                        <p className="text-stone-400 text-xs">
+                          {attrs.map(([k, v]) => `${k}: ${v}`).join(', ')} × {item.quantity}
+                        </p>
+                      ) : (
+                        <p className="text-stone-400 text-xs">{item.variantSku} × {item.quantity}</p>
+                      )}
+                    </div>
+                    <p className="font-medium text-stone-900">
+                      {(parseFloat(item.priceAtPurchase) * item.quantity).toFixed(2)} zł
+                    </p>
                   </div>
-                  <p className="font-medium text-stone-900">
-                    {(parseFloat(item.priceAtPurchase) * item.quantity).toFixed(2)} zł
-                  </p>
-                </div>
-              ))}
+                )
+              })}
             </div>
             <div className="px-6 py-4 border-t border-stone-100 space-y-1.5 text-sm">
               {parseFloat(order.discountAmount) > 0 && (
