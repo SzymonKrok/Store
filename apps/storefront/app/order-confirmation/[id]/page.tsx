@@ -6,10 +6,12 @@ import { CheckCircle, Download, Package, RotateCcw, X } from 'lucide-react'
 import { apiClient } from '../../../lib/axios'
 import type { Order } from '../../../lib/api/orders'
 import { GuestConversionBanner } from '../../../components/GuestConversionBanner'
+import { useAuth } from '../../../lib/auth'
 
 const RETURNABLE = ['SHIPPED', 'DELIVERED']
 
 export default function OrderConfirmationPage({ params }: { params: Promise<{ id: string }> }) {
+  const { user } = useAuth()
   const [order, setOrder] = useState<Order | null>(null)
   const [error, setError] = useState(false)
   const [id, setId] = useState<string | null>(null)
@@ -149,7 +151,7 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
           </div>
         )}
 
-        {order && order.userId === null && (
+        {order && order.userId === null && !user && (
           <div className="mt-4">
             <GuestConversionBanner orderId={order.id} />
           </div>
