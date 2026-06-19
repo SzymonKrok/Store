@@ -3,11 +3,15 @@ import { PrismaService } from '../prisma/prisma.service'
 import { CreateProductDto } from './dto/create-product.dto'
 import { UpdateProductDto } from './dto/update-product.dto'
 import { ProductQueryDto, SortBy } from './dto/product-query.dto'
+import { StockNotificationsService } from '../stock-notifications/stock-notifications.service'
 import { Prisma } from '@store/db'
 
 @Injectable()
 export class ProductsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly stockNotifications: StockNotificationsService,
+  ) {}
 
   async findAll(query: ProductQueryDto) {
     const { categoryId, minPrice, maxPrice, sortBy = SortBy.NEWEST, page = 1, limit = 20, showArchived } = query
@@ -145,7 +149,18 @@ export class ProductsService {
       if (conflict) throw new ConflictException('Slug already exists')
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    // Detect variants transitioning from 0 → >0 stock so we can fire back-in-stock notifications after commit
+    const restockedVariantIds: string[] = []
+    if (dto.variants) {
+      for (const variantDto of dto.variants) {
+        const existing = product.variants.find((v) => v.sku === variantDto.sku)
+        if (existing && existing.stock === 0 && variantDto.stock > 0) {
+          restockedVariantIds.push(existing.id)
+        }
+      }
+    }
+
+    const result = await this.prisma.$transaction(async (tx) => {
       const updateData: Prisma.ProductUpdateInput = {}
       if (dto.name !== undefined) updateData.name = dto.name
       if (dto.slug !== undefined) updateData.slug = dto.slug
@@ -215,6 +230,13 @@ export class ProductsService {
 
       return updated
     })
+
+    // Fire-and-forget back-in-stock notifications after transaction commits
+    for (const variantId of restockedVariantIds) {
+      void this.stockNotifications.notifyOnRestock(variantId)
+    }
+
+    return result
   }
 
   async remove(id: string) {

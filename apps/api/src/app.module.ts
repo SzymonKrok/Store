@@ -22,6 +22,7 @@ import { AdminModule } from './admin/admin.module'
 import { SettingsModule } from './settings/settings.module'
 import { ReturnsModule } from './returns/returns.module'
 import { ReviewsModule } from './reviews/reviews.module'
+import { StockNotificationsModule } from './stock-notifications/stock-notifications.module'
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { ReviewsModule } from './reviews/reviews.module'
     SettingsModule,
     ReturnsModule,
     ReviewsModule,
+    StockNotificationsModule,
   ],
 })
 export class AppModule {}

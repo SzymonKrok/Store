@@ -9,6 +9,7 @@ import { OrderStatusShippedEmail } from './templates/OrderStatusShippedEmail'
 import { OrderStatusDeliveredEmail } from './templates/OrderStatusDeliveredEmail'
 import { AbandonedCartEmail } from './templates/AbandonedCartEmail'
 import { ReturnRequestEmail } from './templates/ReturnRequestEmail'
+import { BackInStockEmail } from './templates/BackInStockEmail'
 
 interface OrderItem {
   productName: string
@@ -193,6 +194,19 @@ export class MailService {
       subject: `Wniosek zwrotu #${orderId.slice(-8).toUpperCase()} — przyjęty`,
       html,
     })
+  }
+
+  async sendBackInStock(
+    email: string,
+    productName: string,
+    productSlug: string,
+    variantLabel?: string | null,
+  ): Promise<void> {
+    const productUrl = `${this.storefrontUrl}/sklep/${productSlug}`
+    const html = await render(
+      BackInStockEmail({ productName, variantLabel, productUrl, storefrontUrl: this.storefrontUrl }),
+    )
+    await this.send({ to: email, subject: `${productName} jest znów dostępny`, html })
   }
 
   // ─── Internal send helpers ────────────────────────────────────────────────

@@ -5,7 +5,9 @@ import { ShoppingBag, Package, Minus, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { OmnibusPrice } from './OmnibusPrice'
 import { AddedToCartPopup } from './AddedToCartPopup'
+import { NotifyMeForm } from './NotifyMeForm'
 import { useAddToCart } from '@/lib/api/cart'
+import { useAuth } from '@/lib/auth'
 import type { ProductDetail } from '@/lib/api/products'
 
 interface ProductInfoProps {
@@ -19,6 +21,7 @@ export function ProductInfo({ product, showQuantitySelector = true, showStockBad
   const [qty, setQty] = useState(1)
   const [showPopup, setShowPopup] = useState(false)
   const { mutateAsync: addToCart, isPending } = useAddToCart()
+  const { user } = useAuth()
 
   const selected = product.variants.find((v) => v.id === selectedId) ?? product.variants[0]
   const price = Number(selected?.price ?? product.basePrice)
@@ -73,20 +76,30 @@ export function ProductInfo({ product, showQuantitySelector = true, showStockBad
                     const outOfStock = (matchingVariant?.stock ?? 0) === 0
 
                     return (
-                      <button
-                        key={val}
-                        onClick={() => matchingVariant && setSelectedId(matchingVariant.id)}
-                        disabled={outOfStock}
-                        className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all duration-200 cursor-pointer ${
-                          isSelected
-                            ? 'border-amber-800 bg-amber-800 text-white'
-                            : outOfStock
-                              ? 'border-stone-200 text-stone-300 cursor-not-allowed line-through'
-                              : 'border-stone-200 text-stone-700 hover:border-amber-600'
-                        }`}
-                      >
-                        {val}
-                      </button>
+                      <div key={val} className="relative group">
+                        <button
+                          onClick={() => matchingVariant && setSelectedId(matchingVariant.id)}
+                          className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all duration-200 cursor-pointer ${
+                            isSelected
+                              ? outOfStock
+                                ? 'border-stone-400 bg-stone-100 text-stone-500 line-through'
+                                : 'border-amber-800 bg-amber-800 text-white'
+                              : outOfStock
+                                ? 'border-stone-200 text-stone-400 line-through hover:border-stone-400'
+                                : 'border-stone-200 text-stone-700 hover:border-amber-600'
+                          }`}
+                        >
+                          {val}
+                        </button>
+                        {outOfStock && !isSelected && (
+                          <span
+                            role="tooltip"
+                            className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-2.5 py-1 rounded-md bg-stone-900 text-white text-[11px] font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-10 shadow-lg"
+                          >
+                            Brak — kliknij, aby otrzymać powiadomienie
+                          </span>
+                        )}
+                      </div>
                     )
                   })}
                 </div>
@@ -138,23 +151,31 @@ export function ProductInfo({ product, showQuantitySelector = true, showStockBad
         </div>
       )}
 
-      <button
-        disabled={!inStock || isPending}
-        onClick={async () => {
-          if (!selected) return
-          try {
-            await addToCart({ variantId: selected.id, quantity: qty })
-            setShowPopup(true)
-          } catch (err: unknown) {
-            const msg = (err as { response?: { data?: { message?: unknown } } })?.response?.data?.message
-            toast.error(Array.isArray(msg) ? msg.join(', ') : (msg as string) ?? 'Nie udało się dodać do koszyka')
-          }
-        }}
-        className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-2xl font-medium text-sm bg-amber-800 text-white hover:bg-amber-900 disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed transition-colors duration-200 mt-2 cursor-pointer"
-      >
-        <ShoppingBag size={16} strokeWidth={1.5} />
-        {inStock ? (isPending ? 'Dodawanie…' : 'Dodaj do koszyka') : 'Niedostępny'}
-      </button>
+      {inStock ? (
+        <button
+          disabled={isPending}
+          onClick={async () => {
+            if (!selected) return
+            try {
+              await addToCart({ variantId: selected.id, quantity: qty })
+              setShowPopup(true)
+            } catch (err: unknown) {
+              const msg = (err as { response?: { data?: { message?: unknown } } })?.response?.data?.message
+              toast.error(Array.isArray(msg) ? msg.join(', ') : (msg as string) ?? 'Nie udało się dodać do koszyka')
+            }
+          }}
+          className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-2xl font-medium text-sm bg-amber-800 text-white hover:bg-amber-900 disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed transition-colors duration-200 mt-2 cursor-pointer"
+        >
+          <ShoppingBag size={16} strokeWidth={1.5} />
+          {isPending ? 'Dodawanie…' : 'Dodaj do koszyka'}
+        </button>
+      ) : selected ? (
+        <NotifyMeForm
+          key={selected.id}
+          variantId={selected.id}
+          defaultEmail={user?.email}
+        />
+      ) : null}
 
       <AddedToCartPopup
         isOpen={showPopup}
