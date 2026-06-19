@@ -19,8 +19,8 @@ export function useAdminCoupons() {
   return useQuery({
     queryKey: ['admin-coupons'],
     queryFn: async () => {
-      const { data } = await apiClient.get<AdminCoupon[]>('/coupons')
-      return data
+      const { data } = await apiClient.get<{ items: AdminCoupon[] }>('/admin/coupons')
+      return data.items
     },
   })
 }
@@ -29,7 +29,7 @@ export function useCreateCoupon() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (payload: unknown) => {
-      const { data } = await apiClient.post('/coupons', payload)
+      const { data } = await apiClient.post('/admin/coupons', payload)
       return data
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-coupons'] }),
@@ -40,7 +40,7 @@ export function useUpdateCoupon() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async ({ id, payload }: { id: string; payload: unknown }) => {
-      const { data } = await apiClient.patch(`/coupons/${id}`, payload)
+      const { data } = await apiClient.patch(`/admin/coupons/${id}`, payload)
       return data
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-coupons'] }),
@@ -51,7 +51,7 @@ export function useSoftDeleteCoupon() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (id: string) => {
-      await apiClient.patch(`/coupons/${id}`, { isActive: false })
+      await apiClient.patch(`/admin/coupons/${id}`, { isActive: false })
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-coupons'] }),
   })
@@ -61,7 +61,7 @@ export function useRestoreCoupon() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (id: string) => {
-      await apiClient.patch(`/coupons/${id}`, { isActive: true })
+      await apiClient.patch(`/admin/coupons/${id}`, { isActive: true })
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-coupons'] }),
   })
