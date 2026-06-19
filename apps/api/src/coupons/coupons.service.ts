@@ -10,17 +10,17 @@ export class CouponsService {
   async validate(code: string, subtotal: number, userId?: string) {
     const coupon = await this.prisma.coupon.findUnique({ where: { code } })
 
-    if (!coupon || !coupon.isActive) throw new NotFoundException('Coupon not found or inactive')
-    if (coupon.expiresAt && coupon.expiresAt < new Date()) throw new BadRequestException('Coupon has expired')
+    if (!coupon || !coupon.isActive) throw new NotFoundException('Kupon nie istnieje lub jest nieaktywny')
+    if (coupon.expiresAt && coupon.expiresAt < new Date()) throw new BadRequestException('Kupon wygasł')
     if (coupon.minOrderValue && subtotal < Number(coupon.minOrderValue)) {
-      throw new BadRequestException(`Minimum order value is ${Number(coupon.minOrderValue).toFixed(2)} PLN`)
+      throw new BadRequestException(`Minimalna wartość zamówienia powinna wynosić ${Number(coupon.minOrderValue).toFixed(2)} zł`)
     }
     if (coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses) {
-      throw new BadRequestException('Coupon usage limit reached')
+      throw new BadRequestException('Limit użyć kuponu został wyczerpany')
     }
     if (userId && coupon.limitPerUser !== null) {
       const usageCount = await this.prisma.couponUsage.count({ where: { couponId: coupon.id, userId } })
-      if (usageCount >= coupon.limitPerUser) throw new BadRequestException('Per-user coupon limit reached')
+      if (usageCount >= coupon.limitPerUser) throw new BadRequestException('Osiągnięto limit użyć kuponu na konto')
     }
 
     const discountAmount =
