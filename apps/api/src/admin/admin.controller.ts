@@ -30,6 +30,12 @@ export class AdminController {
     return this.adminService.getStats()
   }
 
+  @Get('insights')
+  @ApiOperation({ summary: 'Get extended dashboard insights (AOV, top products, abandoned carts, etc.)' })
+  getInsights() {
+    return this.adminService.getInsights()
+  }
+
   @Get('users')
   @ApiOperation({ summary: 'List all users (paginated)' })
   @ApiQuery({ name: 'page', required: false, type: Number })
