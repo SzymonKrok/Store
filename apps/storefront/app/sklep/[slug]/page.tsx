@@ -4,6 +4,7 @@ import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { ImageGallery } from '@/components/products/ImageGallery'
 import { ProductInfo } from '@/components/products/ProductInfo'
+import { ProductViewTracker } from '@/components/products/ProductViewTracker'
 import { RelatedProducts, RelatedProductsSkeleton } from '@/components/products/RelatedProducts'
 import { ReviewsSection } from '@/components/products/ReviewsSection'
 import type { ProductDetail } from '@/lib/api/products'
@@ -73,6 +74,7 @@ export default async function ProductPage({
 
       {/* Product content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <ProductViewTracker slug={slug} />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <ImageGallery images={product.images} />
           <ProductInfo

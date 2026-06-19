@@ -223,4 +223,12 @@ export class ProductsService {
     // Soft-delete: OrderItem.variant has onDelete: Restrict so hard-delete fails on any historical order
     return this.prisma.product.update({ where: { id }, data: { isActive: false } })
   }
+
+  async incrementView(slug: string) {
+    // Fire-and-forget counter — updateMany no-ops if slug doesn't exist, so no 404 noise from bots
+    await this.prisma.product.updateMany({
+      where: { slug, isActive: true },
+      data: { viewCount: { increment: 1 } },
+    })
+  }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common'
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, HttpCode } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery, ApiParam, ApiResponse } from '@nestjs/swagger'
 import { ProductsService } from './products.service'
 import { CreateProductDto } from './dto/create-product.dto'
@@ -40,6 +40,14 @@ export class ProductsController {
   @ApiParam({ name: 'slug' })
   findOne(@Param('slug') slug: string) {
     return this.productsService.findOne(slug)
+  }
+
+  @Post(':slug/view')
+  @HttpCode(204)
+  @ApiOperation({ summary: 'Increment product view counter (basic analytics, fire-and-forget)' })
+  @ApiParam({ name: 'slug' })
+  incrementView(@Param('slug') slug: string) {
+    return this.productsService.incrementView(slug)
   }
 
   @Post()
