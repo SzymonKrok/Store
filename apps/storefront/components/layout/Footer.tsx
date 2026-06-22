@@ -46,7 +46,7 @@ export function Footer() {
               <img
                 src="/LA-logo-transparent.png"
                 alt="Lune Atelier"
-                className="h-28 w-auto"
+                className="h-44 w-auto"
               />
             </Link>
             <p className="mt-5 text-sm text-cream-muted leading-relaxed max-w-[200px]">
