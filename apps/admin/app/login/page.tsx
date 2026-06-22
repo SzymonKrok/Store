@@ -53,7 +53,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-ink">
       <Card className="w-full max-w-sm border-ink-600">
         <CardHeader className="items-center pb-2">
-          <Image src="/Logo-LA.png" alt="Lune Atelier" width={260} height={87} className="h-28 w-auto object-contain mb-1" />
+          <Image src="/LA-logo-horizonal.png" alt="Lune Atelier" width={260} height={87} className="h-28 w-auto object-contain mb-1" />
           <p className="text-xs text-cream-muted mt-1">Panel administracyjny</p>
         </CardHeader>
         <CardContent>

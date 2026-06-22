@@ -47,7 +47,7 @@ export function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 h-full w-64 bg-ink flex flex-col z-10">
       <div className="px-6 py-5 border-b border-ink-700">
-        <Image src="/Logo-LA.png" alt="Lune Atelier" width={180} height={60} className="h-12 w-auto object-contain" />
+        <Image src="/LA-logo-horizonal.png" alt="Lune Atelier" width={180} height={60} className="h-12 w-auto object-contain" />
       </div>
 
       <nav className="flex-1 py-4 px-3 space-y-0.5 overflow-y-auto">

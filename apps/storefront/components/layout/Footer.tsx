@@ -44,7 +44,7 @@ export function Footer() {
             <Link href="/" aria-label="Lune Atelier — strona główna" className="inline-block">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/Logo-LA.png"
+                src="/LA-logo-horizonal.png"
                 alt="Lune Atelier"
                 className="h-28 w-auto"
               />
