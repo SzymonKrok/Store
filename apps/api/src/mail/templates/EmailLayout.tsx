@@ -21,7 +21,7 @@ export function EmailLayout({ preview, storefrontUrl, children }: EmailLayoutPro
           <Section style={s.header}>
             <Link href={storefrontUrl}>
               <Img
-                src={`${storefrontUrl}/logo.png`}
+                src={`${storefrontUrl}/Logo-LA.png`}
                 alt="Lune Atelier"
                 width="120"
                 height="120"

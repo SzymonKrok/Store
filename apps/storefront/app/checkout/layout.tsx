@@ -12,7 +12,7 @@ export default function CheckoutLayout({ children }: { children: React.ReactNode
         <Link href="/" aria-label="Lune Atelier — strona główna" className="flex items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/logo.png"
+            src="/Logo-LA.png"
             alt="Lune Atelier"
             className="h-10 w-auto"
           />
