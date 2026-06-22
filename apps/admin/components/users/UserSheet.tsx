@@ -55,7 +55,7 @@ export function UserSheet({ userId, onClose }: Props) {
             <SheetHeader>
               <SheetTitle className="text-base">{user.email}</SheetTitle>
               <div className="flex gap-2 items-center">
-                <Badge className={user.role === 'ADMIN' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-700'}>
+                <Badge className={user.role === 'ADMIN' ? 'bg-primary text-primary-foreground' : 'bg-ink-700 text-cream-muted'}>
                   {user.role}
                 </Badge>
                 <span className="text-xs text-muted-foreground">

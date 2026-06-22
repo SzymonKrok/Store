@@ -5,9 +5,14 @@ export enum SortBy {
   PRICE_ASC = 'price_asc',
   PRICE_DESC = 'price_desc',
   NEWEST = 'newest',
+  BESTSELLER = 'bestseller',
 }
 
 export class ProductQueryDto {
+  @IsString()
+  @IsOptional()
+  q?: string
+
   @IsString()
   @IsOptional()
   categoryId?: string

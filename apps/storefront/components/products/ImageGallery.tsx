@@ -11,15 +11,15 @@ export function ImageGallery({ images }: { images: ProductImage[] }) {
 
   if (images.length === 0) {
     return (
-      <div className="aspect-square bg-stone-100 rounded-3xl flex items-center justify-center border border-stone-200">
-        <span className="font-display text-7xl text-stone-300 italic select-none">S</span>
+      <div className="aspect-square bg-ink-700 rounded-3xl flex items-center justify-center border border-ink-600">
+        <span className="font-display text-7xl text-gold/40 italic select-none">L</span>
       </div>
     )
   }
 
   return (
     <div className="space-y-4">
-      <div className="relative aspect-square bg-stone-100 rounded-3xl overflow-hidden border border-stone-200">
+      <div className="relative aspect-square bg-ink-700 rounded-3xl overflow-hidden border border-ink-600">
         <AnimatePresence mode="wait">
           <motion.div
             key={selected}
@@ -49,8 +49,8 @@ export function ImageGallery({ images }: { images: ProductImage[] }) {
               onClick={() => setSelected(i)}
               className={`relative flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-colors cursor-pointer ${
                 i === selected
-                  ? 'border-amber-700'
-                  : 'border-stone-200 hover:border-amber-400'
+                  ? 'border-gold'
+                  : 'border-ink-600 hover:border-gold/50'
               }`}
             >
               <Image

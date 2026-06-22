@@ -27,7 +27,10 @@ export type CreateProductImageDto = z.infer<typeof createProductImageSchema>
 export const createProductSchema = z.object({
   name: z.string().min(1).max(255),
   slug: z.string().min(1).max(255).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase letters, numbers, and hyphens only'),
+  shortDescription: z.string().max(500).optional().nullable(),
   description: z.string().optional(),
+  keyFeatures: z.array(z.string().min(1).max(200)).max(20).default([]),
+  specifications: z.record(z.string().min(1).max(200)).optional().nullable(),
   basePrice: z.number().positive(),
   categoryId: z.string().min(1),
   variants: z.array(createVariantSchema).min(1, 'At least one variant required'),
@@ -38,10 +41,11 @@ export const updateProductSchema = createProductSchema.partial()
 export type UpdateProductDto = z.infer<typeof updateProductSchema>
 
 export const productQuerySchema = z.object({
+  q: z.string().min(1).max(120).optional(),
   categoryId: z.string().optional(),
   minPrice: z.coerce.number().positive().optional(),
   maxPrice: z.coerce.number().positive().optional(),
-  sortBy: z.enum(['price_asc', 'price_desc', 'newest']).default('newest'),
+  sortBy: z.enum(['price_asc', 'price_desc', 'newest', 'bestseller']).default('newest'),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
 })

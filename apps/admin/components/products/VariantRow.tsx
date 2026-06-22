@@ -4,7 +4,6 @@ import { Trash2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { AttributeBuilder } from './AttributeBuilder'
 
 export interface VariantData {
   id?: string
@@ -19,18 +18,24 @@ export interface VariantData {
 interface Props {
   variant: VariantData
   index: number
+  attributeKeys: string[]
   onChange: (index: number, v: VariantData) => void
   onDelete: (index: number) => void
   canDelete: boolean
 }
 
-export function VariantRow({ variant, index, onChange, onDelete, canDelete }: Props) {
+export function VariantRow({ variant, index, attributeKeys, onChange, onDelete, canDelete }: Props) {
   function update(partial: Partial<VariantData>) {
     onChange(index, { ...variant, ...partial })
   }
 
+  const gridCols = `1fr 1fr 1fr 80px${attributeKeys.map(() => ' 1fr').join('')} auto auto`
+
   return (
-    <div className="grid grid-cols-[1fr_1fr_1fr_80px_1fr_auto_auto] gap-2 items-start py-2 border-b border-slate-100 last:border-0">
+    <div
+      className="grid gap-2 items-center py-2 border-b border-ink-700 last:border-0"
+      style={{ gridTemplateColumns: gridCols }}
+    >
       <Input
         placeholder="SKU"
         value={variant.sku}
@@ -63,23 +68,32 @@ export function VariantRow({ variant, index, onChange, onDelete, canDelete }: Pr
         className="text-sm h-8"
         min="0"
       />
-      <AttributeBuilder
-        value={variant.attributes}
-        onChange={(attrs) => update({ attributes: attrs })}
-      />
-      <div className="flex items-center gap-1.5 pt-1">
+
+      {attributeKeys.map((key) => (
+        <Input
+          key={key}
+          placeholder={key}
+          value={variant.attributes[key] ?? ''}
+          onChange={(e) =>
+            update({ attributes: { ...variant.attributes, [key]: e.target.value } })
+          }
+          className="text-sm h-8"
+        />
+      ))}
+
+      <div className="flex items-center gap-1.5">
         <Switch
           checked={variant.isActive}
           onCheckedChange={(v) => update({ isActive: v })}
           id={`active-${index}`}
         />
-        <Label htmlFor={`active-${index}`} className="text-xs text-slate-500">Aktywny</Label>
+        <Label htmlFor={`active-${index}`} className="text-xs text-cream-muted">Aktywny</Label>
       </div>
       <button
         type="button"
         onClick={() => onDelete(index)}
         disabled={!canDelete}
-        className="p-1 text-slate-400 hover:text-red-500 disabled:opacity-30 transition-colors"
+        className="p-1 text-cream-muted hover:text-red-400 disabled:opacity-30 transition-colors"
       >
         <Trash2 size={16} />
       </button>

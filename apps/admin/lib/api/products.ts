@@ -5,12 +5,16 @@ export interface AdminProduct {
   id: string
   name: string
   slug: string
+  shortDescription: string | null
   description: string | null
+  keyFeatures: string[]
+  specifications: Record<string, string> | null
   basePrice: string
   isActive: boolean
   categoryId: string
   category: { id: string; name: string }
-  images: Array<{ id: string; url: string; position: number }>
+  imageAttributeKey: string | null
+  images: Array<{ id: string; url: string; position: number; attributeValue: string | null }>
   variants: Array<{
     id: string
     sku: string

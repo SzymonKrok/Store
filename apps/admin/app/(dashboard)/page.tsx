@@ -12,7 +12,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-slate-900">Dashboard</h1>
+      <h1 className="text-2xl font-semibold text-cream">Dashboard</h1>
       <KpiCards kpis={stats?.kpis} isLoading={statsLoading} />
       <RevenueChart chart={stats?.chart} isLoading={statsLoading} />
       <InsightsPanels insights={insights} isLoading={insightsLoading} />

@@ -47,8 +47,8 @@ function fmt(amount: string | number) {
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white border border-stone-200 rounded-xl p-5">
-      <h2 className="text-[11px] font-semibold text-stone-400 uppercase tracking-widest mb-4">{title}</h2>
+    <div className="bg-card border border-border rounded-xl p-5">
+      <h2 className="text-[11px] font-semibold text-cream-muted uppercase tracking-widest mb-4">{title}</h2>
       {children}
     </div>
   )
@@ -57,10 +57,10 @@ function SectionCard({ title, children }: { title: string; children: React.React
 function MetaRow({ icon: Icon, label, value }: { icon?: React.ElementType; label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-start gap-3 text-sm">
-      {Icon && <Icon size={14} className="text-stone-400 mt-0.5 shrink-0" strokeWidth={1.5} />}
+      {Icon && <Icon size={14} className="text-cream-muted mt-0.5 shrink-0" strokeWidth={1.5} />}
       <div className="flex-1 flex justify-between items-start gap-4 min-w-0">
-        <span className="text-stone-500 shrink-0">{label}</span>
-        <span className="text-stone-800 text-right break-all">{value ?? '—'}</span>
+        <span className="text-cream-muted shrink-0">{label}</span>
+        <span className="text-cream text-right break-all">{value ?? '—'}</span>
       </div>
     </div>
   )
@@ -133,7 +133,7 @@ export default function OrderDetailPage() {
 
   if (isLoading || !order) {
     return (
-      <div className="min-h-screen bg-stone-50 p-6 lg:p-8">
+      <div className="min-h-screen bg-background p-6 lg:p-8">
         <LoadingSkeleton />
       </div>
     )
@@ -150,7 +150,7 @@ export default function OrderDetailPage() {
   const shortId = order.id.slice(-8).toUpperCase()
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
 
         {/* Page header */}
@@ -159,7 +159,7 @@ export default function OrderDetailPage() {
             variant="ghost"
             size="sm"
             onClick={() => router.push('/orders')}
-            className="text-stone-500 hover:text-stone-800 -ml-2"
+            className="text-cream-muted hover:text-cream -ml-2"
           >
             <ArrowLeft size={16} className="mr-1.5" strokeWidth={1.5} />
             Zamówienia
@@ -167,28 +167,28 @@ export default function OrderDetailPage() {
 
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-xl font-semibold text-stone-900 font-mono tracking-tight">
+              <h1 className="text-xl font-semibold text-cream font-mono tracking-tight">
                 #{shortId}
               </h1>
               <Badge className={`text-xs px-2.5 py-0.5 ${STATUS_COLORS[order.status] ?? ''}`}>
                 {STATUS_LABELS[order.status] ?? order.status}
               </Badge>
               {order.wantsInvoice && (
-                <Badge className="text-xs px-2.5 py-0.5 bg-blue-50 text-blue-700 border-blue-200">
+                <Badge className="text-xs px-2.5 py-0.5 bg-blue-950/40 text-blue-300 border-blue-800/40">
                   Faktura VAT
                 </Badge>
               )}
             </div>
-            <p className="text-sm text-stone-400 mt-1 flex items-center gap-1.5">
+            <p className="text-sm text-cream-muted mt-1 flex items-center gap-1.5">
               <Clock size={12} strokeWidth={1.5} />
               Złożone {dt(order.createdAt)}
             </p>
           </div>
 
           <div className="text-right">
-            <p className="text-2xl font-semibold text-stone-900">{fmt(order.total)}</p>
+            <p className="text-2xl font-semibold text-cream">{fmt(order.total)}</p>
             {hasDiscount && (
-              <p className="text-xs text-stone-400 mt-0.5">
+              <p className="text-xs text-cream-muted mt-0.5">
                 po rabacie <span className="text-green-700">−{fmt(order.discountAmount)}</span>
               </p>
             )}
@@ -212,7 +212,7 @@ export default function OrderDetailPage() {
                       {order.userId ? (
                         <Badge className="bg-green-50 text-green-700 border border-green-200 text-[10px] font-medium">Konto</Badge>
                       ) : (
-                        <Badge className="bg-stone-100 text-stone-500 border border-stone-200 text-[10px] font-medium">Gość</Badge>
+                        <Badge className="bg-stone-100 text-cream-muted border border-border text-[10px] font-medium">Gość</Badge>
                       )}
                     </span>
                   }
@@ -244,13 +244,13 @@ export default function OrderDetailPage() {
                     value={
                       <span className="text-right">
                         {order.lockerCode && (
-                          <span className="font-mono font-medium text-stone-900">{order.lockerCode}</span>
+                          <span className="font-mono font-medium text-cream">{order.lockerCode}</span>
                         )}
                         {order.shippingPointDetails?.addressLine1 && (
-                          <><br /><span className="font-normal text-stone-600">{order.shippingPointDetails.addressLine1}</span></>
+                          <><br /><span className="font-normal text-cream/70">{order.shippingPointDetails.addressLine1}</span></>
                         )}
                         {order.shippingPointDetails?.addressLine2 && (
-                          <><br /><span className="font-normal text-stone-500">{order.shippingPointDetails.addressLine2}</span></>
+                          <><br /><span className="font-normal text-cream-muted">{order.shippingPointDetails.addressLine2}</span></>
                         )}
                       </span>
                     }
@@ -268,7 +268,7 @@ export default function OrderDetailPage() {
                 <>
                   <Separator className="bg-stone-100 my-4" />
                   <div className="space-y-3">
-                    <p className="text-[11px] font-semibold text-stone-400 uppercase tracking-widest flex items-center gap-2">
+                    <p className="text-[11px] font-semibold text-cream-muted uppercase tracking-widest flex items-center gap-2">
                       Adres rozliczeniowy
                       {order.billingAddress.accountType === 'COMPANY' && (
                         <span className="bg-blue-50 text-blue-700 border border-blue-200 rounded px-1.5 py-0.5 text-[10px] font-medium tracking-normal normal-case">Firma</span>
@@ -299,7 +299,7 @@ export default function OrderDetailPage() {
                 <>
                   <Separator className="bg-stone-100 my-4" />
                   <div className="space-y-3">
-                    <p className="text-[11px] font-semibold text-stone-400 uppercase tracking-widest">Dane do faktury</p>
+                    <p className="text-[11px] font-semibold text-cream-muted uppercase tracking-widest">Dane do faktury</p>
                     <MetaRow icon={Building2} label="Firma" value={order.companyName} />
                     <MetaRow icon={Hash} label="NIP" value={order.taxId} />
                   </div>
@@ -311,7 +311,7 @@ export default function OrderDetailPage() {
             <SectionCard title="Produkty">
               <div className="space-y-0">
                 {/* Table header */}
-                <div className="hidden sm:grid grid-cols-[1fr_auto_auto_auto] gap-x-4 pb-2 border-b border-stone-100 text-[11px] font-medium text-stone-400 uppercase tracking-wide">
+                <div className="hidden sm:grid grid-cols-[1fr_auto_auto_auto] gap-x-4 pb-2 border-b border-ink-700 text-[11px] font-medium text-cream-muted uppercase tracking-wide">
                   <span>Produkt</span>
                   <span className="text-right">Ilość</span>
                   <span className="text-right">Cena jedn.</span>
@@ -321,28 +321,28 @@ export default function OrderDetailPage() {
                 {order.items.map((item) => (
                   <div
                     key={item.id}
-                    className="grid sm:grid-cols-[1fr_auto_auto_auto] gap-x-4 gap-y-1 py-3 border-b border-stone-50 last:border-0"
+                    className="grid sm:grid-cols-[1fr_auto_auto_auto] gap-x-4 gap-y-1 py-3 border-b border-ink-700 last:border-0"
                   >
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-stone-800 truncate">{item.productName}</p>
+                      <p className="text-sm font-medium text-cream truncate">{item.productName}</p>
                       <div className="flex flex-wrap gap-1.5 mt-1">
-                        <span className="font-mono text-[11px] text-stone-400">{item.variantSku}</span>
+                        <span className="font-mono text-[11px] text-cream-muted">{item.variantSku}</span>
                         {Object.entries(item.variantAttributes).map(([k, v]) => (
                           <Badge
                             key={k}
                             variant="outline"
-                            className="text-[10px] px-1.5 py-0 font-normal text-stone-500 border-stone-200"
+                            className="text-[10px] px-1.5 py-0 font-normal text-cream-muted border-border"
                           >
                             {k}: {v}
                           </Badge>
                         ))}
                       </div>
                     </div>
-                    <span className="text-sm text-stone-600 text-right self-center">×{item.quantity}</span>
-                    <span className="text-sm text-stone-500 text-right self-center font-mono">
+                    <span className="text-sm text-cream/70 text-right self-center">×{item.quantity}</span>
+                    <span className="text-sm text-cream-muted text-right self-center font-mono">
                       {fmt(item.priceAtPurchase)}
                     </span>
-                    <span className="text-sm font-semibold text-stone-900 text-right self-center font-mono">
+                    <span className="text-sm font-semibold text-cream text-right self-center font-mono">
                       {fmt(Number(item.priceAtPurchase) * item.quantity)}
                     </span>
                   </div>
@@ -350,10 +350,10 @@ export default function OrderDetailPage() {
               </div>
 
               {/* Totals */}
-              <div className="pt-3 mt-1 border-t border-stone-100 space-y-2">
+              <div className="pt-3 mt-1 border-t border-ink-700 space-y-2">
                 {hasDiscount && (
                   <>
-                    <div className="flex justify-between text-sm text-stone-500">
+                    <div className="flex justify-between text-sm text-cream-muted">
                       <span>Suma pośrednia</span>
                       <span className="font-mono">{fmt(order.subtotal)}</span>
                     </div>
@@ -370,7 +370,7 @@ export default function OrderDetailPage() {
                     </div>
                   </>
                 )}
-                <div className="flex justify-between text-base font-semibold text-stone-900 pt-1">
+                <div className="flex justify-between text-base font-semibold text-cream pt-1">
                   <span>Do zapłaty</span>
                   <span className="font-mono">{fmt(order.total)}</span>
                 </div>
@@ -390,11 +390,11 @@ export default function OrderDetailPage() {
                     {STATUS_LABELS[order.status] ?? order.status}
                   </Badge>
                   {pendingStatus && pendingStatus !== order.status && (
-                    <span className="text-xs text-stone-400">→ {STATUS_LABELS[pendingStatus]}</span>
+                    <span className="text-xs text-cream-muted">→ {STATUS_LABELS[pendingStatus]}</span>
                   )}
                 </div>
                 <Select value={currentStatus} onValueChange={setPendingStatus}>
-                  <SelectTrigger className="border-stone-200 text-sm">
+                  <SelectTrigger className="border-border text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -407,7 +407,7 @@ export default function OrderDetailPage() {
                 </Select>
                 <Button
                   size="sm"
-                  className="w-full bg-stone-900 hover:bg-stone-800 text-white text-xs"
+                  className="w-full bg-gold text-ink hover:bg-gold-200 text-xs"
                   onClick={handleStatusSave}
                   disabled={!pendingStatus || pendingStatus === order.status || isUpdatingStatus}
                 >
@@ -419,7 +419,7 @@ export default function OrderDetailPage() {
             {/* Invoice */}
             <SectionCard title="Faktura">
               {order.invoiceUrl ? (
-                <Button variant="outline" size="sm" className="w-full border-stone-200 text-stone-700" asChild>
+                <Button variant="outline" size="sm" className="w-full border-border text-stone-700" asChild>
                   <a href={order.invoiceUrl} target="_blank" rel="noreferrer">
                     <FileText size={14} className="mr-2" strokeWidth={1.5} />
                     Pobierz fakturę PDF
@@ -433,7 +433,7 @@ export default function OrderDetailPage() {
                       <span className="block">
                         <Button
                           size="sm"
-                          className="w-full bg-stone-900 hover:bg-stone-800 text-white text-xs"
+                          className="w-full bg-gold text-ink hover:bg-gold-200 text-xs"
                           onClick={handleRegenerateInvoice}
                           disabled={!actionable || isRegenerating}
                         >
@@ -451,7 +451,7 @@ export default function OrderDetailPage() {
                 </TooltipProvider>
               )}
               {order.invoiceUrl && (
-                <p className="text-[11px] text-stone-400 mt-2 text-center">
+                <p className="text-[11px] text-cream-muted mt-2 text-center">
                   Wygenerowana automatycznie po płatności
                 </p>
               )}
@@ -465,10 +465,10 @@ export default function OrderDetailPage() {
                     <Package size={14} strokeWidth={1.5} />
                     Przesyłka utworzona
                   </div>
-                  <p className="text-[11px] text-stone-500 font-mono break-all">
+                  <p className="text-[11px] text-cream-muted font-mono break-all">
                     ID: {order.inpostShipmentId}
                   </p>
-                  <p className="text-[11px] text-stone-400 leading-relaxed">
+                  <p className="text-[11px] text-cream-muted leading-relaxed">
                     Pobierz etykietę w panelu InPost Web Manager.
                   </p>
                 </div>
@@ -479,9 +479,9 @@ export default function OrderDetailPage() {
                       <div className="space-y-2.5">
                         <div className="grid grid-cols-2 gap-2">
                           <div className="space-y-1">
-                            <Label className="text-[11px] text-stone-400">Rozmiar</Label>
+                            <Label className="text-[11px] text-cream-muted">Rozmiar</Label>
                             <Select value={parcelSize} onValueChange={setParcelSize} disabled={!actionable}>
-                              <SelectTrigger className="text-xs border-stone-200">
+                              <SelectTrigger className="text-xs border-border">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -492,12 +492,12 @@ export default function OrderDetailPage() {
                             </Select>
                           </div>
                           <div className="space-y-1">
-                            <Label className="text-[11px] text-stone-400">Waga (kg)</Label>
+                            <Label className="text-[11px] text-cream-muted">Waga (kg)</Label>
                             <Input
                               type="number"
                               value={parcelWeight}
                               onChange={(e) => setParcelWeight(e.target.value)}
-                              className="text-xs border-stone-200"
+                              className="text-xs border-border"
                               disabled={!actionable}
                               min="0.1"
                               step="0.1"
@@ -506,7 +506,7 @@ export default function OrderDetailPage() {
                         </div>
                         <Button
                           size="sm"
-                          className="w-full bg-stone-900 hover:bg-stone-800 text-white text-xs"
+                          className="w-full bg-gold text-ink hover:bg-gold-200 text-xs"
                           onClick={handleGenerateLabel}
                           disabled={!actionable || isGeneratingLabel}
                         >
@@ -537,7 +537,7 @@ export default function OrderDetailPage() {
                       icon={CreditCard}
                       label="Stripe Session"
                       value={
-                        <span className="font-mono text-[11px] text-stone-400 break-all">
+                        <span className="font-mono text-[11px] text-cream-muted break-all">
                           {order.stripeSessionId}
                         </span>
                       }

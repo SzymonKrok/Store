@@ -24,20 +24,20 @@ export async function BestsellersSection() {
   if (products.length === 0) return null
 
   return (
-    <section className="py-24 bg-stone-50">
+    <section className="py-24 bg-ink">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedSection className="flex items-end justify-between mb-12">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-700 mb-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gold mb-3">
               Polecane
             </p>
-            <h2 className="font-display text-4xl font-medium text-stone-900">
+            <h2 className="font-display text-4xl font-medium text-cream">
               Bestsellery
             </h2>
           </div>
           <Link
             href="/sklep"
-            className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors duration-200"
+            className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-cream/70 hover:text-gold transition-colors duration-200"
           >
             Zobacz wszystkie <ArrowRight size={14} />
           </Link>
@@ -54,7 +54,7 @@ export async function BestsellersSection() {
         <div className="mt-10 flex justify-center sm:hidden">
           <Link
             href="/sklep"
-            className="inline-flex items-center gap-2 text-sm font-medium text-stone-700 border border-stone-300 px-6 py-3 rounded-full hover:border-stone-500 transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-medium text-cream/80 border border-gold/40 px-6 py-3 rounded-full hover:border-gold hover:text-gold transition-colors"
           >
             Zobacz wszystkie <ArrowRight size={14} />
           </Link>

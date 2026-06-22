@@ -7,6 +7,7 @@ export interface ProductImage {
   url: string
   altText: string | null
   position: number
+  attributeValue: string | null
 }
 
 export interface ProductVariant {
@@ -30,7 +31,11 @@ export interface ProductSummary {
 }
 
 export interface ProductDetail extends ProductSummary {
+  shortDescription: string | null
   description: string | null
+  keyFeatures: string[]
+  specifications: Record<string, string> | null
+  imageAttributeKey: string | null
 }
 
 export interface ProductsResponse {

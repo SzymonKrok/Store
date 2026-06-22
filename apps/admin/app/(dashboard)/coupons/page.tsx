@@ -58,14 +58,14 @@ export default function CouponsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-slate-900">Kupony</h1>
+        <h1 className="text-2xl font-semibold text-cream">Kupony</h1>
         <Button size="sm" onClick={() => { setEditCoupon(null); setDialogOpen(true) }}>
           <Plus size={16} className="mr-1" />
           Nowy kupon
         </Button>
       </div>
 
-      <div className="rounded-lg border bg-white overflow-hidden">
+      <div className="rounded-lg border overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -109,7 +109,7 @@ export default function CouponsPage() {
                       {coupon.usedCount}{coupon.maxUses != null ? `/${coupon.maxUses}` : ''}
                     </TableCell>
                     <TableCell>
-                      <Badge className={coupon.isActive ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}>
+                      <Badge className={coupon.isActive ? 'bg-green-100 text-green-700' : 'bg-ink-600 text-cream-muted'}>
                         {coupon.isActive ? 'Aktywny' : 'Nieaktywny'}
                       </Badge>
                     </TableCell>
@@ -117,7 +117,7 @@ export default function CouponsPage() {
                       <div className="flex gap-1">
                         <button
                           onClick={() => { setEditCoupon(coupon); setDialogOpen(true) }}
-                          className="p-1.5 text-slate-400 hover:text-primary transition-colors"
+                          className="p-1.5 text-cream-muted hover:text-primary transition-colors"
                         >
                           <Pencil size={15} />
                         </button>
@@ -131,7 +131,7 @@ export default function CouponsPage() {
                         ) : (
                           <button
                             onClick={() => handleRestore(coupon.id)}
-                            className="p-1.5 text-slate-400 hover:text-primary transition-colors"
+                            className="p-1.5 text-cream-muted hover:text-primary transition-colors"
                           >
                             <RotateCcw size={15} />
                           </button>

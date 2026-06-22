@@ -27,7 +27,7 @@ const STATUS_LABELS: Record<ReturnStatus, string> = {
 
 const STATUS_COLORS: Record<ReturnStatus, string> = {
   RETURN_REQUESTED: 'bg-amber-100 text-amber-700',
-  RETURN_APPROVED: 'bg-blue-100 text-blue-700',
+  RETURN_APPROVED: 'bg-blue-950/40 text-blue-300',
   REFUNDED: 'bg-green-100 text-green-700',
 }
 
@@ -57,7 +57,7 @@ export default function ReturnsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-slate-900">Zwroty</h1>
+        <h1 className="text-2xl font-semibold text-cream">Zwroty</h1>
 
         <Select value={filterStatus} onValueChange={(v) => { setFilterStatus(v); setPage(1) }}>
           <SelectTrigger className="w-48">
@@ -72,7 +72,7 @@ export default function ReturnsPage() {
         </Select>
       </div>
 
-      <div className="rounded-lg border bg-white overflow-hidden">
+      <div className="rounded-lg border overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -109,21 +109,21 @@ export default function ReturnsPage() {
                         #{rr.order.id.slice(0, 8).toUpperCase()}
                       </button>
                     </TableCell>
-                    <TableCell className="text-sm text-slate-600">
+                    <TableCell className="text-sm text-cream/70">
                       {rr.order.user?.email ?? rr.order.guestEmail ?? '—'}
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-slate-600">
+                    <TableCell className="font-mono text-xs text-cream/70">
                       {rr.bankAccount}
                     </TableCell>
-                    <TableCell className="text-sm text-slate-600 max-w-[200px] truncate">
+                    <TableCell className="text-sm text-cream/70 max-w-[200px] truncate">
                       {rr.reason}
                     </TableCell>
-                    <TableCell className="text-sm text-slate-500 whitespace-nowrap">
+                    <TableCell className="text-sm text-cream-muted whitespace-nowrap">
                       {format(parseISO(rr.createdAt), 'd MMM yyyy', { locale: pl })}
                     </TableCell>
                     <TableCell>
                       {rr.status === 'REFUNDED' ? (
-                        <span className="text-xs text-slate-400 italic">Zakończony</span>
+                        <span className="text-xs text-cream-muted italic">Zakończony</span>
                       ) : (
                         <Select
                           value={rr.status}
@@ -147,7 +147,7 @@ export default function ReturnsPage() {
 
             {!isLoading && data?.items.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-slate-400 text-sm py-10">
+                <TableCell colSpan={7} className="text-center text-cream-muted text-sm py-10">
                   Brak wniosków zwrotu
                 </TableCell>
               </TableRow>

@@ -45,11 +45,11 @@ export function CouponInput({ subtotal, onApply, appliedCode }: CouponInputProps
   if (appliedCode) {
     return (
       <div className="flex items-center gap-2 py-2">
-        <Tag size={13} strokeWidth={1.5} className="text-amber-700 flex-shrink-0" />
-        <span className="text-sm text-amber-700 font-medium flex-1">{appliedCode}</span>
+        <Tag size={13} strokeWidth={1.5} className="text-gold flex-shrink-0" />
+        <span className="text-sm text-gold font-medium flex-1">{appliedCode}</span>
         <button
           onClick={handleRemove}
-          className="text-xs text-stone-400 hover:text-stone-700 transition-colors cursor-pointer"
+          className="text-xs text-cream-muted hover:text-cream transition-colors cursor-pointer"
         >
           Usuń
         </button>
@@ -66,17 +66,17 @@ export function CouponInput({ subtotal, onApply, appliedCode }: CouponInputProps
           onChange={(e) => setCode(e.target.value.toUpperCase())}
           onKeyDown={(e) => e.key === 'Enter' && handleApply()}
           placeholder="Kod kuponu"
-          className="flex-1 h-9 px-3 text-sm border border-stone-200 rounded-xl focus:outline-none focus:border-stone-400 bg-white placeholder:text-stone-400"
+          className="flex-1 h-9 px-3 text-sm border border-ink-600 rounded-xl focus:outline-none focus:border-gold bg-ink-700 text-cream placeholder:text-cream-muted/60"
         />
         <button
           onClick={handleApply}
           disabled={loading || !code.trim()}
-          className="h-9 px-4 text-sm font-medium bg-stone-100 text-stone-700 rounded-xl hover:bg-stone-200 transition-colors disabled:opacity-50 cursor-pointer"
+          className="h-9 px-4 text-sm font-medium bg-ink-700 text-cream border border-ink-600 rounded-xl hover:border-gold/50 hover:text-gold transition-colors disabled:opacity-50 cursor-pointer"
         >
           {loading ? '...' : 'Zastosuj'}
         </button>
       </div>
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && <p className="text-xs text-red-400">{error}</p>}
     </div>
   )
 }

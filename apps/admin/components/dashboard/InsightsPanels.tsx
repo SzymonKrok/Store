@@ -42,7 +42,7 @@ const STATUS_COLORS: Record<OrderStatus, string> = {
   PROCESSING: 'bg-indigo-100 text-indigo-700',
   SHIPPED: 'bg-cyan-100 text-cyan-700',
   DELIVERED: 'bg-green-100 text-green-700',
-  CANCELLED: 'bg-slate-100 text-slate-600',
+  CANCELLED: 'bg-ink-600 text-cream-muted',
   REFUNDED: 'bg-rose-100 text-rose-700',
 }
 
@@ -72,16 +72,16 @@ export function InsightsPanels({ insights, isLoading }: Props) {
     <div className="space-y-6">
       {/* Low stock — surfaced at the top so it grabs attention */}
       {insights.lowStockVariants.length > 0 && (
-        <Card className="border-amber-200 bg-amber-50/40">
+        <Card className="border-amber-800/40 bg-amber-950/20">
           <CardContent className="pt-5 space-y-3">
             <SectionHeading
-              icon={<AlertTriangle size={15} className="text-amber-600" />}
+              icon={<AlertTriangle size={15} className="text-amber-500" />}
               title="Niski stan magazynowy — kliknij, aby uzupełnić"
             />
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-xs text-slate-400 border-b border-slate-100">
+                  <tr className="text-xs text-cream-muted border-b border-amber-800/30">
                     <th className="text-left font-normal pb-2">Produkt</th>
                     <th className="text-left font-normal pb-2">Wariant</th>
                     <th className="text-left font-normal pb-2">SKU</th>
@@ -95,17 +95,17 @@ export function InsightsPanels({ insights, isLoading }: Props) {
                       .map(([k, val]) => `${k}: ${val}`)
                       .join(', ')
                     return (
-                      <tr key={`${v.productId}-${v.sku}`} className="border-b border-amber-100 last:border-0 hover:bg-amber-100/40 transition-colors">
+                      <tr key={`${v.productId}-${v.sku}`} className="border-b border-amber-800/20 last:border-0 hover:bg-amber-900/20 transition-colors">
                         <td className="py-2">
                           <Link
                             href={`/products/${v.productId}`}
-                            className="text-slate-800 hover:text-amber-800 hover:underline font-medium"
+                            className="text-cream hover:text-amber-400 hover:underline font-medium"
                           >
                             {v.productName}
                           </Link>
                         </td>
-                        <td className="py-2 text-slate-500 text-xs truncate max-w-[180px]">{variantLabel || '—'}</td>
-                        <td className="py-2 font-mono text-xs text-slate-600">{v.sku}</td>
+                        <td className="py-2 text-cream-muted text-xs truncate max-w-[180px]">{variantLabel || '—'}</td>
+                        <td className="py-2 font-mono text-xs text-cream/70">{v.sku}</td>
                         <td className="py-2 text-right">
                           <Badge className={v.stock === 0 ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}>
                             {v.stock === 0 ? 'Brak' : v.stock}
@@ -114,7 +114,7 @@ export function InsightsPanels({ insights, isLoading }: Props) {
                         <td className="py-2 text-right">
                           <Link
                             href={`/products/${v.productId}`}
-                            className="inline-flex items-center justify-center text-slate-400 hover:text-amber-700 transition-colors"
+                            className="inline-flex items-center justify-center text-cream-muted hover:text-amber-400 transition-colors"
                             aria-label="Edytuj produkt"
                           >
                             <ArrowRight size={14} />
@@ -159,7 +159,7 @@ export function InsightsPanels({ insights, isLoading }: Props) {
                   <Badge className={`${STATUS_COLORS[status]} text-xs font-normal`}>
                     {STATUS_LABELS[status]}
                   </Badge>
-                  <span className="font-mono text-slate-700">
+                  <span className="font-mono text-cream/70">
                     {insights.orderStatusBreakdown[status]}
                   </span>
                 </div>
@@ -184,11 +184,11 @@ export function InsightsPanels({ insights, isLoading }: Props) {
               <ol className="space-y-1.5 text-sm">
                 {insights.topCities.map((c, i) => (
                   <li key={c.city} className="flex items-center justify-between">
-                    <span className="text-slate-700 truncate">
-                      <span className="text-slate-400 mr-2 font-mono">{i + 1}.</span>
+                    <span className="text-cream/90 truncate">
+                      <span className="text-cream-muted mr-2 font-mono">{i + 1}.</span>
                       {c.city}
                     </span>
-                    <span className="font-mono text-slate-600">{c.count}</span>
+                    <span className="font-mono text-cream/70">{c.count}</span>
                   </li>
                 ))}
               </ol>
@@ -207,7 +207,7 @@ export function InsightsPanels({ insights, isLoading }: Props) {
             ) : (
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-xs text-slate-400 border-b border-slate-100">
+                  <tr className="text-xs text-cream-muted border-b border-ink-700">
                     <th className="text-left font-normal pb-2">Produkt</th>
                     <th className="text-right font-normal pb-2">Sztuk</th>
                     <th className="text-right font-normal pb-2">Przychód</th>
@@ -215,10 +215,10 @@ export function InsightsPanels({ insights, isLoading }: Props) {
                 </thead>
                 <tbody>
                   {insights.topProducts.map((p) => (
-                    <tr key={p.productName} className="border-b border-slate-50 last:border-0">
-                      <td className="py-2 text-slate-700 truncate max-w-[180px]">{p.productName}</td>
-                      <td className="py-2 text-right font-mono">{p.totalSold}</td>
-                      <td className="py-2 text-right font-mono text-slate-600">{formatPLN(p.totalRevenue)}</td>
+                    <tr key={p.productName} className="border-b border-ink-700 last:border-0">
+                      <td className="py-2 text-cream/90 truncate max-w-[180px]">{p.productName}</td>
+                      <td className="py-2 text-right font-mono text-cream/90">{p.totalSold}</td>
+                      <td className="py-2 text-right font-mono text-cream/70">{formatPLN(p.totalRevenue)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -236,16 +236,16 @@ export function InsightsPanels({ insights, isLoading }: Props) {
               <ol className="space-y-1.5 text-sm">
                 {insights.topViewed.map((p, i) => (
                   <li key={p.id} className="flex items-center justify-between">
-                    <span className="text-slate-700 truncate">
-                      <span className="text-slate-400 mr-2 font-mono">{i + 1}.</span>
+                    <span className="text-cream/90 truncate">
+                      <span className="text-cream-muted mr-2 font-mono">{i + 1}.</span>
                       <Link
                         href={`/products/${p.id}`}
-                        className="hover:text-slate-900 hover:underline"
+                        className="hover:text-cream hover:underline"
                       >
                         {p.name}
                       </Link>
                     </span>
-                    <span className="font-mono text-slate-600">
+                    <span className="font-mono text-cream/70">
                       {p.viewCount.toLocaleString('pl-PL')}
                     </span>
                   </li>
@@ -265,7 +265,7 @@ export function InsightsPanels({ insights, isLoading }: Props) {
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-xs text-slate-400 border-b border-slate-100">
+                <tr className="text-xs text-cream-muted border-b border-ink-700">
                   <th className="text-left font-normal pb-2">Kod</th>
                   <th className="text-left font-normal pb-2">Wartość</th>
                   <th className="text-right font-normal pb-2">Użyć</th>
@@ -274,13 +274,13 @@ export function InsightsPanels({ insights, isLoading }: Props) {
               </thead>
               <tbody>
                 {insights.couponPerformance.map((c) => (
-                  <tr key={c.code} className="border-b border-slate-50 last:border-0">
-                    <td className="py-2 font-mono">{c.code}</td>
-                    <td className="py-2 text-slate-600">
+                  <tr key={c.code} className="border-b border-ink-700 last:border-0">
+                    <td className="py-2 font-mono text-cream/90">{c.code}</td>
+                    <td className="py-2 text-cream/70">
                       {c.type === 'PERCENTAGE' ? `${c.value}%` : formatPLN(c.value)}
                     </td>
-                    <td className="py-2 text-right font-mono">{c.redemptions}</td>
-                    <td className="py-2 text-right font-mono text-slate-600">{formatPLN(c.totalDiscount)}</td>
+                    <td className="py-2 text-right font-mono text-cream/90">{c.redemptions}</td>
+                    <td className="py-2 text-right font-mono text-cream/70">{formatPLN(c.totalDiscount)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -298,7 +298,7 @@ export function InsightsPanels({ insights, isLoading }: Props) {
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-xs text-slate-400 border-b border-slate-100">
+                <tr className="text-xs text-cream-muted border-b border-ink-700">
                   <th className="text-left font-normal pb-2">Klient</th>
                   <th className="text-left font-normal pb-2">Produkty</th>
                   <th className="text-right font-normal pb-2">Sztuk</th>
@@ -308,12 +308,12 @@ export function InsightsPanels({ insights, isLoading }: Props) {
               </thead>
               <tbody>
                 {insights.abandonedCarts.map((cart) => (
-                  <tr key={cart.id} className="border-b border-slate-50 last:border-0">
-                    <td className="py-2 text-slate-700 truncate max-w-[180px]">{cart.identifier}</td>
-                    <td className="py-2 text-slate-500 text-xs truncate max-w-[260px]">{cart.itemPreview}</td>
-                    <td className="py-2 text-right font-mono">{cart.itemCount}</td>
-                    <td className="py-2 text-right font-mono text-slate-600">{formatPLN(cart.totalValue)}</td>
-                    <td className="py-2 text-right text-xs text-slate-400" title={format(new Date(cart.updatedAt), 'd MMM yyyy HH:mm', { locale: pl })}>
+                  <tr key={cart.id} className="border-b border-ink-700 last:border-0">
+                    <td className="py-2 text-cream/90 truncate max-w-[180px]">{cart.identifier}</td>
+                    <td className="py-2 text-cream-muted text-xs truncate max-w-[260px]">{cart.itemPreview}</td>
+                    <td className="py-2 text-right font-mono text-cream/90">{cart.itemCount}</td>
+                    <td className="py-2 text-right font-mono text-cream/70">{formatPLN(cart.totalValue)}</td>
+                    <td className="py-2 text-right text-xs text-cream-muted" title={format(new Date(cart.updatedAt), 'd MMM yyyy HH:mm', { locale: pl })}>
                       {formatDistanceToNow(new Date(cart.updatedAt), { addSuffix: true, locale: pl })}
                     </td>
                   </tr>
@@ -332,11 +332,11 @@ function MiniKpi({ icon, label, value, alert }: { icon: React.ReactNode; label: 
     <Card>
       <CardContent className="pt-5 pb-5">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="text-slate-400">{icon}</span>
+          <span className="text-cream-muted">{icon}</span>
           {label}
         </div>
         <div className="flex items-center gap-2 mt-2">
-          <span className="text-xl font-semibold text-slate-900 font-mono">{value}</span>
+          <span className="text-xl font-semibold text-cream font-mono">{value}</span>
           {alert && <Badge className="bg-amber-100 text-amber-700">!</Badge>}
         </div>
       </CardContent>
@@ -346,15 +346,15 @@ function MiniKpi({ icon, label, value, alert }: { icon: React.ReactNode; label: 
 
 function SectionHeading({ icon, title }: { icon: React.ReactNode; title: string }) {
   return (
-    <h3 className="flex items-center gap-2 text-sm font-medium text-slate-700">
-      <span className="text-slate-400">{icon}</span>
+    <h3 className="flex items-center gap-2 text-sm font-medium text-cream/90">
+      <span className="text-cream-muted">{icon}</span>
       {title}
     </h3>
   )
 }
 
 function EmptyState({ text }: { text: string }) {
-  return <p className="text-xs text-slate-400 py-4 text-center">{text}</p>
+  return <p className="text-xs text-cream-muted py-4 text-center">{text}</p>
 }
 
 function DeliveryBars({ split }: { split: Record<DeliveryMethod, number> }) {
@@ -369,14 +369,14 @@ function DeliveryBars({ split }: { split: Record<DeliveryMethod, number> }) {
         return (
           <div key={method}>
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-slate-700">{DELIVERY_LABELS[method]}</span>
-              <span className="text-slate-500 font-mono">
+              <span className="text-cream/90">{DELIVERY_LABELS[method]}</span>
+              <span className="text-cream-muted font-mono">
                 {count} ({pct}%)
               </span>
             </div>
-            <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-ink-600 rounded-full overflow-hidden">
               <div
-                className="h-full bg-slate-600 rounded-full transition-all"
+                className="h-full bg-gold/60 rounded-full transition-all"
                 style={{ width: `${pct}%` }}
               />
             </div>

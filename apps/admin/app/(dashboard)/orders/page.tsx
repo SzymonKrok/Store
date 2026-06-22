@@ -55,7 +55,7 @@ function OrdersPageContent() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-slate-900">Zamówienia</h1>
+        <h1 className="text-2xl font-semibold text-cream">Zamówienia</h1>
         {data && (
           <span className="text-sm text-stone-400">
             {data.total} {data.total === 1 ? 'zamówienie' : data.total < 5 ? 'zamówienia' : 'zamówień'}

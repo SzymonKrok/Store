@@ -23,7 +23,7 @@ export default function ProductsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-slate-900">Produkty</h1>
+        <h1 className="text-2xl font-semibold text-cream">Produkty</h1>
         <div className="flex gap-3">
           <Button
             variant="outline"

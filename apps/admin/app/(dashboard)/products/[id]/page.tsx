@@ -25,7 +25,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-slate-900">Edytuj produkt</h1>
+      <h1 className="text-2xl font-semibold text-cream">Edytuj produkt</h1>
       <ProductForm
         product={product}
         categories={categories}

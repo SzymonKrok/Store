@@ -32,7 +32,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 z-[90] bg-stone-900/30 backdrop-blur-sm"
+            className="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm"
             aria-hidden="true"
           />
 
@@ -44,20 +44,20 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ duration: 0.32, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="fixed top-0 right-0 bottom-0 z-[95] w-full max-w-sm bg-white shadow-2xl flex flex-col"
+            className="fixed top-0 right-0 bottom-0 z-[95] w-full max-w-sm bg-ink-850 border-l border-ink-600 shadow-2xl flex flex-col"
           >
             {/* Header */}
-            <div className="flex items-center justify-between h-16 px-5 border-b border-stone-100 flex-shrink-0">
+            <div className="flex items-center justify-between h-16 px-5 border-b border-ink-600 flex-shrink-0">
               <div className="flex items-center gap-2.5">
-                <ShoppingBag size={17} strokeWidth={1.5} className="text-stone-700" />
-                <span className="font-medium text-stone-900 text-sm tracking-wide">
+                <ShoppingBag size={17} strokeWidth={1.5} className="text-gold" />
+                <span className="font-medium text-cream text-sm tracking-wide">
                   Koszyk{itemCount > 0 ? ` (${itemCount})` : ''}
                 </span>
               </div>
               <button
                 onClick={onClose}
                 aria-label="Zamknij koszyk"
-                className="p-2 text-stone-500 hover:text-stone-900 hover:bg-stone-100 rounded-xl transition-colors cursor-pointer"
+                className="p-2 text-cream-muted hover:text-gold hover:bg-ink-700 rounded-xl transition-colors cursor-pointer"
               >
                 <X size={18} strokeWidth={1.5} />
               </button>
@@ -66,23 +66,23 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             {/* Body */}
             {isLoading ? (
               <div className="flex-1 flex items-center justify-center">
-                <div className="w-6 h-6 border-2 border-stone-200 border-t-amber-700 rounded-full animate-spin" />
+                <div className="w-6 h-6 border-2 border-ink-600 border-t-gold rounded-full animate-spin" />
               </div>
             ) : items.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center gap-5 px-8">
-                <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center">
-                  <ShoppingBag size={28} strokeWidth={1} className="text-amber-300" />
+                <div className="w-16 h-16 rounded-2xl bg-gold/10 border border-gold/20 flex items-center justify-center">
+                  <ShoppingBag size={28} strokeWidth={1} className="text-gold" />
                 </div>
                 <div className="text-center">
-                  <p className="font-medium text-stone-900 mb-1.5">Koszyk jest pusty</p>
-                  <p className="text-stone-400 text-sm leading-relaxed">
+                  <p className="font-medium text-cream mb-1.5">Koszyk jest pusty</p>
+                  <p className="text-cream-muted text-sm leading-relaxed">
                     Dodaj produkty, aby&nbsp;kontynuować zakupy
                   </p>
                 </div>
                 <Link
                   href="/sklep"
                   onClick={onClose}
-                  className="inline-flex items-center justify-center px-6 py-2.5 bg-amber-800 text-white text-sm font-medium rounded-xl hover:bg-amber-900 transition-colors cursor-pointer"
+                  className="inline-flex items-center justify-center px-6 py-2.5 bg-gold text-ink text-sm font-semibold rounded-xl hover:bg-gold-200 transition-colors cursor-pointer"
                 >
                   Przeglądaj sklep
                 </Link>
@@ -97,7 +97,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 </div>
 
                 {/* Footer */}
-                <div className="flex-shrink-0 px-5 py-4 border-t border-stone-100 space-y-4">
+                <div className="flex-shrink-0 px-5 py-4 border-t border-ink-600 space-y-4">
                   <CouponInput
                     subtotal={subtotal}
                     onApply={setAppliedCoupon}
@@ -111,13 +111,13 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   <Link
                     href="/checkout"
                     onClick={onClose}
-                    className="block w-full text-center py-3 bg-amber-800 text-white text-sm font-medium rounded-2xl hover:bg-amber-900 transition-colors cursor-pointer"
+                    className="block w-full text-center py-3 bg-gold text-ink text-sm font-semibold rounded-2xl hover:bg-gold-200 transition-colors cursor-pointer"
                   >
                     Przejdź do kasy
                   </Link>
                   <button
                     onClick={onClose}
-                    className="block w-full text-center py-2 text-sm text-stone-500 hover:text-stone-900 transition-colors cursor-pointer"
+                    className="block w-full text-center py-2 text-sm text-cream-muted hover:text-cream transition-colors cursor-pointer"
                   >
                     Kontynuuj zakupy
                   </button>

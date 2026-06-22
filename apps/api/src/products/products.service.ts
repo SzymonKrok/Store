@@ -14,12 +14,21 @@ export class ProductsService {
   ) {}
 
   async findAll(query: ProductQueryDto) {
-    const { categoryId, minPrice, maxPrice, sortBy = SortBy.NEWEST, page = 1, limit = 20, showArchived } = query
+    const { q, categoryId, minPrice, maxPrice, sortBy = SortBy.NEWEST, page = 1, limit = 20, showArchived } = query
     const skip = (page - 1) * limit
 
+    const trimmedQ = q?.trim()
     const where: Prisma.ProductWhereInput = {
       ...(showArchived ? {} : { isActive: true }),
       ...(categoryId ? { categoryId } : {}),
+      ...(trimmedQ
+        ? {
+            OR: [
+              { name: { contains: trimmedQ, mode: 'insensitive' } },
+              { description: { contains: trimmedQ, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
       ...((minPrice !== undefined || maxPrice !== undefined)
         ? {
             basePrice: {
@@ -33,6 +42,7 @@ export class ProductsService {
     const orderBy: Prisma.ProductOrderByWithRelationInput =
       sortBy === SortBy.PRICE_ASC ? { basePrice: 'asc' }
       : sortBy === SortBy.PRICE_DESC ? { basePrice: 'desc' }
+      : sortBy === SortBy.BESTSELLER ? { viewCount: 'desc' }
       : { createdAt: 'desc' }
 
     const [items, total] = await this.prisma.$transaction([
@@ -58,7 +68,7 @@ export class ProductsService {
       where: { id },
       include: {
         category: true,
-        variants: { orderBy: { sku: 'asc' } },
+        variants: { where: { isActive: true }, orderBy: { sku: 'asc' } },
         images: { orderBy: { position: 'asc' } },
       },
     })
@@ -101,9 +111,13 @@ export class ProductsService {
         data: {
           name: dto.name,
           slug: dto.slug,
+          shortDescription: dto.shortDescription ?? null,
           description: dto.description,
+          keyFeatures: dto.keyFeatures ?? [],
+          specifications: dto.specifications ?? Prisma.JsonNull,
           basePrice: dto.basePrice,
           categoryId: dto.categoryId,
+          imageAttributeKey: dto.imageAttributeKey ?? null,
           variants: {
             create: dto.variants.map((v) => ({
               sku: v.sku,
@@ -119,6 +133,7 @@ export class ProductsService {
               url: img.url,
               altText: img.altText,
               position: img.position ?? i,
+              attributeValue: img.attributeValue ?? null,
             })),
           },
         },
@@ -164,9 +179,15 @@ export class ProductsService {
       const updateData: Prisma.ProductUpdateInput = {}
       if (dto.name !== undefined) updateData.name = dto.name
       if (dto.slug !== undefined) updateData.slug = dto.slug
+      if (dto.shortDescription !== undefined) updateData.shortDescription = dto.shortDescription
       if (dto.description !== undefined) updateData.description = dto.description
+      if (dto.keyFeatures !== undefined) updateData.keyFeatures = dto.keyFeatures
+      if (dto.specifications !== undefined) {
+        updateData.specifications = (dto.specifications ?? Prisma.JsonNull) as Prisma.InputJsonValue
+      }
       if (dto.basePrice !== undefined) updateData.basePrice = dto.basePrice
       if (dto.categoryId !== undefined) updateData.category = { connect: { id: dto.categoryId } }
+      if (dto.imageAttributeKey !== undefined) updateData.imageAttributeKey = dto.imageAttributeKey
       const dtoAny = dto as Record<string, unknown>
       if (typeof dtoAny['isActive'] === 'boolean') updateData.isActive = dtoAny['isActive'] as boolean
 
@@ -185,12 +206,32 @@ export class ProductsService {
               url: img.url,
               altText: img.altText ?? null,
               position: img.position ?? i,
+              attributeValue: img.attributeValue ?? null,
             })),
           })
         }
       }
 
       if (dto.variants) {
+        // Remove variants that are no longer in the payload
+        const dtoSkus = new Set(dto.variants.map((v) => v.sku))
+        const toRemove = product.variants.filter((v) => !dtoSkus.has(v.sku))
+        for (const variant of toRemove) {
+          try {
+            await tx.productVariant.delete({ where: { id: variant.id } })
+          } catch (e: unknown) {
+            // Variant has order history — soft-delete so history is preserved
+            if ((e as { code?: string })?.code === 'P2003') {
+              await tx.productVariant.update({
+                where: { id: variant.id },
+                data: { isActive: false },
+              })
+            } else {
+              throw e
+            }
+          }
+        }
+
         for (const variantDto of dto.variants) {
           const existing = product.variants.find((v) => v.sku === variantDto.sku)
           if (existing) {
@@ -201,6 +242,7 @@ export class ProductsService {
                 price: variantDto.price,
                 compareAtPrice: variantDto.compareAtPrice ?? null,
                 stock: variantDto.stock,
+                attributes: variantDto.attributes as Prisma.InputJsonValue,
                 isActive: variantDto.isActive ?? true,
               },
             })

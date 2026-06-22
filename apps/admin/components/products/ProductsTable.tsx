@@ -65,7 +65,7 @@ export function ProductsTable({ products, isLoading }: Props) {
 
   return (
     <>
-      <div className="rounded-lg border bg-white overflow-hidden">
+      <div className="rounded-lg border overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -101,7 +101,7 @@ export function ProductsTable({ products, isLoading }: Props) {
                         <Badge className={`text-xs ${stockColors[stock]}`}>{stockLabels[stock]}</Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className={`text-xs ${!product.isActive ? 'bg-slate-100 text-slate-500' : ''}`}>
+                        <Badge variant="outline" className={`text-xs ${!product.isActive ? 'bg-ink-700 text-cream-muted' : ''}`}>
                           {product.isActive ? 'Aktywny' : 'Archiwum'}
                         </Badge>
                       </TableCell>
@@ -109,13 +109,13 @@ export function ProductsTable({ products, isLoading }: Props) {
                         <div className="flex gap-1">
                           <button
                             onClick={() => router.push(`/products/${product.id}`)}
-                            className="p-1.5 text-slate-400 hover:text-primary transition-colors"
+                            className="p-1.5 text-cream-muted hover:text-primary transition-colors"
                           >
                             <Pencil size={15} />
                           </button>
                           <button
                             onClick={() => setDeleteId(product.id)}
-                            className="p-1.5 text-slate-400 hover:text-destructive transition-colors"
+                            className="p-1.5 text-cream-muted hover:text-destructive transition-colors"
                           >
                             <Trash2 size={15} />
                           </button>

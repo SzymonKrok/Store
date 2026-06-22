@@ -22,8 +22,8 @@ export default function AuthCallbackPage() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-      <p className="text-stone-500 text-sm">Logowanie…</p>
+    <div className="min-h-screen bg-ink flex items-center justify-center">
+      <p className="text-cream-muted text-sm">Logowanie…</p>
     </div>
   )
 }

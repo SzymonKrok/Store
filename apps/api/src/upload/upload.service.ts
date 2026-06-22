@@ -9,27 +9,30 @@ import { Readable } from 'stream'
 export class UploadService {
   private readonly s3: S3Client
   private readonly bucket: string
-  private readonly publicUrl: string
+  private readonly publicUrlBase: string
 
   constructor(private readonly config: ConfigService) {
-    this.bucket = config.get<string>('R2_BUCKET_NAME') ?? ''
-    this.publicUrl = config.get<string>('R2_PUBLIC_URL') ?? ''
-    const accountId = config.get<string>('R2_ACCOUNT_ID') ?? ''
-    const accessKeyId = config.get<string>('R2_ACCESS_KEY_ID') ?? ''
-    const secretAccessKey = config.get<string>('R2_SECRET_ACCESS_KEY') ?? ''
+    const projectRef = config.get<string>('SUPABASE_PROJECT_REF') ?? ''
+    this.bucket = config.get<string>('STORAGE_BUCKET') ?? ''
+    this.publicUrlBase = `https://${projectRef}.supabase.co/storage/v1/object/public/${this.bucket}`
+
+    const accessKeyId = config.get<string>('STORAGE_ACCESS_KEY_ID') ?? ''
+    const secretAccessKey = config.get<string>('STORAGE_SECRET_ACCESS_KEY') ?? ''
+
     this.s3 = new S3Client({
-      region: 'auto',
-      endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+      region: config.get<string>('STORAGE_REGION') ?? 'eu-central-1',
+      endpoint: `https://${projectRef}.supabase.co/storage/v1/s3`,
       credentials: { accessKeyId, secretAccessKey },
+      forcePathStyle: true,
     })
   }
 
-  async getPresignedUrl(filename: string, contentType: string): Promise<{ uploadUrl: string; key: string }> {
+  async getPresignedUrl(filename: string, contentType: string): Promise<{ uploadUrl: string; key: string; publicUrl: string }> {
     const ext = filename.split('.').pop() ?? 'jpg'
-    const key = `products/${randomUUID()}.${ext}`
+    const key = `uploads/${randomUUID()}.${ext}`
     const command = new PutObjectCommand({ Bucket: this.bucket, Key: key, ContentType: contentType })
     const uploadUrl = await getSignedUrl(this.s3, command, { expiresIn: 300 })
-    return { uploadUrl, key }
+    return { uploadUrl, key, publicUrl: this.getPublicUrl(key) }
   }
 
   async uploadBuffer(buffer: Buffer | Readable, key: string, contentType: string): Promise<string> {
@@ -44,6 +47,6 @@ export class UploadService {
   }
 
   getPublicUrl(key: string): string {
-    return `${this.publicUrl}/${key}`
+    return `${this.publicUrlBase}/${key}`
   }
 }

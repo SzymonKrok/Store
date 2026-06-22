@@ -53,7 +53,7 @@ export function KpiCards({ kpis, isLoading }: Props) {
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">{card.label}</p>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-2xl font-semibold text-slate-900 font-mono">{card.value}</span>
+              <span className="text-2xl font-semibold text-cream font-mono">{card.value}</span>
               {card.badge === 'amber' && <Badge className="bg-amber-100 text-amber-700">!</Badge>}
               {card.badge === 'red' && <Badge className="bg-red-100 text-red-700">!</Badge>}
             </div>

@@ -9,8 +9,8 @@ export class CategoriesService {
 
   findAll() {
     return this.prisma.category.findMany({
-      include: { children: true },
-      where: { parentId: null },
+      include: { parent: { select: { id: true, name: true } } },
+      orderBy: [{ parentId: 'asc' }, { name: 'asc' }],
     })
   }
 

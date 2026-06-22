@@ -2,8 +2,8 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import { ImageGallery } from '@/components/products/ImageGallery'
-import { ProductInfo } from '@/components/products/ProductInfo'
+import { ProductDetailLayout } from '@/components/products/ProductDetailLayout'
+import { ProductDescription } from '@/components/products/ProductDescription'
 import { ProductViewTracker } from '@/components/products/ProductViewTracker'
 import { RelatedProducts, RelatedProductsSkeleton } from '@/components/products/RelatedProducts'
 import { ReviewsSection } from '@/components/products/ReviewsSection'
@@ -30,11 +30,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const product = await fetchProduct(slug)
-  if (!product) return { title: 'Produkt nie znaleziony | Store' }
+  if (!product) return { title: 'Produkt nie znaleziony | Lune Atelier' }
 
   const image = product.images[0]
   return {
-    title: `${product.name} | Store`,
+    title: `${product.name} | Lune Atelier`,
     description: product.description ?? `Kup ${product.name} w naszym sklepie.`,
     openGraph: {
       title: product.name,
@@ -54,20 +54,20 @@ export default async function ProductPage({
   if (!product) notFound()
 
   return (
-    <main className="min-h-screen bg-stone-50">
+    <main className="min-h-screen bg-ink">
       {/* Dark breadcrumb strip — consistent with shop hero */}
-      <div className="bg-stone-900 border-b border-stone-800">
+      <div className="bg-ink-950 border-b border-ink-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <nav className="flex items-center gap-2 text-xs text-stone-500">
-            <Link href="/" className="hover:text-amber-400 transition-colors">
+          <nav className="flex items-center gap-2 text-xs text-cream-muted">
+            <Link href="/" className="hover:text-gold transition-colors">
               Strona główna
             </Link>
-            <span className="text-stone-700">/</span>
-            <Link href="/sklep" className="hover:text-amber-400 transition-colors">
+            <span className="text-ink-500">/</span>
+            <Link href="/sklep" className="hover:text-gold transition-colors">
               Sklep
             </Link>
-            <span className="text-stone-700">/</span>
-            <span className="text-stone-300 truncate max-w-[200px] sm:max-w-none">{product.name}</span>
+            <span className="text-ink-500">/</span>
+            <span className="text-cream/80 truncate max-w-[200px] sm:max-w-none">{product.name}</span>
           </nav>
         </div>
       </div>
@@ -75,14 +75,16 @@ export default async function ProductPage({
       {/* Product content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <ProductViewTracker slug={slug} />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <ImageGallery images={product.images} />
-          <ProductInfo
-            product={product}
-            showQuantitySelector={settings.showQuantitySelector}
-            showStockBadge={settings.showStockBadge}
-          />
-        </div>
+        <ProductDetailLayout
+          product={product}
+          showQuantitySelector={settings.showQuantitySelector}
+          showStockBadge={settings.showStockBadge}
+        />
+
+        <ProductDescription
+          description={product.description}
+          specifications={product.specifications}
+        />
 
         <Suspense fallback={<RelatedProductsSkeleton />}>
           <RelatedProducts

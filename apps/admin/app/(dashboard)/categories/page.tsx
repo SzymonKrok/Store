@@ -21,7 +21,7 @@ export default function CategoriesPage() {
   const [editCategory, setEditCategory] = useState<AdminCategory | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
-  async function handleSubmit(values: { name: string; slug: string; parentId?: string }) {
+  async function handleSubmit(values: { name: string; slug: string; parentId?: string; imageUrl?: string }) {
     try {
       if (editCategory) {
         await updateCategory({ id: editCategory.id, payload: values })
@@ -32,6 +32,7 @@ export default function CategoriesPage() {
       }
     } catch {
       toast.error('Błąd podczas zapisywania kategorii')
+      throw new Error('save failed')
     }
   }
 
@@ -54,17 +55,18 @@ export default function CategoriesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-slate-900">Kategorie</h1>
+        <h1 className="text-2xl font-semibold text-cream">Kategorie</h1>
         <Button size="sm" onClick={() => { setEditCategory(null); setDialogOpen(true) }}>
           <Plus size={16} className="mr-1" />
           Nowa kategoria
         </Button>
       </div>
 
-      <div className="rounded-lg border bg-white overflow-hidden">
+      <div className="rounded-lg border overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12">Zdjęcie</TableHead>
               <TableHead>Nazwa</TableHead>
               <TableHead>Slug</TableHead>
               <TableHead>Nadrzędna</TableHead>
@@ -75,13 +77,21 @@ export default function CategoriesPage() {
             {isLoading
               ? Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 4 }).map((__, j) => (
+                    {Array.from({ length: 5 }).map((__, j) => (
                       <TableCell key={j}><Skeleton className="h-4 w-full" /></TableCell>
                     ))}
                   </TableRow>
                 ))
               : categories.map((cat) => (
                   <TableRow key={cat.id}>
+                    <TableCell>
+                      {cat.imageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={cat.imageUrl} alt={cat.name} className="w-9 h-9 rounded-lg object-cover border border-border" />
+                      ) : (
+                        <div className="w-9 h-9 rounded-lg bg-ink-700 border border-border" />
+                      )}
+                    </TableCell>
                     <TableCell className="font-medium">{cat.name}</TableCell>
                     <TableCell className="font-mono text-sm text-muted-foreground">{cat.slug}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">
@@ -91,13 +101,13 @@ export default function CategoriesPage() {
                       <div className="flex gap-1">
                         <button
                           onClick={() => { setEditCategory(cat); setDialogOpen(true) }}
-                          className="p-1.5 text-slate-400 hover:text-primary transition-colors"
+                          className="p-1.5 text-cream-muted hover:text-primary transition-colors"
                         >
                           <Pencil size={15} />
                         </button>
                         <button
                           onClick={() => setDeleteId(cat.id)}
-                          className="p-1.5 text-slate-400 hover:text-destructive transition-colors"
+                          className="p-1.5 text-cream-muted hover:text-destructive transition-colors"
                         >
                           <Trash2 size={15} />
                         </button>

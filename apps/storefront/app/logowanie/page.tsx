@@ -43,16 +43,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-ink flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="font-display text-4xl font-medium text-stone-900 italic mb-2">
+          <h1 className="font-display text-4xl font-medium text-cream italic mb-2">
             Zaloguj się
           </h1>
-          <p className="text-stone-500 text-sm">Witaj z powrotem</p>
+          <p className="text-cream-muted text-sm">Witaj z powrotem</p>
         </div>
 
-        <div className="bg-white border border-stone-200 rounded-2xl p-8 space-y-5">
+        <div className="bg-ink-800 border border-ink-600 rounded-2xl p-8 space-y-5">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <Field label="Email" error={errors.email?.message}>
               <input
@@ -77,29 +77,29 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 bg-amber-800 text-white text-sm font-medium rounded-2xl hover:bg-amber-900 transition-colors disabled:opacity-60 cursor-pointer"
+              className="w-full py-3 bg-gold text-ink text-sm font-semibold rounded-2xl hover:bg-gold-200 transition-colors disabled:opacity-60 cursor-pointer"
             >
               {isSubmitting ? 'Logowanie…' : 'Zaloguj się'}
             </button>
           </form>
 
           <div className="relative flex items-center gap-3">
-            <div className="flex-1 h-px bg-stone-200" />
-            <span className="text-xs text-stone-400">lub</span>
-            <div className="flex-1 h-px bg-stone-200" />
+            <div className="flex-1 h-px bg-ink-600" />
+            <span className="text-xs text-cream-muted">lub</span>
+            <div className="flex-1 h-px bg-ink-600" />
           </div>
 
           <a
             href={`${process.env.NEXT_PUBLIC_API_URL}/auth/google`}
-            className="flex items-center justify-center gap-2.5 w-full py-2.5 border border-stone-200 rounded-2xl text-sm text-stone-700 hover:border-stone-400 hover:bg-stone-50 transition-colors"
+            className="flex items-center justify-center gap-2.5 w-full py-2.5 border border-ink-600 rounded-2xl text-sm text-cream/80 hover:border-gold/50 hover:bg-ink-700 transition-colors"
           >
             <GoogleIcon />
             Zaloguj się przez Google
           </a>
 
-          <p className="text-center text-sm text-stone-500">
+          <p className="text-center text-sm text-cream-muted">
             Nie masz konta?{' '}
-            <Link href="/rejestracja" className="text-stone-900 font-medium underline hover:no-underline">
+            <Link href="/rejestracja" className="text-gold font-medium underline hover:no-underline">
               Zarejestruj się
             </Link>
           </p>
@@ -123,15 +123,15 @@ function GoogleIcon() {
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <label className="text-sm font-medium text-stone-700">{label}</label>
+      <label className="text-sm font-medium text-cream/80">{label}</label>
       {children}
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && <p className="text-xs text-red-400">{error}</p>}
     </div>
   )
 }
 
 function inputCls(hasError = false) {
-  return `w-full h-10 px-3 text-sm border rounded-xl focus:outline-none focus:border-stone-400 bg-white transition-colors ${
-    hasError ? 'border-red-300 focus:border-red-400' : 'border-stone-200'
+  return `w-full h-10 px-3 text-sm border rounded-xl focus:outline-none focus:border-gold bg-ink-700 text-cream placeholder:text-cream-muted/60 transition-colors ${
+    hasError ? 'border-red-500/60 focus:border-red-400' : 'border-ink-600'
   }`
 }

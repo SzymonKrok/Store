@@ -20,7 +20,7 @@ export function ImageUploadZone({ images, onChange }: Props) {
       try {
         const { data } = await apiClient.post<{ uploadUrl: string; publicUrl: string }>(
           '/upload/presign',
-          { filename: file.name },
+          { filename: file.name, contentType: file.type },
         )
         await axios.put(data.uploadUrl, file, {
           headers: { 'Content-Type': file.type },
@@ -39,14 +39,14 @@ export function ImageUploadZone({ images, onChange }: Props) {
   return (
     <div className="space-y-3">
       <div
-        className="border-2 border-dashed border-slate-200 rounded-xl p-6 text-center cursor-pointer hover:border-primary/50 transition-colors"
+        className="border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:border-primary/50 transition-colors"
         onClick={() => inputRef.current?.click()}
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => { e.preventDefault(); handleFiles(e.dataTransfer.files) }}
       >
-        <Upload size={20} className="mx-auto mb-2 text-slate-400" />
-        <p className="text-sm text-slate-500">Kliknij lub upuść pliki</p>
-        <p className="text-xs text-slate-400 mt-1">PNG, JPG, WEBP</p>
+        <Upload size={20} className="mx-auto mb-2 text-cream-muted" />
+        <p className="text-sm text-cream-muted">Kliknij lub upuść pliki</p>
+        <p className="text-xs text-cream-muted/60 mt-1">PNG, JPG, WEBP</p>
         <input
           ref={inputRef}
           type="file"
@@ -60,7 +60,7 @@ export function ImageUploadZone({ images, onChange }: Props) {
       {images.length > 0 && (
         <div className="grid grid-cols-3 gap-2">
           {images.map((url) => (
-            <div key={url} className="relative group aspect-square rounded-lg overflow-hidden border border-slate-200">
+            <div key={url} className="relative group aspect-square rounded-lg overflow-hidden border border-border">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={url} alt="" className="w-full h-full object-cover" />
               <button

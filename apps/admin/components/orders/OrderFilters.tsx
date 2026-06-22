@@ -61,17 +61,17 @@ export function OrderFiltersBar({ values, onChange, onClear }: Props) {
 
       {/* Customer / ID search */}
       <div className="relative flex-1 min-w-[200px] max-w-xs">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" strokeWidth={1.5} />
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-cream-muted" strokeWidth={1.5} />
         <Input
           placeholder="ID, e-mail, imię…"
           value={searchInput}
           onChange={(e) => handleSearchChange(e.target.value)}
-          className="pl-8 border-stone-200 bg-white text-sm h-9 rounded-lg focus-visible:ring-stone-900/20"
+          className="pl-8 border-border bg-background text-sm h-9 rounded-lg focus-visible:ring-gold/20"
         />
         {searchInput && (
           <button
             onClick={() => handleSearchChange('')}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-cream-muted hover:text-stone-600"
           >
             <X size={13} />
           </button>
@@ -80,17 +80,17 @@ export function OrderFiltersBar({ values, onChange, onClear }: Props) {
 
       {/* Product name search */}
       <div className="relative min-w-[160px] max-w-[220px]">
-        <Package size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" strokeWidth={1.5} />
+        <Package size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-cream-muted" strokeWidth={1.5} />
         <Input
           placeholder="Produkt…"
           value={productInput}
           onChange={(e) => handleProductChange(e.target.value)}
-          className="pl-8 border-stone-200 bg-white text-sm h-9 rounded-lg focus-visible:ring-stone-900/20"
+          className="pl-8 border-border bg-background text-sm h-9 rounded-lg focus-visible:ring-gold/20"
         />
         {productInput && (
           <button
             onClick={() => handleProductChange('')}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-cream-muted hover:text-stone-600"
           >
             <X size={13} />
           </button>
@@ -103,28 +103,28 @@ export function OrderFiltersBar({ values, onChange, onClear }: Props) {
           <Button
             variant="outline"
             size="sm"
-            className={`h-9 gap-1.5 border-stone-200 text-sm font-normal ${selectedStatuses.length > 0 ? 'border-stone-900 bg-stone-50' : 'bg-white'}`}
+            className={`h-9 gap-1.5 border-border text-sm font-normal ${selectedStatuses.length > 0 ? 'border-primary bg-ink-700' : 'bg-background'}`}
           >
             Status
             {selectedStatuses.length > 0 && (
-              <Badge className="bg-stone-900 text-white text-[10px] px-1.5 py-0 h-4 rounded-full">
+              <Badge className="bg-gold text-ink text-[10px] px-1.5 py-0 h-4 rounded-full">
                 {selectedStatuses.length}
               </Badge>
             )}
-            <ChevronDown size={13} className="text-stone-400 ml-0.5" strokeWidth={1.5} />
+            <ChevronDown size={13} className="text-cream-muted ml-0.5" strokeWidth={1.5} />
           </Button>
         </PopoverTrigger>
-        <PopoverContent align="start" className="w-52 p-1.5 border-stone-200">
+        <PopoverContent align="start" className="w-52 p-1.5 border-border">
           {ORDER_STATUSES.map((s) => {
             const checked = selectedStatuses.includes(s)
             return (
               <label
                 key={s}
-                className="flex items-center gap-2.5 px-2.5 py-2 rounded-md hover:bg-stone-50 cursor-pointer select-none"
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-md hover:bg-accent cursor-pointer select-none"
               >
                 <span
                   className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${
-                    checked ? 'bg-stone-900 border-stone-900' : 'border-stone-300 bg-white'
+                    checked ? 'bg-gold border-gold' : 'border-ink-500 bg-ink-700'
                   }`}
                 >
                   {checked && (
@@ -139,7 +139,7 @@ export function OrderFiltersBar({ values, onChange, onClear }: Props) {
                   onChange={() => toggleStatus(s)}
                   className="sr-only"
                 />
-                <span className="text-sm text-stone-700">{STATUS_LABELS[s]}</span>
+                <span className="text-sm text-cream/90">{STATUS_LABELS[s]}</span>
               </label>
             )
           })}
@@ -148,24 +148,24 @@ export function OrderFiltersBar({ values, onChange, onClear }: Props) {
 
       {/* Date from */}
       <div className="flex items-center gap-1.5">
-        <span className="text-xs text-stone-400 shrink-0">Od</span>
+        <span className="text-xs text-cream-muted shrink-0">Od</span>
         <input
           type="date"
           value={values.dateFrom ?? ''}
           onChange={(e) => onChange('dateFrom', e.target.value)}
-          className="h-9 px-2.5 text-sm border border-stone-200 rounded-lg bg-white text-stone-700 focus:outline-none focus:ring-2 focus:ring-stone-900/20 min-w-0 w-[136px]"
+          className="h-9 px-2.5 text-sm border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-gold/20 min-w-0 w-[136px]"
         />
       </div>
 
       {/* Date to */}
       <div className="flex items-center gap-1.5">
-        <span className="text-xs text-stone-400 shrink-0">Do</span>
+        <span className="text-xs text-cream-muted shrink-0">Do</span>
         <input
           type="date"
           value={values.dateTo ?? ''}
           onChange={(e) => onChange('dateTo', e.target.value)}
           min={values.dateFrom}
-          className="h-9 px-2.5 text-sm border border-stone-200 rounded-lg bg-white text-stone-700 focus:outline-none focus:ring-2 focus:ring-stone-900/20 min-w-0 w-[136px]"
+          className="h-9 px-2.5 text-sm border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-gold/20 min-w-0 w-[136px]"
         />
       </div>
 
@@ -175,7 +175,7 @@ export function OrderFiltersBar({ values, onChange, onClear }: Props) {
           variant="ghost"
           size="sm"
           onClick={onClear}
-          className="h-9 text-stone-500 hover:text-stone-800 gap-1.5 text-sm"
+          className="h-9 text-cream-muted hover:text-stone-800 gap-1.5 text-sm"
         >
           <X size={13} strokeWidth={1.5} />
           Wyczyść filtry

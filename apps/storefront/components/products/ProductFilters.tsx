@@ -27,11 +27,11 @@ export function ProductFilters({ query }: ProductFiltersProps) {
   }
 
   const selectClass =
-    'bg-white border border-stone-200 text-stone-700 text-sm rounded-xl px-3 py-2 hover:border-amber-400 focus:outline-none focus:border-amber-600 transition-colors cursor-pointer'
+    'bg-ink-800 border border-ink-600 text-cream text-sm rounded-xl px-3 py-2 hover:border-gold/50 focus:outline-none focus:border-gold transition-colors cursor-pointer'
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <div className="flex items-center gap-1.5 text-amber-700">
+      <div className="flex items-center gap-1.5 text-gold">
         <SlidersHorizontal size={14} strokeWidth={1.5} />
         <span className="text-xs font-semibold uppercase tracking-[0.2em]">Filtry</span>
       </div>
@@ -55,6 +55,7 @@ export function ProductFilters({ query }: ProductFiltersProps) {
         className={selectClass}
       >
         <option value="newest">Najnowsze</option>
+        <option value="bestseller">Bestsellery</option>
         <option value="price_asc">Cena: rosnąco</option>
         <option value="price_desc">Cena: malejąco</option>
       </select>
@@ -65,15 +66,15 @@ export function ProductFilters({ query }: ProductFiltersProps) {
           placeholder="Min zł"
           value={query.minPrice ?? ''}
           onChange={(e) => updateParam('minPrice', e.target.value || undefined)}
-          className="bg-white border border-stone-200 text-stone-700 text-sm rounded-xl px-3 py-2 w-24 hover:border-amber-400 focus:outline-none focus:border-amber-600 transition-colors"
+          className="bg-ink-800 border border-ink-600 text-cream text-sm rounded-xl px-3 py-2 w-24 placeholder:text-cream-muted/60 hover:border-gold/50 focus:outline-none focus:border-gold transition-colors"
         />
-        <span className="text-stone-400 text-sm">—</span>
+        <span className="text-cream-muted text-sm">—</span>
         <input
           type="number"
           placeholder="Max zł"
           value={query.maxPrice ?? ''}
           onChange={(e) => updateParam('maxPrice', e.target.value || undefined)}
-          className="bg-white border border-stone-200 text-stone-700 text-sm rounded-xl px-3 py-2 w-24 hover:border-amber-400 focus:outline-none focus:border-amber-600 transition-colors"
+          className="bg-ink-800 border border-ink-600 text-cream text-sm rounded-xl px-3 py-2 w-24 placeholder:text-cream-muted/60 hover:border-gold/50 focus:outline-none focus:border-gold transition-colors"
         />
       </div>
     </div>

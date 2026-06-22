@@ -275,7 +275,7 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
   if (cartLoading || authLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-8 h-8 border-2 border-stone-200 border-t-stone-900 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-ink-600 border-t-gold rounded-full animate-spin" />
       </div>
     )
   }
@@ -285,8 +285,8 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
     return (
       <div className="max-w-lg mx-auto px-4 py-20">
         <div className="text-center mb-8">
-          <h1 className="font-display text-3xl font-medium text-stone-900 italic mb-2">Przejdź do kasy</h1>
-          <p className="text-stone-500 text-sm">
+          <h1 className="font-display text-3xl font-medium text-cream italic mb-2">Przejdź do kasy</h1>
+          <p className="text-cream-muted text-sm">
             {enableGuestCheckout
               ? 'Zaloguj się, aby przyspieszyć zakupy, lub kontynuuj jako gość.'
               : 'Zaloguj się, aby złożyć zamówienie.'}
@@ -296,13 +296,13 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
         <div className="space-y-3">
           <Link
             href="/logowanie?redirect=/checkout"
-            className="flex items-center justify-between w-full px-5 py-4 bg-amber-800 text-white rounded-2xl hover:bg-amber-900 transition-colors group"
+            className="flex items-center justify-between w-full px-5 py-4 bg-gold text-ink rounded-2xl hover:bg-gold-200 transition-colors group"
           >
             <div className="flex items-center gap-3">
               <User size={18} strokeWidth={1.5} />
               <div className="text-left">
-                <p className="font-medium text-sm">Zaloguj się</p>
-                <p className="text-stone-400 text-xs mt-0.5">Szybsze zakupy, historia zamówień</p>
+                <p className="font-semibold text-sm">Zaloguj się</p>
+                <p className="text-ink/70 text-xs mt-0.5">Szybsze zakupy, historia zamówień</p>
               </div>
             </div>
             <ArrowRight size={16} strokeWidth={1.5} className="opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -311,19 +311,19 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
           {enableGuestCheckout && (
             <button
               onClick={() => setGuestChosen(true)}
-              className="flex items-center justify-between w-full px-5 py-4 bg-white border border-stone-200 text-stone-700 rounded-2xl hover:border-stone-400 transition-colors group cursor-pointer"
+              className="flex items-center justify-between w-full px-5 py-4 bg-ink-800 border border-ink-600 text-cream/80 rounded-2xl hover:border-gold/50 transition-colors group cursor-pointer"
             >
               <div className="text-left">
                 <p className="font-medium text-sm">Kontynuuj jako gość</p>
-                <p className="text-stone-400 text-xs mt-0.5">Bez rejestracji, szybka realizacja</p>
+                <p className="text-cream-muted text-xs mt-0.5">Bez rejestracji, szybka realizacja</p>
               </div>
               <ArrowRight size={16} strokeWidth={1.5} className="opacity-40 group-hover:opacity-70 transition-opacity" />
             </button>
           )}
 
-          <p className="text-center text-xs text-stone-400 pt-1">
+          <p className="text-center text-xs text-cream-muted pt-1">
             Nie masz konta?{' '}
-            <Link href="/rejestracja" className="text-stone-600 underline hover:no-underline">
+            <Link href="/rejestracja" className="text-gold underline hover:no-underline">
               Zarejestruj się
             </Link>
           </p>
@@ -335,8 +335,8 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 px-4">
-        <p className="text-stone-500">Twój koszyk jest pusty.</p>
-        <Link href="/sklep" className="text-sm font-medium text-stone-900 underline">
+        <p className="text-cream-muted">Twój koszyk jest pusty.</p>
+        <Link href="/sklep" className="text-sm font-medium text-gold underline">
           Wróć do sklepu
         </Link>
       </div>
@@ -345,25 +345,25 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <h1 className="font-display text-3xl font-medium text-stone-900 mb-8 italic">Zamówienie</h1>
+      <h1 className="font-display text-3xl font-medium text-cream mb-8 italic">Zamówienie</h1>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 items-start">
           {/* Shipping form */}
-          <div className="bg-white border border-stone-200 rounded-2xl p-6 space-y-4">
-            <h2 className="font-medium text-stone-900 text-lg">Dane dostawy</h2>
+          <div className="bg-ink-800 border border-ink-600 rounded-2xl p-6 space-y-4">
+            <h2 className="font-medium text-cream text-lg">Dane dostawy</h2>
 
             {/* Delivery method toggle */}
             <div>
-              <p className="text-sm font-medium text-stone-700 mb-2">Metoda dostawy</p>
+              <p className="text-sm font-medium text-cream/80 mb-2">Metoda dostawy</p>
               <div className="grid grid-cols-2 gap-3">
                 {DELIVERY_OPTIONS.map((option) => (
                   <label
                     key={option.value}
                     className={`flex flex-col gap-1 border rounded-xl p-3.5 cursor-pointer transition-colors ${
                       deliveryMethod === option.value
-                        ? 'border-stone-900 bg-stone-50'
-                        : 'border-stone-200 hover:border-stone-300'
+                        ? 'border-gold bg-gold/10'
+                        : 'border-ink-600 hover:border-ink-500'
                     }`}
                   >
                     <input
@@ -373,10 +373,10 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
                       className="sr-only"
                     />
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-stone-900">{option.label}</span>
-                      <span className="text-sm font-semibold text-stone-900">{option.price}</span>
+                      <span className="text-sm font-medium text-cream">{option.label}</span>
+                      <span className="text-sm font-semibold text-gold">{option.price}</span>
                     </div>
-                    <span className="text-xs text-stone-400">{option.description}</span>
+                    <span className="text-xs text-cream-muted">{option.description}</span>
                   </label>
                 ))}
               </div>
@@ -385,40 +385,40 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
             {/* InPost Geowidget */}
             {deliveryMethod === 'PARCEL_LOCKER' && (
               <div className="space-y-2">
-                <div className="relative border border-stone-200 rounded-xl" style={{ height: 520 }}>
+                <div className="relative border border-ink-600 rounded-xl" style={{ height: 520 }}>
                   <div ref={geowidgetContainerRef} className="w-full h-full rounded-xl overflow-hidden" />
                   {widgetState === 'loading' && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-stone-50">
-                      <div className="w-8 h-8 border-2 border-stone-200 border-t-stone-900 rounded-full animate-spin" />
-                      <p className="text-xs text-stone-400">Ładowanie mapy paczkomatów…</p>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-ink-850">
+                      <div className="w-8 h-8 border-2 border-ink-600 border-t-gold rounded-full animate-spin" />
+                      <p className="text-xs text-cream-muted">Ładowanie mapy paczkomatów…</p>
                     </div>
                   )}
                   {widgetState === 'error' && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-stone-50 px-6 text-center">
-                      <p className="text-sm font-medium text-stone-700">Nie udało się załadować mapy paczkomatów</p>
-                      <p className="text-xs text-stone-400">Odśwież stronę lub spróbuj ponownie za chwilę</p>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-ink-850 px-6 text-center">
+                      <p className="text-sm font-medium text-cream">Nie udało się załadować mapy paczkomatów</p>
+                      <p className="text-xs text-cream-muted">Odśwież stronę lub spróbuj ponownie za chwilę</p>
                     </div>
                   )}
                 </div>
                 {watch('lockerCode') ? (
-                  <div className="flex items-start gap-2.5 p-3 bg-amber-50 border border-amber-200 rounded-xl">
-                    <div className="mt-0.5 w-5 h-5 rounded-full bg-amber-700 flex items-center justify-center shrink-0">
+                  <div className="flex items-start gap-2.5 p-3 bg-gold/10 border border-gold/30 rounded-xl">
+                    <div className="mt-0.5 w-5 h-5 rounded-full bg-gold flex items-center justify-center shrink-0">
                       <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                        <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M1 4L3.5 6.5L9 1" stroke="#0A0A0A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-amber-900 font-mono">{watch('lockerCode')}</p>
+                      <p className="text-sm font-semibold text-gold font-mono">{watch('lockerCode')}</p>
                       {selectedLocker?.addressLine1 && (
-                        <p className="text-xs text-amber-800 mt-0.5">{selectedLocker.addressLine1}</p>
+                        <p className="text-xs text-cream/80 mt-0.5">{selectedLocker.addressLine1}</p>
                       )}
                       {selectedLocker?.addressLine2 && (
-                        <p className="text-xs text-amber-700">{selectedLocker.addressLine2}</p>
+                        <p className="text-xs text-cream-muted">{selectedLocker.addressLine2}</p>
                       )}
                     </div>
                   </div>
                 ) : errors.lockerCode ? (
-                  <p className="text-xs text-red-500">{errors.lockerCode.message}</p>
+                  <p className="text-xs text-red-400">{errors.lockerCode.message}</p>
                 ) : null}
               </div>
             )}
@@ -438,7 +438,7 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
                   value={user.email}
                   type="email"
                   readOnly
-                  className="w-full h-10 px-3 text-sm border border-stone-200 rounded-xl bg-stone-50 text-stone-500 cursor-not-allowed"
+                  className="w-full h-10 px-3 text-sm border border-ink-600 rounded-xl bg-ink-850 text-cream-muted cursor-not-allowed"
                 />
               ) : (
                 <input {...register('email')} type="email" className={inputCls(!!errors.email)} placeholder="jan@example.com" />
@@ -471,14 +471,14 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
                 <input
                   type="checkbox"
                   {...register('wantsInvoice')}
-                  className="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-500"
+                  className="w-4 h-4 rounded border-ink-500 bg-ink-700 text-gold focus:ring-gold"
                 />
-                <span className="text-sm text-stone-600">Chcę fakturę na firmę</span>
+                <span className="text-sm text-cream/80">Chcę fakturę na firmę</span>
               </label>
             </div>
 
             {wantsInvoice && (
-              <div className="space-y-4 pt-1 border-t border-stone-100">
+              <div className="space-y-4 pt-1 border-t border-ink-600">
                 <Field label="Nazwa firmy" error={errors.companyName?.message}>
                   <input
                     {...register('companyName')}
@@ -498,30 +498,30 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
             )}
 
             {/* Billing address toggle */}
-            <div className="pt-1 border-t border-stone-100">
+            <div className="pt-1 border-t border-ink-600">
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   {...register('billingDifferent')}
-                  className="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-500"
+                  className="w-4 h-4 rounded border-ink-500 bg-ink-700 text-gold focus:ring-gold"
                 />
-                <span className="text-sm text-stone-600">Adres rozliczeniowy jest inny niż adres dostawy</span>
+                <span className="text-sm text-cream/80">Adres rozliczeniowy jest inny niż adres dostawy</span>
               </label>
             </div>
 
             {billingDifferent && (
-              <div className="space-y-4 p-4 bg-stone-50 border border-stone-200 rounded-xl">
-                <p className="text-sm font-medium text-stone-700">Adres rozliczeniowy</p>
+              <div className="space-y-4 p-4 bg-ink-850 border border-ink-600 rounded-xl">
+                <p className="text-sm font-medium text-cream/80">Adres rozliczeniowy</p>
 
                 {/* Account type toggle */}
                 <div className="grid grid-cols-2 gap-3">
                   {(['PRIVATE', 'COMPANY'] as const).map((type) => (
                     <label
                       key={type}
-                      className={`flex items-center gap-2 border rounded-xl p-3 cursor-pointer transition-colors bg-white ${
+                      className={`flex items-center gap-2 border rounded-xl p-3 cursor-pointer transition-colors bg-ink-800 ${
                         billingAccountType === type
-                          ? 'border-stone-900'
-                          : 'border-stone-200 hover:border-stone-300'
+                          ? 'border-gold'
+                          : 'border-ink-600 hover:border-ink-500'
                       }`}
                     >
                       <input
@@ -530,7 +530,7 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
                         {...register('billingAccountType')}
                         className="sr-only"
                       />
-                      <span className={`text-sm font-medium ${billingAccountType === type ? 'text-stone-900' : 'text-stone-500'}`}>
+                      <span className={`text-sm font-medium ${billingAccountType === type ? 'text-gold' : 'text-cream-muted'}`}>
                         {type === 'PRIVATE' ? 'Osoba prywatna' : 'Firma'}
                       </span>
                     </label>
@@ -606,22 +606,22 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
                 <input
                   type="checkbox"
                   {...register('acceptTerms')}
-                  className="mt-0.5 w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-500"
+                  className="mt-0.5 w-4 h-4 rounded border-ink-500 bg-ink-700 text-gold focus:ring-gold"
                 />
-                <span className="text-sm text-stone-600 leading-relaxed">
+                <span className="text-sm text-cream/80 leading-relaxed">
                   Akceptuję{' '}
-                  <Link href="/regulamin" className="underline hover:text-stone-900">Regulamin</Link>
+                  <Link href="/regulamin" className="underline hover:text-gold">Regulamin</Link>
                   {' '}i{' '}
-                  <Link href="/polityka-prywatnosci" className="underline hover:text-stone-900">Politykę prywatności</Link>
+                  <Link href="/polityka-prywatnosci" className="underline hover:text-gold">Politykę prywatności</Link>
                 </span>
               </label>
               {errors.acceptTerms && (
-                <p className="text-xs text-red-500 mt-1">{errors.acceptTerms.message}</p>
+                <p className="text-xs text-red-400 mt-1">{errors.acceptTerms.message}</p>
               )}
             </div>
 
             {serverError && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-sm text-red-400">
                 {serverError}
               </div>
             )}
@@ -629,33 +629,33 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
             <button
               type="submit"
               disabled={isPending}
-              className="w-full py-3.5 bg-amber-800 text-white font-medium rounded-2xl hover:bg-amber-900 transition-colors disabled:opacity-60 cursor-pointer"
+              className="w-full py-3.5 bg-gold text-ink font-semibold rounded-2xl hover:bg-gold-200 transition-colors disabled:opacity-60 cursor-pointer"
             >
               {isPending ? 'Przekierowuję do płatności...' : 'Przejdź do płatności'}
             </button>
           </div>
 
           {/* Order summary */}
-          <div className="bg-white border border-stone-200 rounded-2xl p-6 space-y-4 lg:sticky lg:top-24">
-            <h2 className="font-medium text-stone-900 text-lg">Podsumowanie</h2>
+          <div className="bg-ink-800 border border-ink-600 rounded-2xl p-6 space-y-4 lg:sticky lg:top-24">
+            <h2 className="font-medium text-cream text-lg">Podsumowanie</h2>
 
             <div className="space-y-3 max-h-64 overflow-y-auto">
               {items.map((item) => {
                 const attrs = Object.entries(item.variant.attributes)
                 return (
-                  <div key={item.id} className="flex justify-between gap-2 text-sm text-stone-700">
+                  <div key={item.id} className="flex justify-between gap-2 text-sm text-cream/80">
                     <div className="min-w-0 flex-1">
                       <span className="truncate block">
                         {item.variant.product.name}{' '}
-                        <span className="text-stone-400">×{item.quantity}</span>
+                        <span className="text-cream-muted">×{item.quantity}</span>
                       </span>
                       {attrs.length > 0 && (
-                        <span className="text-xs text-stone-400">
+                        <span className="text-xs text-cream-muted">
                           {attrs.map(([k, v]) => `${k}: ${v}`).join(', ')}
                         </span>
                       )}
                     </div>
-                    <span className="flex-shrink-0 font-medium">
+                    <span className="flex-shrink-0 font-medium text-cream">
                       {(parseFloat(item.variant.price) * item.quantity).toFixed(2)} zł
                     </span>
                   </div>
@@ -663,7 +663,7 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
               })}
             </div>
 
-            <div className="border-t border-stone-100 pt-4 space-y-3">
+            <div className="border-t border-ink-600 pt-4 space-y-3">
               <CouponInput
                 subtotal={subtotal}
                 onApply={setAppliedCoupon}
@@ -685,15 +685,15 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <label className="text-sm font-medium text-stone-700">{label}</label>
+      <label className="text-sm font-medium text-cream/80">{label}</label>
       {children}
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && <p className="text-xs text-red-400">{error}</p>}
     </div>
   )
 }
 
 function inputCls(hasError: boolean) {
-  return `w-full h-10 px-3 text-sm border rounded-xl focus:outline-none focus:border-stone-400 bg-white transition-colors ${
-    hasError ? 'border-red-300 focus:border-red-400' : 'border-stone-200'
+  return `w-full h-10 px-3 text-sm border rounded-xl focus:outline-none focus:border-gold bg-ink-700 text-cream placeholder:text-cream-muted/60 transition-colors ${
+    hasError ? 'border-red-500/60 focus:border-red-400' : 'border-ink-600'
   }`
 }

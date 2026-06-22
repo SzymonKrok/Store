@@ -50,11 +50,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <Card className="w-full max-w-sm">
+    <div className="min-h-screen flex items-center justify-center bg-ink">
+      <Card className="w-full max-w-sm border-ink-600">
         <CardHeader className="items-center pb-2">
-          <Image src="/logo.svg" alt="WOODEN." width={260} height={87} className="h-28 w-auto object-contain mb-1" />
-          <p className="text-xs text-slate-400 mt-1">Panel administracyjny</p>
+          <Image src="/logo.svg" alt="Lune Atelier" width={260} height={87} className="h-28 w-auto object-contain mb-1" />
+          <p className="text-xs text-cream-muted mt-1">Panel administracyjny</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

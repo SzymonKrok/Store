@@ -7,9 +7,9 @@ export function OmnibusPrice({ currentPrice, omnibusPrice }: OmnibusPriceProps) 
   if (!omnibusPrice || omnibusPrice >= currentPrice) return null
 
   return (
-    <p className="text-stone-400 text-xs mt-1">
+    <p className="text-cream-muted/70 text-xs mt-1">
       Najniższa cena z 30 dni:{' '}
-      <span className="text-stone-500">{omnibusPrice.toFixed(2)} zł</span>
+      <span className="text-cream-muted">{omnibusPrice.toFixed(2)} zł</span>
     </p>
   )
 }

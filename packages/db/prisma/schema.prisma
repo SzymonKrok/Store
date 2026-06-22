@@ -59,6 +59,7 @@ model Category {
   id       String     @id @default(cuid())
   name     String
   slug     String     @unique
+  imageUrl String?
   parentId String?
   parent   Category?  @relation("Subcategories", fields: [parentId], references: [id])
   children Category[] @relation("Subcategories")
@@ -66,21 +67,30 @@ model Category {
 }
 
 model Product {
-  id           String           @id @default(cuid())
-  name         String
-  slug         String           @unique
-  description  String?
-  basePrice    Decimal          @db.Decimal(10, 2)
-  isActive     Boolean          @default(true)
-  categoryId   String
-  category     Category         @relation(fields: [categoryId], references: [id])
-  viewCount    Int              @default(0)
-  variants     ProductVariant[]
-  images       ProductImage[]
-  priceHistory PriceHistory[]
-  reviews      Review[]
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  id                String           @id @default(cuid())
+  name              String
+  slug              String           @unique
+  /// Short one-liner shown above the fold, near the price
+  shortDescription  String?
+  /// Long-form product description in markdown (rendered with sanitization on the storefront)
+  description       String?
+  /// Bulleted highlights shown next to the price (e.g. ["27\" 4K matryca", "144 Hz", "USB-C 90W"])
+  keyFeatures       String[]         @default([])
+  /// Free-form key-value specs table (e.g. { "Rozdzielczość": "3840×2160", "Gniazda": "HDMI 2.1, DP" })
+  specifications    Json?
+  basePrice         Decimal          @db.Decimal(10, 2)
+  isActive          Boolean          @default(true)
+  categoryId        String
+  category          Category         @relation(fields: [categoryId], references: [id])
+  /// Which variant attribute key drives gallery swapping (e.g. "Kolor"). Null = single gallery shared by all variants.
+  imageAttributeKey String?
+  viewCount         Int              @default(0)
+  variants          ProductVariant[]
+  images            ProductImage[]
+  priceHistory      PriceHistory[]
+  reviews           Review[]
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
 
   @@index([categoryId])
 }
@@ -133,8 +143,11 @@ model ProductImage {
   url       String
   altText   String?
   position  Int     @default(0)
+  /// Bound to a specific value of Product.imageAttributeKey (e.g. "Czerwony"). Null = default/fallback image shown when no variant-specific image exists.
+  attributeValue String?
 
   @@index([productId])
+  @@index([productId, attributeValue])
 }
 
 /// Omnibus Directive — tracks price per variant for 30-day lowest price display

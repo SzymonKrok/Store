@@ -33,27 +33,28 @@ export function RevenueChart({ chart, isLoading }: Props) {
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={chart}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#262626" />
             <XAxis
               dataKey="date"
               tickFormatter={(d) => format(parseISO(d), 'd MMM', { locale: pl })}
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 12, fill: '#A39E94' }}
             />
             <YAxis
               tickFormatter={(v: number) => v.toLocaleString('pl-PL') + ' zł'}
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 12, fill: '#A39E94' }}
               width={80}
             />
             <Tooltip
               formatter={(v) => [(Number(v)).toLocaleString('pl-PL') + ' zł', 'Przychód']}
+              contentStyle={{ backgroundColor: '#1C1C1C', border: '1px solid #262626', borderRadius: '8px', color: '#F5F0E6' }}
             />
             <Line
               type="monotone"
               dataKey="revenue"
-              stroke="#2563EB"
+              stroke="#C8A45C"
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4 }}
+              activeDot={{ r: 4, fill: '#C8A45C' }}
             />
           </LineChart>
         </ResponsiveContainer>

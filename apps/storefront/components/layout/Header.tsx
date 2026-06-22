@@ -2,23 +2,24 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ShoppingBag, Search, Menu, X, User, LogOut, Package } from 'lucide-react'
+import { ShoppingBag, Menu, X, User, LogOut, Package } from 'lucide-react'
 import { toast } from 'sonner'
 import { CartDrawer } from './CartDrawer'
+import { HeaderSearch } from './HeaderSearch'
 import { useCart } from '../../lib/api/cart'
 import { useAuth } from '../../lib/auth'
 
 const navLinks = [
   { href: '/sklep', label: 'Sklep' },
+  { href: '/sklep?sortBy=newest', label: 'Nowości' },
+  { href: '/sklep?sortBy=price_asc', label: 'Sale' },
   { href: '/o-nas', label: 'O nas' },
   { href: '/kontakt', label: 'Kontakt' },
 ]
 
 export function Header() {
-  const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -27,12 +28,6 @@ export function Header() {
   const { user, logout } = useAuth()
   const router = useRouter()
   const itemCount = cart?.items.reduce((sum, i) => sum + i.quantity, 0) ?? 0
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
 
   useEffect(() => {
     const handler = () => setCartOpen(true)
@@ -60,28 +55,24 @@ export function Header() {
 
   return (
     <>
-      <motion.header
-        initial={{ y: -72, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? 'bg-white/90 backdrop-blur-md border-b border-stone-200 shadow-sm'
-            : 'bg-transparent'
-        }`}
-      >
+      <header className="sticky top-0 left-0 right-0 z-50 bg-ink/95 backdrop-blur-md border-b border-ink-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" aria-label="WOODEN. — strona główna">
-              <Image src="/logo.svg" alt="WOODEN." width={200} height={67} className="h-16 w-auto object-contain" priority />
+          <div className="flex items-center justify-between h-20">
+            <Link href="/" aria-label="Lune Atelier — strona główna" className="group flex items-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo-dark.jpg"
+                alt="Lune Atelier"
+                className="h-10 w-auto transition-opacity duration-200 group-hover:opacity-80"
+              />
             </Link>
 
-            <nav className="hidden md:flex items-center gap-8">
+            <nav className="hidden md:flex items-center gap-7">
               {navLinks.map((link) => (
                 <Link
-                  key={link.href}
+                  key={link.label}
                   href={link.href}
-                  className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors duration-200 tracking-wide"
+                  className="text-[0.8rem] font-medium uppercase tracking-[0.12em] text-cream/70 hover:text-gold transition-colors duration-200"
                 >
                   {link.label}
                 </Link>
@@ -89,12 +80,7 @@ export function Header() {
             </nav>
 
             <div className="flex items-center gap-1">
-              <button
-                aria-label="Szukaj"
-                className="p-2.5 text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors rounded-xl cursor-pointer"
-              >
-                <Search size={19} strokeWidth={1.5} />
-              </button>
+              <HeaderSearch />
 
               {/* Auth — desktop */}
               <div className="hidden md:block relative" ref={dropdownRef}>
@@ -103,7 +89,7 @@ export function Header() {
                     <button
                       onClick={() => setDropdownOpen((o) => !o)}
                       aria-label="Menu konta"
-                      className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors rounded-xl cursor-pointer"
+                      className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-cream/70 hover:text-gold hover:bg-ink-700 transition-colors rounded-xl cursor-pointer"
                     >
                       <User size={17} strokeWidth={1.5} />
                       <span className="max-w-[120px] truncate">{user.email.split('@')[0]}</span>
@@ -116,12 +102,12 @@ export function Header() {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: -6, scale: 0.97 }}
                           transition={{ duration: 0.15 }}
-                          className="absolute right-0 top-full mt-2 w-48 bg-white border border-stone-200 rounded-2xl shadow-lg overflow-hidden z-50"
+                          className="absolute right-0 top-full mt-2 w-48 bg-ink-800 border border-ink-600 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.6)] overflow-hidden z-50"
                         >
                           <Link
                             href="/konto"
                             onClick={() => setDropdownOpen(false)}
-                            className="flex items-center gap-2.5 px-4 py-3 text-sm text-stone-700 hover:bg-stone-50 transition-colors"
+                            className="flex items-center gap-2.5 px-4 py-3 text-sm text-cream/80 hover:bg-ink-700 hover:text-gold transition-colors"
                           >
                             <User size={15} strokeWidth={1.5} />
                             Moje konto
@@ -129,15 +115,15 @@ export function Header() {
                           <Link
                             href="/konto/zamowienia"
                             onClick={() => setDropdownOpen(false)}
-                            className="flex items-center gap-2.5 px-4 py-3 text-sm text-stone-700 hover:bg-stone-50 transition-colors"
+                            className="flex items-center gap-2.5 px-4 py-3 text-sm text-cream/80 hover:bg-ink-700 hover:text-gold transition-colors"
                           >
                             <Package size={15} strokeWidth={1.5} />
                             Moje zamówienia
                           </Link>
-                          <div className="border-t border-stone-100 mx-2" />
+                          <div className="border-t border-ink-600 mx-2" />
                           <button
                             onClick={handleLogout}
-                            className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                            className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
                           >
                             <LogOut size={15} strokeWidth={1.5} />
                             Wyloguj się
@@ -150,7 +136,7 @@ export function Header() {
                   <Link
                     href="/logowanie"
                     aria-label="Zaloguj się"
-                    className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors rounded-xl"
+                    className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-cream/70 hover:text-gold hover:bg-ink-700 transition-colors rounded-xl"
                   >
                     <User size={17} strokeWidth={1.5} />
                     Zaloguj
@@ -161,7 +147,7 @@ export function Header() {
               <button
                 onClick={() => setCartOpen(true)}
                 aria-label="Otwórz koszyk"
-                className="relative p-2.5 text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors rounded-xl cursor-pointer"
+                className="relative p-2.5 text-cream/70 hover:text-gold hover:bg-ink-700 transition-colors rounded-xl cursor-pointer"
               >
                 <ShoppingBag size={19} strokeWidth={1.5} />
                 {itemCount > 0 && (
@@ -170,7 +156,7 @@ export function Header() {
                     initial={{ scale: 0.7 }}
                     animate={{ scale: 1 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute -top-0.5 -right-0.5 w-4 h-4 flex items-center justify-center bg-amber-700 text-white text-[10px] font-medium rounded-full leading-none"
+                    className="absolute -top-0.5 -right-0.5 w-4 h-4 flex items-center justify-center bg-gold text-ink text-[10px] font-semibold rounded-full leading-none"
                   >
                     {itemCount > 9 ? '9+' : itemCount}
                   </motion.span>
@@ -180,14 +166,14 @@ export function Header() {
               <button
                 aria-label="Otwórz menu"
                 onClick={() => setMobileOpen(true)}
-                className="md:hidden p-2.5 text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors rounded-xl cursor-pointer"
+                className="md:hidden p-2.5 text-cream/70 hover:text-gold hover:bg-ink-700 transition-colors rounded-xl cursor-pointer"
               >
                 <Menu size={19} strokeWidth={1.5} />
               </button>
             </div>
           </div>
         </div>
-      </motion.header>
+      </header>
 
       <AnimatePresence>
         {mobileOpen && (
@@ -196,16 +182,21 @@ export function Header() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="fixed inset-0 z-[100] bg-white flex flex-col"
+            className="fixed inset-0 z-[100] bg-ink flex flex-col"
           >
-            <div className="flex items-center justify-between h-16 px-4 border-b border-stone-100">
-              <Link href="/" onClick={() => setMobileOpen(false)} aria-label="WOODEN. — strona główna">
-                <Image src="/logo.svg" alt="WOODEN." width={200} height={67} className="h-16 w-auto object-contain" />
+            <div className="flex items-center justify-between h-20 px-4 border-b border-ink-600">
+              <Link href="/" onClick={() => setMobileOpen(false)} aria-label="Lune Atelier — strona główna" className="flex items-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/logo-dark.jpg"
+                  alt="Lune Atelier"
+                  className="h-10 w-auto"
+                />
               </Link>
               <button
                 aria-label="Zamknij menu"
                 onClick={() => setMobileOpen(false)}
-                className="p-2.5 text-stone-600 hover:bg-stone-100 rounded-xl cursor-pointer"
+                className="p-2.5 text-cream/70 hover:text-gold hover:bg-ink-700 rounded-xl cursor-pointer"
               >
                 <X size={19} strokeWidth={1.5} />
               </button>
@@ -214,7 +205,7 @@ export function Header() {
             <nav className="flex flex-col items-center justify-center flex-1 gap-8">
               {navLinks.map((link, i) => (
                 <motion.div
-                  key={link.href}
+                  key={link.label}
                   initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.05 + i * 0.08, duration: 0.35 }}
@@ -222,7 +213,7 @@ export function Header() {
                   <Link
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
-                    className="font-display text-4xl font-medium text-stone-900 hover:text-amber-700 transition-colors tracking-wide italic"
+                    className="font-display text-4xl font-medium text-cream hover:text-gold transition-colors tracking-wide italic"
                   >
                     {link.label}
                   </Link>
@@ -240,14 +231,14 @@ export function Header() {
                     <Link
                       href="/konto"
                       onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-2 text-stone-600 hover:text-stone-900 transition-colors text-sm font-medium"
+                      className="flex items-center gap-2 text-cream/70 hover:text-gold transition-colors text-sm font-medium"
                     >
                       <User size={16} strokeWidth={1.5} />
                       Moje konto
                     </Link>
                     <button
                       onClick={async () => { setMobileOpen(false); await handleLogout() }}
-                      className="flex items-center gap-2 text-red-500 hover:text-red-700 transition-colors text-sm font-medium cursor-pointer"
+                      className="flex items-center gap-2 text-red-400 hover:text-red-300 transition-colors text-sm font-medium cursor-pointer"
                     >
                       <LogOut size={16} strokeWidth={1.5} />
                       Wyloguj się
@@ -257,7 +248,7 @@ export function Header() {
                   <Link
                     href="/logowanie"
                     onClick={() => setMobileOpen(false)}
-                    className="flex items-center gap-2 text-stone-500 hover:text-stone-900 transition-colors text-sm font-medium"
+                    className="flex items-center gap-2 text-cream/60 hover:text-gold transition-colors text-sm font-medium"
                   >
                     <User size={16} strokeWidth={1.5} />
                     Zaloguj się

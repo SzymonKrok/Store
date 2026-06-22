@@ -52,17 +52,17 @@ export function CookieBanner() {
           transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-6 md:max-w-md"
         >
-          <div className="bg-white border border-stone-200 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.10)] p-5">
+          <div className="bg-ink-800 border border-ink-600 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.5)] p-5">
             <div className="flex items-start gap-3 mb-4">
-              <Cookie size={18} strokeWidth={1.5} className="text-amber-700 mt-0.5 shrink-0" />
+              <Cookie size={18} strokeWidth={1.5} className="text-gold mt-0.5 shrink-0" />
               <div>
-                <p className="text-sm font-medium text-stone-900 mb-1">Używamy plików cookie</p>
-                <p className="text-xs text-stone-500 leading-relaxed">
+                <p className="text-sm font-medium text-cream mb-1">Używamy plików cookie</p>
+                <p className="text-xs text-cream-muted leading-relaxed">
                   Korzystamy z plików cookie do analizy ruchu i personalizacji reklam.
                   Możesz zaakceptować wszystkie lub odrzucić opcjonalne.{' '}
                   <Link
                     href="/polityka-prywatnosci"
-                    className="underline underline-offset-2 hover:text-stone-900 transition-colors"
+                    className="underline underline-offset-2 hover:text-gold transition-colors"
                   >
                     Dowiedz się więcej
                   </Link>
@@ -73,13 +73,13 @@ export function CookieBanner() {
             <div className="flex gap-2">
               <button
                 onClick={accept}
-                className="flex-1 bg-amber-800 text-white text-xs font-medium py-2.5 rounded-xl hover:bg-amber-900 transition-colors"
+                className="flex-1 bg-gold text-ink text-xs font-semibold py-2.5 rounded-xl hover:bg-gold-200 transition-colors"
               >
                 Akceptuję wszystkie
               </button>
               <button
                 onClick={reject}
-                className="flex-1 border border-stone-300 text-stone-700 text-xs font-medium py-2.5 rounded-xl hover:bg-stone-50 transition-colors"
+                className="flex-1 border border-ink-600 text-cream/80 text-xs font-medium py-2.5 rounded-xl hover:border-gold/50 hover:text-gold transition-colors"
               >
                 Tylko niezbędne
               </button>

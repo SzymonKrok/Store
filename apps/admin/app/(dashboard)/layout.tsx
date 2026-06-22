@@ -24,7 +24,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (isChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
       </div>
     )
@@ -32,7 +32,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-background">
         <Sidebar />
         <main className="ml-64 min-h-screen">
           <div className="p-8">{children}</div>

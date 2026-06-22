@@ -7,10 +7,30 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-stone-50 text-stone-900 antialiased;
+    @apply bg-ink text-cream antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   *:focus-visible {
-    @apply outline-2 outline-offset-2 outline-stone-900;
+    @apply outline-2 outline-offset-2 outline-gold;
+  }
+  /* Gold selection */
+  ::selection {
+    background-color: #C8A45C;
+    color: #0A0A0A;
+  }
+  /* Dark, gold-tinted scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0A0A0A;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #262626;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #5E4922;
   }
 }

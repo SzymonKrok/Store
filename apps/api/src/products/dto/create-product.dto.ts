@@ -41,6 +41,10 @@ export class CreateProductImageDto {
   @Min(0)
   @IsOptional()
   position?: number
+
+  @IsString()
+  @IsOptional()
+  attributeValue?: string | null
 }
 
 export class CreateProductDto {
@@ -53,7 +57,20 @@ export class CreateProductDto {
 
   @IsString()
   @IsOptional()
+  shortDescription?: string | null
+
+  @IsString()
+  @IsOptional()
   description?: string
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  keyFeatures?: string[]
+
+  @IsObject()
+  @IsOptional()
+  specifications?: Record<string, string> | null
 
   @IsNumber({ maxDecimalPlaces: 2 })
   @IsPositive()
@@ -61,6 +78,10 @@ export class CreateProductDto {
 
   @IsString()
   categoryId!: string
+
+  @IsString()
+  @IsOptional()
+  imageAttributeKey?: string | null
 
   @IsArray()
   @ValidateNested({ each: true })

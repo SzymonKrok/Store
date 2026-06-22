@@ -1,4 +1,4 @@
-import { IsString, IsOptional, Matches, MaxLength, MinLength } from 'class-validator'
+import { IsString, IsOptional, IsUrl, Matches, MaxLength, MinLength } from 'class-validator'
 
 export class CreateCategoryDto {
   @IsString()
@@ -14,4 +14,8 @@ export class CreateCategoryDto {
   @IsString()
   @IsOptional()
   parentId?: string
+
+  @IsUrl()
+  @IsOptional()
+  imageUrl?: string
 }

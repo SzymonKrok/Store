@@ -19,11 +19,11 @@ export function GuestConversionBanner({ orderId }: Props) {
 
   if (done) {
     return (
-      <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 text-sm text-amber-800">
-        <CheckCircle size={16} strokeWidth={1.5} className="mt-0.5 shrink-0" />
+      <div className="flex items-start gap-3 bg-gold/10 border border-gold/30 rounded-2xl px-5 py-4 text-sm text-cream/90">
+        <CheckCircle size={16} strokeWidth={1.5} className="mt-0.5 shrink-0 text-gold" />
         <p>
           Konto zostało utworzone. Możesz teraz śledzić zamówienia w zakładce{' '}
-          <a href="/konto/zamowienia" className="font-medium underline hover:no-underline">
+          <a href="/konto/zamowienia" className="font-medium text-gold underline hover:no-underline">
             Moje zamówienia
           </a>
           .
@@ -62,11 +62,11 @@ export function GuestConversionBanner({ orderId }: Props) {
 
   if (alreadyRegistered) {
     return (
-      <div className="bg-white border border-stone-200 rounded-2xl px-5 py-4 text-sm text-stone-700">
+      <div className="bg-ink-800 border border-ink-600 rounded-2xl px-5 py-4 text-sm text-cream/80">
         Ten adres email jest już zarejestrowany.{' '}
         <a
           href={`/logowanie?redirect=/order-confirmation/${orderId}`}
-          className="font-medium text-stone-900 underline hover:no-underline"
+          className="font-medium text-gold underline hover:no-underline"
         >
           Zaloguj się
         </a>
@@ -76,14 +76,14 @@ export function GuestConversionBanner({ orderId }: Props) {
   }
 
   return (
-    <div className="bg-white border border-stone-200 rounded-2xl p-5">
+    <div className="bg-ink-800 border border-ink-600 rounded-2xl p-5">
       <div className="flex items-start gap-3 mb-4">
-        <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center shrink-0">
-          <UserPlus size={15} strokeWidth={1.5} className="text-stone-600" />
+        <div className="w-8 h-8 rounded-lg bg-gold/10 border border-gold/20 flex items-center justify-center shrink-0">
+          <UserPlus size={15} strokeWidth={1.5} className="text-gold" />
         </div>
         <div>
-          <p className="font-medium text-stone-900 text-sm">Chcesz łatwo śledzić swoje zamówienia?</p>
-          <p className="text-stone-400 text-xs mt-0.5">
+          <p className="font-medium text-cream text-sm">Chcesz łatwo śledzić swoje zamówienia?</p>
+          <p className="text-cream-muted text-xs mt-0.5">
             Ustaw hasło, a utworzymy dla Ciebie konto — bez żadnych dodatkowych danych.
           </p>
         </div>
@@ -96,12 +96,12 @@ export function GuestConversionBanner({ orderId }: Props) {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Minimum 8 znaków"
           autoComplete="new-password"
-          className="flex-1 h-10 px-3 text-sm border border-stone-200 rounded-xl focus:outline-none focus:border-stone-400 bg-white transition-colors"
+          className="flex-1 h-10 px-3 text-sm border border-ink-600 rounded-xl focus:outline-none focus:border-gold bg-ink-700 text-cream placeholder:text-cream-muted/60 transition-colors"
         />
         <button
           type="submit"
           disabled={isSubmitting}
-          className="h-10 px-4 bg-amber-800 text-white text-sm font-medium rounded-xl hover:bg-amber-900 transition-colors disabled:opacity-60 whitespace-nowrap cursor-pointer"
+          className="h-10 px-4 bg-gold text-ink text-sm font-semibold rounded-xl hover:bg-gold-200 transition-colors disabled:opacity-60 whitespace-nowrap cursor-pointer"
         >
           {isSubmitting ? 'Tworzenie…' : 'Utwórz konto'}
         </button>

@@ -76,9 +76,9 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <h1 className="text-2xl font-semibold text-slate-900">Ustawienia</h1>
+      <h1 className="text-2xl font-semibold text-cream">Ustawienia</h1>
 
-      <div className="flex gap-1 border-b border-slate-200">
+      <div className="flex gap-1 border-b border-border">
         {tabs.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -86,7 +86,7 @@ export default function SettingsPage() {
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
               activeTab === id
                 ? 'border-primary text-primary'
-                : 'border-transparent text-slate-500 hover:text-slate-900'
+                : 'border-transparent text-cream-muted hover:text-cream'
             }`}
           >
             <Icon size={15} strokeWidth={1.5} />
@@ -105,10 +105,10 @@ export default function SettingsPage() {
         <>
           {activeTab === 'analytics' && (
             <div className="space-y-6">
-              <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-5">
+              <div className="bg-card rounded-lg border border-border p-6 space-y-5">
                 <div>
-                  <h2 className="text-sm font-semibold text-slate-900 mb-1">Google Analytics 4</h2>
-                  <p className="text-xs text-slate-500 mb-4">
+                  <h2 className="text-sm font-semibold text-cream mb-1">Google Analytics 4</h2>
+                  <p className="text-xs text-cream-muted mb-4">
                     Skrypt GA4 zostanie wstrzyknięty tylko po wyrażeniu zgody przez użytkownika.
                   </p>
                   <div className="space-y-2">
@@ -122,9 +122,9 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="border-t border-slate-100 pt-5">
-                  <h2 className="text-sm font-semibold text-slate-900 mb-1">Facebook Pixel</h2>
-                  <p className="text-xs text-slate-500 mb-4">
+                <div className="border-t border-border pt-5">
+                  <h2 className="text-sm font-semibold text-cream mb-1">Facebook Pixel</h2>
+                  <p className="text-xs text-cream-muted mb-4">
                     Pixel zostanie wstrzyknięty tylko po wyrażeniu zgody przez użytkownika.
                   </p>
                   <div className="space-y-2">
@@ -147,7 +147,7 @@ export default function SettingsPage() {
 
           {activeTab === 'features' && (
             <div className="space-y-6">
-              <div className="bg-white rounded-lg border border-slate-200 divide-y divide-slate-100">
+              <div className="bg-card rounded-lg border border-border divide-y divide-border">
                 {([
                   {
                     key: 'showQuantitySelector' as const,
@@ -187,14 +187,14 @@ export default function SettingsPage() {
                 ] as const).map(({ value, set, label, description }) => (
                   <div key={label} className="flex items-center justify-between gap-4 px-6 py-4">
                     <div>
-                      <p className="text-sm font-medium text-slate-900">{label}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">{description}</p>
+                      <p className="text-sm font-medium text-cream">{label}</p>
+                      <p className="text-xs text-cream-muted mt-0.5">{description}</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => set(!value)}
                       className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
-                        value ? 'bg-primary' : 'bg-slate-200'
+                        value ? 'bg-primary' : 'bg-ink-600'
                       }`}
                       role="switch"
                       aria-checked={value}
@@ -216,11 +216,11 @@ export default function SettingsPage() {
 
           {activeTab === 'legal' && (
             <div className="space-y-6">
-              <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-5">
+              <div className="bg-card rounded-lg border border-border p-6 space-y-5">
                 <div className="space-y-2">
                   <Label htmlFor="terms">
                     Regulamin{' '}
-                    <span className="text-slate-400 font-normal">(/regulamin)</span>
+                    <span className="text-cream-muted font-normal">(/regulamin)</span>
                   </Label>
                   <Textarea
                     id="terms"
@@ -232,10 +232,10 @@ export default function SettingsPage() {
                   />
                 </div>
 
-                <div className="border-t border-slate-100 pt-5 space-y-2">
+                <div className="border-t border-border pt-5 space-y-2">
                   <Label htmlFor="privacy">
                     Polityka prywatności{' '}
-                    <span className="text-slate-400 font-normal">(/polityka-prywatnosci)</span>
+                    <span className="text-cream-muted font-normal">(/polityka-prywatnosci)</span>
                   </Label>
                   <Textarea
                     id="privacy"

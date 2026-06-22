@@ -23,9 +23,9 @@ export default function UsersPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-slate-900">Użytkownicy</h1>
+      <h1 className="text-2xl font-semibold text-cream">Użytkownicy</h1>
 
-      <div className="rounded-lg border bg-white overflow-hidden">
+      <div className="rounded-lg border overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -47,12 +47,12 @@ export default function UsersPage() {
               : data?.users.map((user) => (
                   <TableRow
                     key={user.id}
-                    className="cursor-pointer hover:bg-slate-50"
+                    className="cursor-pointer hover:bg-accent"
                     onClick={() => setSelectedUserId(user.id)}
                   >
                     <TableCell className="font-medium">{user.email}</TableCell>
                     <TableCell>
-                      <Badge className={user.role === 'ADMIN' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-700'}>
+                      <Badge className={user.role === 'ADMIN' ? 'bg-primary text-primary-foreground' : 'bg-ink-600 text-cream-muted'}>
                         {user.role}
                       </Badge>
                     </TableCell>

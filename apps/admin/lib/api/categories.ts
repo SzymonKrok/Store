@@ -5,6 +5,7 @@ export interface AdminCategory {
   id: string
   name: string
   slug: string
+  imageUrl: string | null
   parentId: string | null
   parent: { id: string; name: string } | null
   _count?: { products: number }
@@ -20,10 +21,12 @@ export function useCategories() {
   })
 }
 
+export type CategoryPayload = { name: string; slug: string; parentId?: string; imageUrl?: string }
+
 export function useCreateCategory() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (payload: { name: string; slug: string; parentId?: string }) => {
+    mutationFn: async (payload: CategoryPayload) => {
       const { data } = await apiClient.post('/categories', payload)
       return data
     },
@@ -34,7 +37,7 @@ export function useCreateCategory() {
 export function useUpdateCategory() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, payload }: { id: string; payload: { name: string; slug: string; parentId?: string } }) => {
+    mutationFn: async ({ id, payload }: { id: string; payload: CategoryPayload }) => {
       const { data } = await apiClient.patch(`/categories/${id}`, payload)
       return data
     },

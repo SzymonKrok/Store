@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import typography from '@tailwindcss/typography'
 
 const config: Config = {
   darkMode: ['class'],
@@ -51,6 +52,35 @@ const config: Config = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        ink: {
+          DEFAULT: '#0A0A0A',
+          950: '#050505',
+          900: '#0A0A0A',
+          850: '#0F0F0F',
+          800: '#141414',
+          700: '#1C1C1C',
+          600: '#262626',
+          500: '#333333',
+        },
+        gold: {
+          DEFAULT: '#C8A45C',
+          50: '#FBF7EC',
+          100: '#F3E9CC',
+          200: '#E3D2A6',
+          300: '#D6BE80',
+          400: '#C8A45C',
+          500: '#B98E40',
+          600: '#9C7C3C',
+          700: '#7E6230',
+          800: '#5E4922',
+          900: '#3F3017',
+        },
+        cream: {
+          DEFAULT: '#F5F0E6',
+          100: '#F5F0E6',
+          200: '#E8E2D4',
+          muted: '#A39E94',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -73,7 +103,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [typography],
 }
 
 export default config

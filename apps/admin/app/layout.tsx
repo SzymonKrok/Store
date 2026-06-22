@@ -6,8 +6,8 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const firaCode = Fira_Code({ subsets: ['latin'], variable: '--font-fira-code' })
 
 export const metadata: Metadata = {
-  title: 'WOODEN. Admin',
-  description: 'Panel administracyjny WOODEN.',
+  title: 'Lune Atelier Admin',
+  description: 'Panel administracyjny Lune Atelier',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
