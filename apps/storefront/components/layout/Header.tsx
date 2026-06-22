@@ -64,7 +64,6 @@ export function Header() {
                 src="/logo.png"
                 alt="Lune Atelier"
                 className="h-20 w-auto transition-opacity duration-200 group-hover:opacity-80"
-                style={{ filter: 'drop-shadow(0 0 6px rgba(200,164,92,0.45)) brightness(1.15)' }}
               />
             </Link>
 
@@ -192,7 +191,6 @@ export function Header() {
                   src="/logo.png"
                   alt="Lune Atelier"
                   className="h-20 w-auto"
-                  style={{ filter: 'drop-shadow(0 0 6px rgba(200,164,92,0.45)) brightness(1.15)' }}
                 />
               </Link>
               <button
