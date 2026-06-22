@@ -33,12 +33,16 @@ export class CategoriesService {
 
   async remove(id: string) {
     await this.findOneOrThrow(id)
-    const [productCount, childCount] = await this.prisma.$transaction([
-      this.prisma.product.count({ where: { categoryId: id } }),
+    const [activeProductCount, childCount] = await this.prisma.$transaction([
+      this.prisma.product.count({ where: { categoryId: id, isActive: true } }),
       this.prisma.category.count({ where: { parentId: id } }),
     ])
-    if (productCount > 0) throw new BadRequestException('Kategoria zawiera produkty — usuń je przed usunięciem kategorii')
-    if (childCount > 0) throw new BadRequestException('Kategoria zawiera podkategorie — usuń je przed usunięciem kategorii')
+    if (activeProductCount > 0)
+      throw new BadRequestException('Kategoria zawiera aktywne produkty — dezaktywuj je przed usunięciem kategorii')
+    if (childCount > 0)
+      throw new BadRequestException('Kategoria zawiera podkategorie — usuń je przed usunięciem kategorii')
+    // Unlink archived products so they're preserved but no longer tied to this category
+    await this.prisma.product.updateMany({ where: { categoryId: id }, data: { categoryId: null } })
     await this.prisma.category.delete({ where: { id } })
   }
 

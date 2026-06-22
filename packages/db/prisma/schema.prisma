@@ -80,8 +80,8 @@ model Product {
   specifications    Json?
   basePrice         Decimal          @db.Decimal(10, 2)
   isActive          Boolean          @default(true)
-  categoryId        String
-  category          Category         @relation(fields: [categoryId], references: [id])
+  categoryId        String?
+  category          Category?        @relation(fields: [categoryId], references: [id])
   /// Which variant attribute key drives gallery swapping (e.g. "Kolor"). Null = single gallery shared by all variants.
   imageAttributeKey String?
   viewCount         Int              @default(0)
