@@ -57,13 +57,14 @@ export function Header() {
     <>
       <header className="sticky top-0 left-0 right-0 z-50 bg-ink/95 backdrop-blur-md border-b border-ink-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
+          <div className="flex items-center justify-between h-24">
             <Link href="/" aria-label="Lune Atelier — strona główna" className="group flex items-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logo.png"
                 alt="Lune Atelier"
-                className="h-16 w-auto transition-opacity duration-200 group-hover:opacity-80"
+                className="h-20 w-auto transition-opacity duration-200 group-hover:opacity-80"
+                style={{ filter: 'drop-shadow(0 0 6px rgba(200,164,92,0.45)) brightness(1.15)' }}
               />
             </Link>
 
@@ -184,13 +185,14 @@ export function Header() {
             transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="fixed inset-0 z-[100] bg-ink flex flex-col"
           >
-            <div className="flex items-center justify-between h-20 px-4 border-b border-ink-600">
+            <div className="flex items-center justify-between h-24 px-4 border-b border-ink-600">
               <Link href="/" onClick={() => setMobileOpen(false)} aria-label="Lune Atelier — strona główna" className="flex items-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/logo.png"
                   alt="Lune Atelier"
-                  className="h-16 w-auto"
+                  className="h-20 w-auto"
+                  style={{ filter: 'drop-shadow(0 0 6px rgba(200,164,92,0.45)) brightness(1.15)' }}
                 />
               </Link>
               <button
