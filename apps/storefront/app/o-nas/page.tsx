@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, Heart, Sparkles, Award } from 'lucide-react'
 import { AnimatedSection } from '@/components/ui/AnimatedSection'
@@ -79,9 +80,15 @@ export default function AboutPage() {
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
 
             <AnimatedSection>
-              {/* Placeholder image frame — replace with actual photo */}
-              <div className="aspect-[4/5] rounded-2xl bg-ink-800 border border-ink-600 flex items-center justify-center">
-                <p className="font-display text-7xl text-ink-500 italic select-none">L</p>
+              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden">
+                <Image
+                  src="/about-story.jpg"
+                  alt="Lune Atelier — nasza historia"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover object-top"
+                  priority
+                />
               </div>
             </AnimatedSection>
 
