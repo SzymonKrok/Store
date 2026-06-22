@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Body, Container, Head, Hr, Html, Link, Preview, Section, Text } from '@react-email/components'
+import { Body, Container, Head, Hr, Html, Img, Link, Preview, Section, Text } from '@react-email/components'
 import { c } from './emailStyles'
 
 interface EmailLayoutProps {
@@ -19,8 +19,16 @@ export function EmailLayout({ preview, storefrontUrl, children }: EmailLayoutPro
           <Section style={s.accentBar} />
 
           <Section style={s.header}>
-            <Text style={s.brandName}>Sklep</Text>
-            <Text style={s.brandTagline}>Naturalne drewno. Perfekcyjna kuchnia.</Text>
+            <Link href={storefrontUrl}>
+              <Img
+                src={`${storefrontUrl}/logo.png`}
+                alt="Lune Atelier"
+                width="120"
+                height="120"
+                style={s.logo}
+              />
+            </Link>
+            <Text style={s.brandTagline}>Fashion for Women</Text>
           </Section>
 
           <Hr style={s.divider} />
@@ -30,7 +38,7 @@ export function EmailLayout({ preview, storefrontUrl, children }: EmailLayoutPro
           <Hr style={s.divider} />
 
           <Section style={s.footer}>
-            <Text style={s.footerText}>© 2026 Sklep. Wszelkie prawa zastrzeżone.</Text>
+            <Text style={s.footerText}>© 2026 Lune Atelier. Wszelkie prawa zastrzeżone.</Text>
             <Text style={s.footerText}>
               Pytania?{' '}
               <Link href={`${storefrontUrl}/kontakt`} style={s.footerLink}>
@@ -67,13 +75,11 @@ const s = {
   },
   header: {
     padding: '28px 40px 20px',
+    textAlign: 'center' as const,
   },
-  brandName: {
-    fontSize: '22px',
-    fontWeight: '700' as const,
-    color: c.primaryText,
-    margin: '0 0 3px',
-    letterSpacing: '-0.3px',
+  logo: {
+    display: 'block',
+    margin: '0 auto 4px',
   },
   brandTagline: {
     fontSize: '12px',

@@ -61,7 +61,7 @@ export function Header() {
             <Link href="/" aria-label="Lune Atelier — strona główna" className="group flex items-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/logo-dark.jpg"
+                src="/logo.png"
                 alt="Lune Atelier"
                 className="h-10 w-auto transition-opacity duration-200 group-hover:opacity-80"
               />
@@ -188,7 +188,7 @@ export function Header() {
               <Link href="/" onClick={() => setMobileOpen(false)} aria-label="Lune Atelier — strona główna" className="flex items-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/logo-dark.jpg"
+                  src="/logo.png"
                   alt="Lune Atelier"
                   className="h-10 w-auto"
                 />

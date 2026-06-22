@@ -44,9 +44,9 @@ export function Footer() {
             <Link href="/" aria-label="Lune Atelier — strona główna" className="inline-block">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/logo-dark.jpg"
+                src="/logo.png"
                 alt="Lune Atelier"
-                className="h-44 w-auto"
+                className="h-28 w-auto"
               />
             </Link>
             <p className="mt-5 text-sm text-cream-muted leading-relaxed max-w-[200px]">
