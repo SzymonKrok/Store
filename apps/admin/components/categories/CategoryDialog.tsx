@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { apiClient } from '@/lib/axios'
+import { convertToWebp } from '@/lib/imageToWebp'
 import type { AdminCategory, CategoryPayload } from '@/lib/api/categories'
 
 const schema = z.object({
@@ -64,9 +65,10 @@ export function CategoryDialog({ open, onClose, category, categories, onSubmit }
     }
   }, [nameValue, category, setValue])
 
-  async function handleImageFile(file: File) {
+  async function handleImageFile(original: File) {
     setUploading(true)
     try {
+      const file = await convertToWebp(original)
       const { data } = await apiClient.post<{ uploadUrl: string; publicUrl: string }>(
         '/upload/presign',
         { filename: file.name, contentType: file.type },

@@ -4,6 +4,7 @@ import { useRef } from 'react'
 import { Upload, X } from 'lucide-react'
 import axios from 'axios'
 import { apiClient } from '@/lib/axios'
+import { convertToWebp } from '@/lib/imageToWebp'
 
 interface Props {
   images: string[]
@@ -16,8 +17,9 @@ export function ImageUploadZone({ images, onChange }: Props) {
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return
 
-    for (const file of Array.from(files)) {
+    for (const original of Array.from(files)) {
       try {
+        const file = await convertToWebp(original)
         const { data } = await apiClient.post<{ uploadUrl: string; publicUrl: string }>(
           '/upload/presign',
           { filename: file.name, contentType: file.type },
