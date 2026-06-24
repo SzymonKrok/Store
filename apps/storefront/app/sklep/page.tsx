@@ -5,8 +5,9 @@ import type { ProductsResponse } from '@/lib/api/products'
 import type { ProductQueryDto } from '@store/validation'
 
 export const metadata: Metadata = {
-  title: 'Sklep | Lune Atelier',
-  description: 'Przeglądaj naszą kolekcję kobiecej mody',
+  title: 'Sklep',
+  description: 'Przeglądaj naszą kolekcję kobiecej mody — sukienki, akcesoria i więcej.',
+  alternates: { canonical: '/sklep' },
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api'

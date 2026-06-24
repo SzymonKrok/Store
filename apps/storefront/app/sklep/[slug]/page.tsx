@@ -9,6 +9,8 @@ import { RelatedProducts, RelatedProductsSkeleton } from '@/components/products/
 import { ReviewsSection } from '@/components/products/ReviewsSection'
 import type { ProductDetail } from '@/lib/api/products'
 import { fetchStoreSettingsServer } from '@/lib/api/settings'
+import { JsonLd } from '@/components/JsonLd'
+import { productJsonLd, breadcrumbJsonLd } from '@/lib/seo'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api'
 
@@ -30,16 +32,27 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const product = await fetchProduct(slug)
-  if (!product) return { title: 'Produkt nie znaleziony | Lune Atelier' }
+  if (!product) return { title: 'Produkt nie znaleziony' }
 
   const image = product.images[0]
+  const description =
+    product.shortDescription ?? product.description ?? `Kup ${product.name} w naszym sklepie.`
   return {
-    title: `${product.name} | Lune Atelier`,
-    description: product.description ?? `Kup ${product.name} w naszym sklepie.`,
+    title: product.name,
+    description,
+    alternates: { canonical: `/sklep/${slug}` },
     openGraph: {
+      type: 'website',
       title: product.name,
-      description: product.description ?? `Kup ${product.name} w naszym sklepie.`,
+      description,
+      url: `/sklep/${slug}`,
       images: image ? [{ url: image.url, alt: image.altText ?? product.name }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: product.name,
+      description,
+      images: image ? [image.url] : [],
     },
   }
 }
@@ -55,6 +68,16 @@ export default async function ProductPage({
 
   return (
     <main className="min-h-screen bg-ink">
+      <JsonLd
+        data={[
+          productJsonLd(product),
+          breadcrumbJsonLd([
+            { name: 'Strona główna', path: '/' },
+            { name: 'Sklep', path: '/sklep' },
+            { name: product.name, path: `/sklep/${slug}` },
+          ]),
+        ]}
+      />
       {/* Dark breadcrumb strip — consistent with shop hero */}
       <div className="bg-ink-950 border-b border-ink-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">

@@ -19,6 +19,15 @@ export const themeConfig = {
     currency: 'PLN',
     locale: 'pl-PL',
   },
+  seo: {
+    description:
+      'Lune Atelier — kobieca moda z duszą. Starannie wyselekcjonowane kolekcje, które podkreślają Twój blask.',
+    // Profile social media — używane w schemacie Organization (Google "sameAs").
+    social: [
+      'https://www.instagram.com/sylwia71188',
+      'https://www.facebook.com/profile.php?id=61589968093699',
+    ],
+  },
 } as const
 
 export type ThemeConfig = typeof themeConfig

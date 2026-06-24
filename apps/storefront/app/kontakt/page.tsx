@@ -4,8 +4,9 @@ import { AnimatedSection } from '@/components/ui/AnimatedSection'
 import { ContactForm } from './ContactForm'
 
 export const metadata: Metadata = {
-  title: 'Kontakt | Lune Atelier',
-  description: 'Skontaktuj się z nami. Jesteśmy tu, by pomóc.',
+  title: 'Kontakt',
+  description: 'Skontaktuj się z Lune Atelier. Jesteśmy tu, by pomóc.',
+  alternates: { canonical: '/kontakt' },
 }
 
 const contactDetails = [

@@ -47,7 +47,7 @@ export function ProductDetailLayout({ product, showQuantitySelector, showStockBa
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-      <ImageGallery images={galleryImages} />
+      <ImageGallery images={galleryImages} productName={product.name} />
       <ProductInfo
         product={product}
         selectedAttrs={selectedAttrs}

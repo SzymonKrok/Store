@@ -5,6 +5,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 
 interface SlugItem {
   slug: string
+  updatedAt?: string
 }
 
 interface ProductsResponse {
@@ -12,8 +13,8 @@ interface ProductsResponse {
   totalPages: number
 }
 
-async function fetchAllSlugs(): Promise<string[]> {
-  const slugs: string[] = []
+async function fetchAllProducts(): Promise<SlugItem[]> {
+  const items: SlugItem[] = []
   let page = 1
 
   try {
@@ -24,7 +25,7 @@ async function fetchAllSlugs(): Promise<string[]> {
       if (!res.ok) break
 
       const data: ProductsResponse = await res.json()
-      slugs.push(...data.items.map((p) => p.slug))
+      items.push(...data.items)
 
       if (page >= data.totalPages) break
       page++
@@ -33,16 +34,16 @@ async function fetchAllSlugs(): Promise<string[]> {
     // Return whatever was collected before the error
   }
 
-  return slugs
+  return items
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const slugs = await fetchAllSlugs()
+  const products = await fetchAllProducts()
 
-  const productEntries: MetadataRoute.Sitemap = slugs.map((slug) => ({
-    url: `${SITE_URL}/sklep/${slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily',
+  const productEntries: MetadataRoute.Sitemap = products.map((p) => ({
+    url: `${SITE_URL}/sklep/${p.slug}`,
+    lastModified: p.updatedAt ? new Date(p.updatedAt) : new Date(),
+    changeFrequency: 'weekly',
     priority: 0.8,
   }))
 

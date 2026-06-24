@@ -5,7 +5,13 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { ProductImage } from '@/lib/api/products'
 
-export function ImageGallery({ images }: { images: ProductImage[] }) {
+export function ImageGallery({
+  images,
+  productName,
+}: {
+  images: ProductImage[]
+  productName: string
+}) {
   const [selected, setSelected] = useState(0)
   const current = images[selected]
 
@@ -31,7 +37,7 @@ export function ImageGallery({ images }: { images: ProductImage[] }) {
           >
             <Image
               src={current.url}
-              alt={current.altText ?? ''}
+              alt={current.altText ?? productName}
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"
@@ -55,7 +61,7 @@ export function ImageGallery({ images }: { images: ProductImage[] }) {
             >
               <Image
                 src={img.url}
-                alt={img.altText ?? ''}
+                alt={img.altText ?? `${productName} — zdjęcie ${i + 1}`}
                 fill
                 sizes="80px"
                 className="object-cover"

@@ -2,8 +2,9 @@ import type { Metadata } from 'next'
 import { fetchStoreSettingsServer } from '@/lib/api/settings'
 
 export const metadata: Metadata = {
-  title: 'Regulamin | Lune Atelier',
+  title: 'Regulamin',
   description: 'Regulamin sklepu internetowego Lune Atelier.',
+  alternates: { canonical: '/regulamin' },
 }
 
 export default async function TermsPage() {

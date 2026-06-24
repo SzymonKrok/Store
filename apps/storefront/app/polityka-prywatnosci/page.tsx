@@ -2,8 +2,9 @@ import type { Metadata } from 'next'
 import { fetchStoreSettingsServer } from '@/lib/api/settings'
 
 export const metadata: Metadata = {
-  title: 'Polityka prywatności | Lune Atelier',
+  title: 'Polityka prywatności',
   description: 'Polityka prywatności sklepu internetowego Lune Atelier.',
+  alternates: { canonical: '/polityka-prywatnosci' },
 }
 
 export default async function PrivacyPage() {

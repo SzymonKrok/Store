@@ -5,8 +5,9 @@ import { ArrowRight, Heart, Sparkles, Award } from 'lucide-react'
 import { AnimatedSection } from '@/components/ui/AnimatedSection'
 
 export const metadata: Metadata = {
-  title: 'O nas | Lune Atelier',
+  title: 'O nas',
   description: 'Poznaj historię Lune Atelier — butiku kobiecej mody z pasją do elegancji i jakości.',
+  alternates: { canonical: '/o-nas' },
 }
 
 const stats = [
