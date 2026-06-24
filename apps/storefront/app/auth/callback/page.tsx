@@ -1,10 +1,14 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '../../../lib/auth'
 
 export default function AuthCallbackPage() {
+  return <Suspense fallback={null}><AuthCallback /></Suspense>
+}
+
+function AuthCallback() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { refreshProfile } = useAuth()

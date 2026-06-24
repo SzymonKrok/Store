@@ -30,7 +30,7 @@ export function useStoreSettings() {
 export async function fetchStoreSettingsServer(): Promise<StoreSettings> {
   try {
     const res = await fetch(`${API_URL}/settings`, { next: { revalidate: 300 } })
-    if (!res.ok) return { id: 1, ga4Id: null, fbPixelId: null, termsOfService: '', privacyPolicy: '' }
+    if (!res.ok) return { id: 1, ga4Id: null, fbPixelId: null, termsOfService: '', privacyPolicy: '', showQuantitySelector: true, showStockBadge: true, showReviews: true, showBestsellers: true, enableGuestCheckout: true }
     return res.json() as Promise<StoreSettings>
   } catch {
     return { id: 1, ga4Id: null, fbPixelId: null, termsOfService: '', privacyPolicy: '', showQuantitySelector: true, showStockBadge: true, showReviews: true, showBestsellers: true, enableGuestCheckout: true }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -80,7 +80,7 @@ export function Header() {
             </nav>
 
             <div className="flex items-center gap-1">
-              <HeaderSearch />
+              <Suspense fallback={null}><HeaderSearch /></Suspense>
 
               {/* Auth — desktop */}
               <div className="hidden md:block relative" ref={dropdownRef}>
