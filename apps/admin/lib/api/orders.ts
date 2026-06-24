@@ -15,6 +15,7 @@ export interface AdminOrder {
   taxId: string | null
   invoiceUrl: string | null
   fakturowniaId: string | null
+  inpostShipmentId: string | null
   shippingLabelUrl: string | null
   trackingNumber: string | null
   stripeSessionId: string | null
