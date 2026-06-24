@@ -1,10 +1,15 @@
 'use client'
 
 import Link from 'next/link'
+import ReactDOM from 'react-dom'
 import { motion } from 'framer-motion'
 import { ArrowRight, ChevronDown } from 'lucide-react'
 
 export function HeroSection() {
+  // Wczesne pobranie postera z wysokim priorytetem — to element LCP, więc
+  // odkrycie go od razu (zamiast czekać na render <video>) przyspiesza LCP.
+  ReactDOM.preload('/hero-poster.jpg', { as: 'image', fetchPriority: 'high' })
+
   return (
     <section className="relative min-h-[calc(100vh-7.25rem)] flex items-center overflow-hidden bg-ink">
       {/* Video background — poster (lekki JPG) renderuje się natychmiast jako LCP,
