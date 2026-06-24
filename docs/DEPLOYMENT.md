@@ -248,7 +248,12 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"   # run
    | `NEXT_PUBLIC_API_URL` | `https://api.luneatelier.com/api` |
    | `NEXT_PUBLIC_SITE_URL` | `https://luneatelier.com` |
    | `NEXT_PUBLIC_INPOST_GEOWIDGET_TOKEN` | *(optional — the sandbox token, only needed for the locker map)* |
+   | `NEXT_PUBLIC_ALLOW_INDEXING` | **Leave UNSET while testing** (site stays hidden from Google). Set to `true` only at go-live. See Phase 5.5. |
 5. **Deploy.**
+
+> ⚠️ Before the first Vercel deploy, remove the temporary ngrok proxy from
+> `apps/storefront/next.config.ts` — the `rewrites()` block pointing at `http://localhost:4000`
+> (marked `TEMP`). It's only for local tunneling and has no purpose in production.
 
 > Tip: you can set `NEXT_PUBLIC_API_URL` to the temporary Railway domain
 > (`https://<railway-domain>/api`) to test immediately, then update it to `api.luneatelier.com`
@@ -264,6 +269,47 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"   # run
 4. **Deploy.**
 
 ✅ **Verify:** both Vercel projects build successfully and open on their `*.vercel.app` URLs.
+
+---
+
+## Phase 5.5 — Staging mode (publish privately, hidden from Google)
+
+Use this to deploy and test the real, live shop **without** anyone finding it or Google indexing it —
+before you're ready to go public on `luneatelier.com`.
+
+### The core idea: domain ≠ deployment
+These are separate. The shop can be fully deployed and reachable at a link **without** the production
+domain attached. **As long as you don't connect `luneatelier.com`, nobody typing it sees the test shop.**
+So: test under the `*.vercel.app` URL (or a `staging.` subdomain), attach the real domain only at go-live.
+
+### How hiding works (already built into the code)
+A single build-time flag controls search-engine visibility, with a **safe default of hidden**:
+
+| State | `NEXT_PUBLIC_ALLOW_INDEXING` | Result |
+|-------|------------------------------|--------|
+| **Staging (default)** | unset (or anything ≠ `true`) | Storefront sends `noindex, nofollow` via `<meta>`, `X-Robots-Tag` header, **and** `robots.txt` `Disallow: /`. Google won't index it. |
+| **Production (go-live)** | `true` | Indexing allowed; `robots.txt` exposes the sitemap. |
+
+The **admin** app is **always** `noindex`, regardless of the flag.
+
+> If you forget to set anything, the site stays hidden — you can't accidentally expose a buggy build.
+
+### Workflow
+1. Deploy the storefront to Vercel with `NEXT_PUBLIC_ALLOW_INDEXING` **unset**.
+2. Test under the `*.vercel.app` URL. (Optional: add a `staging.luneatelier.com` subdomain instead —
+   keep the apex `luneatelier.com` unattached so it shows nothing.)
+3. ✅ **Verify hidden:** open `https://<your-vercel-url>/robots.txt` → must show `Disallow: /`;
+   and View Source on the homepage → `<meta name="robots" content="noindex, nofollow">`.
+
+### Going live (when ready)
+1. Attach `luneatelier.com` to the production deployment (Phase 6.1).
+2. Set `NEXT_PUBLIC_ALLOW_INDEXING=true` in the storefront's Vercel env → **redeploy**
+   (it's a `NEXT_PUBLIC_` build-time var, so a rebuild is required).
+3. Submit `https://luneatelier.com/sitemap.xml` in **Google Search Console**.
+
+> **Want a password too (not just hidden)?** This phase only blocks indexing — the link still works for
+> anyone who has it. For a shared password gate (e.g. showing a client), add HTTP Basic Auth via Next.js
+> middleware, or use Vercel's built-in Deployment Protection. Not set up yet — ask when you need it.
 
 ---
 
@@ -394,7 +440,8 @@ Set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL`
 `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL`
 
 ### Storefront (Vercel)
-`NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_INPOST_GEOWIDGET_TOKEN` *(optional)*
+`NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_INPOST_GEOWIDGET_TOKEN` *(optional)*,
+`NEXT_PUBLIC_ALLOW_INDEXING` *(set `true` only at go-live — see Phase 5.5; unset = hidden from Google)*
 
 ### Admin (Vercel)
 `NEXT_PUBLIC_API_URL`

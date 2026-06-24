@@ -8,6 +8,8 @@ const firaCode = Fira_Code({ subsets: ['latin'], variable: '--font-fira-code' })
 export const metadata: Metadata = {
   title: 'Lune Atelier Admin',
   description: 'Panel administracyjny Lune Atelier',
+  // Panel administracyjny nigdy nie powinien być indeksowany.
+  robots: { index: false, follow: false },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

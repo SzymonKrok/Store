@@ -23,9 +23,14 @@ const cormorant = Cormorant({
   display: 'swap',
 })
 
+// Domyślnie strona jest UKRYTA przed wyszukiwarkami (bezpieczny default dla stagingu).
+// Indeksowanie włącza się dopiero po ustawieniu NEXT_PUBLIC_ALLOW_INDEXING=true (produkcja).
+const allowIndexing = process.env.NEXT_PUBLIC_ALLOW_INDEXING === 'true'
+
 export const metadata: Metadata = {
   title: 'Lune Atelier — Moda damska',
   description: 'Lune Atelier — kobieca moda z duszą. Starannie wyselekcjonowane kolekcje, które podkreślają Twój blask.',
+  robots: allowIndexing ? undefined : { index: false, follow: false },
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
