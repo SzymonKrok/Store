@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ShoppingBag, Menu, X, User, LogOut, Package } from 'lucide-react'
@@ -59,10 +60,12 @@ export function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-24">
             <Link href="/" aria-label="Lune Atelier — strona główna" className="group flex items-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src="/LA-logo-horizonal.png"
                 alt="Lune Atelier"
+                width={374}
+                height={160}
+                priority
                 className="h-20 w-auto transition-opacity duration-200 group-hover:opacity-80"
               />
             </Link>
@@ -186,10 +189,11 @@ export function Header() {
           >
             <div className="flex items-center justify-between h-24 px-4 border-b border-ink-600">
               <Link href="/" onClick={() => setMobileOpen(false)} aria-label="Lune Atelier — strona główna" className="flex items-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src="/LA-logo-horizonal.png"
                   alt="Lune Atelier"
+                  width={374}
+                  height={160}
                   className="h-20 w-auto"
                 />
               </Link>

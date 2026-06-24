@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 const columns = [
   {
@@ -42,10 +43,11 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
           <div className="col-span-2 md:col-span-1">
             <Link href="/" aria-label="Lune Atelier — strona główna" className="inline-block">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src="/LA-logo-transparent.png"
                 alt="Lune Atelier"
+                width={352}
+                height={352}
                 className="h-44 w-auto"
               />
             </Link>

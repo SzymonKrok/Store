@@ -7,12 +7,15 @@ import { ArrowRight, ChevronDown } from 'lucide-react'
 export function HeroSection() {
   return (
     <section className="relative min-h-[calc(100vh-7.25rem)] flex items-center overflow-hidden bg-ink">
-      {/* Video background */}
+      {/* Video background — poster (lekki JPG) renderuje się natychmiast jako LCP,
+          wideo dociąga się w tle i zaczyna grać gdy gotowe. */}
       <video
         autoPlay
         muted
         loop
         playsInline
+        preload="none"
+        poster="/hero-poster.jpg"
         className="absolute inset-0 w-full h-full object-cover"
       >
         <source src="/hero-banner.mp4" type="video/mp4" />
