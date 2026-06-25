@@ -16,6 +16,7 @@ export class StripeStrategy {
     orderId: string
     items: Array<{ name: string; sku: string; unitAmount: number; quantity: number }>
     discountAmount: number
+    shippingCost: number
     currency: string
     customerEmail: string
     successUrl: string
@@ -29,6 +30,17 @@ export class StripeStrategy {
       },
       quantity: item.quantity,
     }))
+
+    if (params.shippingCost > 0) {
+      lineItems.push({
+        price_data: {
+          currency: params.currency,
+          product_data: { name: 'Dostawa', description: 'Koszt wysyłki' },
+          unit_amount: Math.round(params.shippingCost * 100),
+        },
+        quantity: 1,
+      })
+    }
 
     let discounts: Array<{ coupon: string }> | undefined
     if (params.discountAmount > 0) {

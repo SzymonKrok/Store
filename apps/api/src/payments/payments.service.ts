@@ -48,6 +48,7 @@ export class PaymentsService {
         quantity: item.quantity,
       })),
       discountAmount: Math.round(Number(order.discountAmount) * 100),
+      shippingCost: Number(order.shippingCost),
       currency: 'pln',
       customerEmail: shippingAddress.email,
       successUrl: `${storefrontUrl}/order-confirmation/${order.id}`,
