@@ -3,9 +3,10 @@ import { OrdersController } from './orders.controller'
 import { OrdersService } from './orders.service'
 import { CouponsModule } from '../coupons/coupons.module'
 import { FakturowniaModule } from '../fakturownia/fakturownia.module'
+import { SettingsModule } from '../settings/settings.module'
 
 @Module({
-  imports: [CouponsModule, FakturowniaModule],
+  imports: [CouponsModule, FakturowniaModule, SettingsModule],
   controllers: [OrdersController],
   providers: [OrdersService],
   exports: [OrdersService],

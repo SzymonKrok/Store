@@ -11,7 +11,9 @@ import { PrismaService } from '../prisma/prisma.service'
 import { CouponsService } from '../coupons/coupons.service'
 import { FakturowniaService } from '../fakturownia/fakturownia.service'
 import { MailService } from '../mail/mail.service'
+import { SettingsService } from '../settings/settings.service'
 import { CreateOrderDto } from './dto/create-order.dto'
+import { resolveShippingCost } from './shipping-cost'
 
 const ACTIONABLE_STATUSES = ['PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED'] as const
 
@@ -24,6 +26,7 @@ export class OrdersService {
     private readonly couponsService: CouponsService,
     private readonly fakturownia: FakturowniaService,
     private readonly mail: MailService,
+    private readonly settings: SettingsService,
   ) {}
 
   async create(userId: string | undefined, dto: CreateOrderDto) {
@@ -57,7 +60,10 @@ export class OrdersService {
     }
 
     const discountAmount = couponResult?.discountAmount ?? 0
-    const total = subtotal - discountAmount
+
+    const storeSettings = await this.settings.getSettings()
+    const shippingCost = resolveShippingCost(storeSettings, dto.deliveryMethod)
+    const total = subtotal - discountAmount + shippingCost
 
     const createdOrder = await this.prisma.$transaction(async (tx) => {
       // Atomic stock decrement — WHERE and UPDATE are one row-locked operation, preventing overselling
@@ -90,6 +96,7 @@ export class OrdersService {
           status: 'PENDING_PAYMENT',
           subtotal,
           discountAmount,
+          shippingCost,
           total,
           couponId: couponResult?.coupon.id ?? null,
           shippingAddress: dto.shippingAddress as object,
