@@ -12,6 +12,9 @@ export interface StoreSettings {
   showReviews: boolean
   showBestsellers: boolean
   enableGuestCheckout: boolean
+  shippingCourierCost: string
+  shippingLockerCost: string
+  freeShipping: boolean
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api'
@@ -30,9 +33,9 @@ export function useStoreSettings() {
 export async function fetchStoreSettingsServer(): Promise<StoreSettings> {
   try {
     const res = await fetch(`${API_URL}/settings`, { next: { revalidate: 300 } })
-    if (!res.ok) return { id: 1, ga4Id: null, fbPixelId: null, termsOfService: '', privacyPolicy: '', showQuantitySelector: true, showStockBadge: true, showReviews: true, showBestsellers: true, enableGuestCheckout: true }
+    if (!res.ok) return { id: 1, ga4Id: null, fbPixelId: null, termsOfService: '', privacyPolicy: '', showQuantitySelector: true, showStockBadge: true, showReviews: true, showBestsellers: true, enableGuestCheckout: true, shippingCourierCost: '14.99', shippingLockerCost: '9.99', freeShipping: false }
     return res.json() as Promise<StoreSettings>
   } catch {
-    return { id: 1, ga4Id: null, fbPixelId: null, termsOfService: '', privacyPolicy: '', showQuantitySelector: true, showStockBadge: true, showReviews: true, showBestsellers: true, enableGuestCheckout: true }
+    return { id: 1, ga4Id: null, fbPixelId: null, termsOfService: '', privacyPolicy: '', showQuantitySelector: true, showStockBadge: true, showReviews: true, showBestsellers: true, enableGuestCheckout: true, shippingCourierCost: '14.99', shippingLockerCost: '9.99', freeShipping: false }
   }
 }
