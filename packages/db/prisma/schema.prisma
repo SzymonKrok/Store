@@ -228,6 +228,7 @@ model Order {
   subtotal        Decimal       @db.Decimal(10, 2)
   discountAmount  Decimal       @db.Decimal(10, 2) @default(0)
   total           Decimal       @db.Decimal(10, 2)
+  shippingCost    Decimal       @db.Decimal(10, 2) @default(0)
   couponId        String?
   coupon          Coupon?       @relation(fields: [couponId], references: [id])
   shippingAddress  Json
@@ -296,6 +297,9 @@ model StoreSettings {
   showReviews          Boolean @default(true)
   showBestsellers      Boolean @default(true)
   enableGuestCheckout  Boolean @default(true)
+  shippingCourierCost  Decimal @db.Decimal(10, 2) @default(14.99)
+  shippingLockerCost   Decimal @db.Decimal(10, 2) @default(9.99)
+  freeShipping         Boolean @default(false)
 }
 
 model OrderItem {
