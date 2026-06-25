@@ -11,6 +11,7 @@ export interface Order {
   status: string
   subtotal: string
   discountAmount: string
+  shippingCost: string
   total: string
   invoiceUrl: string | null
   createdAt: string

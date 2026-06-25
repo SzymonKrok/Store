@@ -148,6 +148,10 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
                   <span>−{parseFloat(order.discountAmount).toFixed(2)} zł</span>
                 </div>
               )}
+              <div className="flex justify-between text-cream/70">
+                <span>Dostawa</span>
+                <span>{parseFloat(order.shippingCost) > 0 ? `${parseFloat(order.shippingCost).toFixed(2)} zł` : 'Gratis'}</span>
+              </div>
               <div className="flex justify-between font-semibold text-cream text-base">
                 <span>Razem</span>
                 <span>{parseFloat(order.total).toFixed(2)} zł</span>
