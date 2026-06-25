@@ -79,7 +79,7 @@ export default function ReturnsPage() {
               <TableHead>Status</TableHead>
               <TableHead>Zamówienie</TableHead>
               <TableHead>Klient</TableHead>
-              <TableHead>IBAN</TableHead>
+              <TableHead>Pozycje</TableHead>
               <TableHead>Powód</TableHead>
               <TableHead>Data</TableHead>
               <TableHead className="w-44">Zmień status</TableHead>
@@ -100,6 +100,11 @@ export default function ReturnsPage() {
                       <Badge className={STATUS_COLORS[rr.status]}>
                         {STATUS_LABELS[rr.status]}
                       </Badge>
+                      {rr.status === 'REFUNDED' && rr.refundedAmount && (
+                        <div className="mt-1 text-xs text-green-700 tabular-nums">
+                          {Number(rr.refundedAmount).toFixed(2)} zł
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell>
                       <button
@@ -112,8 +117,15 @@ export default function ReturnsPage() {
                     <TableCell className="text-sm text-cream/70">
                       {rr.order.user?.email ?? rr.order.guestEmail ?? '—'}
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-cream/70">
-                      {rr.bankAccount}
+                    <TableCell className="text-xs text-cream/70 max-w-[220px]">
+                      <ul className="space-y-0.5">
+                        {rr.items.map((it) => (
+                          <li key={it.id} className="truncate">
+                            <span className="text-cream">{it.quantity}×</span> {it.orderItem.productName}
+                            <span className="text-cream-muted"> ({it.orderItem.variantSku})</span>
+                          </li>
+                        ))}
+                      </ul>
                     </TableCell>
                     <TableCell className="text-sm text-cream/70 max-w-[200px] truncate">
                       {rr.reason}

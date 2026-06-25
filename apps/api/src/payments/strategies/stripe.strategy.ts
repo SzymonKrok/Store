@@ -57,4 +57,27 @@ export class StripeStrategy {
   constructWebhookEvent(rawBody: Buffer, signature: string) {
     return this.client.webhooks.constructEvent(rawBody, signature, this.webhookSecret)
   }
+
+  /**
+   * Pobiera ID PaymentIntent dla danej sesji checkout — potrzebne do refundu
+   * dla starszych zamówień, które nie mają zapisanego stripePaymentIntentId.
+   */
+  async getPaymentIntentId(sessionId: string): Promise<string | null> {
+    const session = await this.client.checkout.sessions.retrieve(sessionId)
+    const pi = session.payment_intent
+    if (!pi) return null
+    return typeof pi === 'string' ? pi : pi.id
+  }
+
+  /**
+   * Częściowy (lub pełny) zwrot środków na oryginalną metodę płatności.
+   * @param amount kwota w groszach; pominięta = pełny zwrot PaymentIntent.
+   */
+  async refund(paymentIntentId: string, amount?: number): Promise<{ id: string }> {
+    const refund = await this.client.refunds.create({
+      payment_intent: paymentIntentId,
+      ...(amount !== undefined ? { amount } : {}),
+    })
+    return { id: refund.id }
+  }
 }

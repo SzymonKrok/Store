@@ -15,6 +15,12 @@ const STATUS_LABEL: Record<string, string> = {
   REFUNDED: 'Zwrócone',
 }
 
+const RETURN_LABEL: Record<string, string> = {
+  RETURN_REQUESTED: 'Zwrot: złożony',
+  RETURN_APPROVED: 'Zwrot: zatwierdzony',
+  REFUNDED: 'Zwrot: środki zwrócone',
+}
+
 const STATUS_CLS: Record<string, string> = {
   PENDING_PAYMENT: 'bg-gold/10 text-gold border-gold/30',
   PAID: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
@@ -78,6 +84,11 @@ export default function ZamowieniaPage() {
                         <span className={`text-xs font-medium px-2 py-0.5 rounded-lg border ${STATUS_CLS[order.status] ?? 'bg-ink-700 text-cream-muted border-ink-600'}`}>
                           {STATUS_LABEL[order.status] ?? order.status}
                         </span>
+                        {order.returnRequest && (
+                          <span className="text-xs font-medium px-2 py-0.5 rounded-lg border bg-gold/10 text-gold border-gold/30">
+                            {RETURN_LABEL[order.returnRequest.status] ?? 'Zwrot'}
+                          </span>
+                        )}
                       </div>
                       <p className="text-sm text-cream-muted">
                         {order.items.length} {order.items.length === 1 ? 'produkt' : 'produkty'}

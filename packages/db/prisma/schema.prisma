@@ -241,6 +241,7 @@ model Order {
   invoiceUrl       String?
   fakturowniaId    String?
   stripeSessionId  String?
+  stripePaymentIntentId String?
   inpostShipmentId String?
   trackingNumber   String?
   shippingLabelUrl String?
@@ -259,12 +260,29 @@ model ReturnRequest {
   orderId     String       @unique
   order       Order        @relation(fields: [orderId], references: [id])
   reason      String
-  bankAccount String
+  // IBAN — opcjonalny fallback. Przy płatności Stripe refund wraca automatycznie
+  // na oryginalną metodę płatności, więc numer konta zwykle nie jest potrzebny.
+  bankAccount String?
   status      ReturnStatus @default(RETURN_REQUESTED)
+  // Kwota faktycznie zwrócona (proporcjonalnie do rabatu) — wypełniana przy REFUNDED.
+  refundedAmount Decimal?  @db.Decimal(10, 2)
+  stripeRefundId String?
+  items       ReturnItem[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
   @@index([status])
+}
+
+model ReturnItem {
+  id              String        @id @default(cuid())
+  returnRequestId String
+  returnRequest   ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
+  orderItemId     String
+  orderItem       OrderItem     @relation(fields: [orderItemId], references: [id])
+  quantity        Int
+
+  @@index([returnRequestId])
 }
 
 model StoreSettings {
@@ -291,6 +309,7 @@ model OrderItem {
   productName       String
   variantSku        String
   variantAttributes Json
+  returnItems       ReturnItem[]
 
   @@index([orderId])
 }

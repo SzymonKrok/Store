@@ -193,7 +193,7 @@ export class OrdersService {
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
-        include: { items: true },
+        include: { items: true, returnRequest: { select: { status: true } } },
       }),
       this.prisma.order.count({ where: { userId } }),
     ])
@@ -207,6 +207,7 @@ export class OrdersService {
         items: true,
         coupon: true,
         user: { select: { email: true, firstName: true, lastName: true, phone: true } },
+        returnRequest: { select: { status: true } },
       },
     })
     if (!order) throw new NotFoundException('Order not found')
