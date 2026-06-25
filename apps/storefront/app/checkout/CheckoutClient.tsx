@@ -19,7 +19,9 @@ const checkoutFormSchema = z
     firstName: z.string().min(1, 'Imię jest wymagane'),
     lastName: z.string().min(1, 'Nazwisko jest wymagane'),
     email: z.string().email('Nieprawidłowy adres email'),
-    street: z.string().optional(),
+    streetName: z.string().optional(),
+    houseNumber: z.string().optional(),
+    apartmentNumber: z.string().optional(),
     city: z.string().optional(),
     postalCode: z.string().optional(),
     phone: z.string().min(9, 'Numer telefonu jest wymagany'),
@@ -41,7 +43,8 @@ const checkoutFormSchema = z
   })
   .superRefine((data, ctx) => {
     if (data.deliveryMethod === 'COURIER') {
-      if (!data.street) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Ulica jest wymagana', path: ['street'] })
+      if (!data.streetName) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Ulica / miejscowość jest wymagana', path: ['streetName'] })
+      if (!data.houseNumber) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Numer domu jest wymagany', path: ['houseNumber'] })
       if (!data.city) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Miasto jest wymagane', path: ['city'] })
       if (!data.postalCode || !/^\d{2}-\d{3}$/.test(data.postalCode)) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Format: 00-000', path: ['postalCode'] })
@@ -129,7 +132,9 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
       firstName: user?.firstName ?? '',
       lastName: user?.lastName ?? '',
       phone: user?.phone ?? '',
-      street: user?.defaultAddress?.street ?? '',
+      streetName: '',
+      houseNumber: '',
+      apartmentNumber: '',
       city: user?.defaultAddress?.city ?? '',
       postalCode: user?.defaultAddress?.postalCode ?? '',
     },
@@ -139,6 +144,10 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
   const wantsInvoice = watch('wantsInvoice')
   const billingDifferent = watch('billingDifferent')
   const billingAccountType = watch('billingAccountType')
+
+  useEffect(() => {
+    if (user?.email) setValue('email', user.email)
+  }, [user?.email, setValue])
 
   // Register global callback once — called by geowidget when a point is selected
   const onPointSelected = useCallback((point: {
@@ -235,9 +244,10 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
         shippingAddress: {
           firstName: rest.firstName,
           lastName: rest.lastName,
-          // Authenticated users: email comes from their account, not the form
           email: user?.email ?? rest.email,
-          street: rest.street ?? '',
+          street: rest.streetName
+            ? `${rest.streetName} ${rest.houseNumber ?? ''}${rest.apartmentNumber ? `/${rest.apartmentNumber}` : ''}`.trim()
+            : '',
           city: rest.city ?? '',
           postalCode: rest.postalCode ?? '',
           phone: rest.phone,
@@ -447,9 +457,29 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
 
             {deliveryMethod === 'COURIER' && (
               <>
-                <Field label="Ulica i numer" error={errors.street?.message}>
-                  <input {...register('street')} className={inputCls(!!errors.street)} placeholder="ul. Kwiatowa 1" />
+                <Field label="Ulica / miejscowość" error={errors.streetName?.message}>
+                  <input
+                    {...register('streetName')}
+                    className={inputCls(!!errors.streetName)}
+                    placeholder="ul. Kwiatowa lub Janowice"
+                  />
                 </Field>
+                <div className="grid grid-cols-2 gap-4">
+                  <Field label="Nr domu" error={errors.houseNumber?.message}>
+                    <input
+                      {...register('houseNumber')}
+                      className={inputCls(!!errors.houseNumber)}
+                      placeholder="15 lub 15A"
+                    />
+                  </Field>
+                  <Field label="Nr lokalu (opcjonalnie)" error={errors.apartmentNumber?.message}>
+                    <input
+                      {...register('apartmentNumber')}
+                      className={inputCls(!!errors.apartmentNumber)}
+                      placeholder="3 lub 12A"
+                    />
+                  </Field>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Field label="Miasto" error={errors.city?.message}>
                     <input {...register('city')} className={inputCls(!!errors.city)} placeholder="Warszawa" />

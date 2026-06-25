@@ -41,9 +41,9 @@ export const shippingAddressSchema = z.object({
   firstName: z.string().min(1, 'Imię jest wymagane'),
   lastName: z.string().min(1, 'Nazwisko jest wymagane'),
   email: z.string().email('Nieprawidłowy adres email'),
-  street: z.string().min(1, 'Ulica jest wymagana'),
-  city: z.string().min(1, 'Miasto jest wymagane'),
-  postalCode: z.string().regex(/^\d{2}-\d{3}$/, 'Format: 00-000'),
+  street: z.string().optional().default(''),
+  city: z.string().optional().default(''),
+  postalCode: z.string().optional().default(''),
   phone: z.string().min(9, 'Numer telefonu jest wymagany'),
 })
 export type ShippingAddress = z.infer<typeof shippingAddressSchema>
@@ -75,6 +75,17 @@ export const checkoutSchema = z
     taxId: z.string().optional(),
   })
   .superRefine((data, ctx) => {
+    if (data.deliveryMethod === 'COURIER') {
+      if (!data.shippingAddress.street) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Ulica jest wymagana', path: ['shippingAddress', 'street'] })
+      }
+      if (!data.shippingAddress.city) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Miasto jest wymagane', path: ['shippingAddress', 'city'] })
+      }
+      if (!data.shippingAddress.postalCode || !/^\d{2}-\d{3}$/.test(data.shippingAddress.postalCode)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'shippingAddress.postalCode must be in format 00-000', path: ['shippingAddress', 'postalCode'] })
+      }
+    }
     if (data.deliveryMethod === 'PARCEL_LOCKER' && !data.lockerCode) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

@@ -20,7 +20,7 @@ class ShippingAddressDto {
   city?: string
 
   @IsString()
-  @IsOptional()
+  @ValidateIf((o) => !!o.postalCode)
   @Matches(/^\d{2}-\d{3}$/, { message: 'postalCode must be in format 00-000' })
   postalCode?: string
 

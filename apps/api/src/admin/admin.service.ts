@@ -39,12 +39,12 @@ export class AdminService {
         this.prisma.productVariant.count({ where: { stock: { lte: 3 }, isActive: true } }),
         this.prisma.$queryRaw<Array<{ date: string; revenue: number }>>`
           SELECT
-            DATE("createdAt" AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Warsaw') as date,
+            TO_CHAR("createdAt" AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Warsaw', 'YYYY-MM-DD') as date,
             COALESCE(SUM(total), 0)::float as revenue
           FROM "Order"
           WHERE status = 'PAID'
             AND "createdAt" >= NOW() - INTERVAL '30 days'
-          GROUP BY DATE("createdAt" AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Warsaw')
+          GROUP BY TO_CHAR("createdAt" AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Warsaw', 'YYYY-MM-DD')
           ORDER BY date ASC
         `,
       ])
