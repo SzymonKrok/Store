@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
-import { Settings, FileText, ToggleLeft } from 'lucide-react'
+import { Settings, FileText, ToggleLeft, Truck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useStoreSettings, useUpdateStoreSettings } from '@/lib/api/settings'
+import { useStoreSettings, useUpdateStoreSettings, type StoreSettings } from '@/lib/api/settings'
 
-type Tab = 'analytics' | 'legal' | 'features'
+type Tab = 'analytics' | 'legal' | 'features' | 'shipping'
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>('analytics')
@@ -26,6 +26,9 @@ export default function SettingsPage() {
   const [showReviews, setShowReviews] = useState(true)
   const [showBestsellers, setShowBestsellers] = useState(true)
   const [enableGuestCheckout, setEnableGuestCheckout] = useState(true)
+  const [courierCost, setCourierCost] = useState('14.99')
+  const [lockerCost, setLockerCost] = useState('9.99')
+  const [freeShipping, setFreeShipping] = useState(false)
 
   useEffect(() => {
     if (settings) {
@@ -38,6 +41,9 @@ export default function SettingsPage() {
       setShowReviews(settings.showReviews)
       setShowBestsellers(settings.showBestsellers)
       setEnableGuestCheckout(settings.enableGuestCheckout)
+      setCourierCost(settings.shippingCourierCost)
+      setLockerCost(settings.shippingLockerCost)
+      setFreeShipping(settings.freeShipping)
     }
   }, [settings])
 
@@ -68,10 +74,24 @@ export default function SettingsPage() {
     }
   }
 
+  async function handleSaveShipping() {
+    try {
+      await save({
+        shippingCourierCost: parseFloat(courierCost) || 0,
+        shippingLockerCost: parseFloat(lockerCost) || 0,
+        freeShipping,
+      } as unknown as Partial<StoreSettings>)
+      toast.success('Ustawienia dostawy zapisane')
+    } catch {
+      toast.error('Błąd podczas zapisywania')
+    }
+  }
+
   const tabs: { id: Tab; label: string; icon: typeof Settings }[] = [
     { id: 'analytics', label: 'Analityka', icon: Settings },
     { id: 'legal', label: 'Strony Prawne', icon: FileText },
     { id: 'features', label: 'Funkcje sklepu', icon: ToggleLeft },
+    { id: 'shipping', label: 'Dostawa', icon: Truck },
   ]
 
   return (
@@ -210,6 +230,42 @@ export default function SettingsPage() {
               </div>
               <Button onClick={handleSaveFeatures} disabled={isPending}>
                 {isPending ? 'Zapisywanie…' : 'Zapisz ustawienia funkcji'}
+              </Button>
+            </div>
+          )}
+
+          {activeTab === 'shipping' && (
+            <div className="space-y-6">
+              <div className="bg-card rounded-lg border border-border p-6 space-y-5">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-cream">Darmowa dostawa</p>
+                    <p className="text-xs text-cream-muted mt-0.5">Gdy włączone, koszt dostawy to 0 zł — w sklepie pokazuje się „Gratis".</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFreeShipping(!freeShipping)}
+                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${freeShipping ? 'bg-primary' : 'bg-ink-600'}`}
+                    role="switch"
+                    aria-checked={freeShipping}
+                  >
+                    <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${freeShipping ? 'translate-x-5' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+
+                <div className="border-t border-border pt-5 grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="courierCost">Kurier (zł)</Label>
+                    <Input id="courierCost" type="number" step="0.01" min="0" disabled={freeShipping} value={courierCost} onChange={(e) => setCourierCost(e.target.value)} placeholder="14.99" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lockerCost">Paczkomat (zł)</Label>
+                    <Input id="lockerCost" type="number" step="0.01" min="0" disabled={freeShipping} value={lockerCost} onChange={(e) => setLockerCost(e.target.value)} placeholder="9.99" />
+                  </div>
+                </div>
+              </div>
+              <Button onClick={handleSaveShipping} disabled={isPending}>
+                {isPending ? 'Zapisywanie…' : 'Zapisz ustawienia dostawy'}
               </Button>
             </div>
           )}
