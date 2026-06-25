@@ -9,6 +9,7 @@ interface OrderPaidEvent {
   id: string
   total: unknown
   discountAmount: unknown
+  shippingCost: unknown
   deliveryMethod: string
   lockerCode: string | null
   shippingAddress: unknown

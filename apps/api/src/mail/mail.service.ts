@@ -25,6 +25,7 @@ interface OrderConfirmationData {
   id: string
   total: unknown
   discountAmount: unknown
+  shippingCost: unknown
   items: OrderItem[]
 }
 
@@ -78,6 +79,7 @@ export class MailService {
         })),
         total: Number(order.total),
         discountAmount: Number(order.discountAmount),
+        shippingCost: Number(order.shippingCost),
         storefrontUrl: this.storefrontUrl,
         hasPdfAttachment: pdfBuffer !== null,
       }),
@@ -87,7 +89,7 @@ export class MailService {
       to: email,
       subject: `Potwierdzenie zamówienia #${order.id.slice(-8).toUpperCase()}`,
       html,
-      attachments: pdfBuffer ? [{ filename: 'Faktura_VAT.pdf', content: pdfBuffer }] : [],
+      attachments: pdfBuffer ? [{ filename: 'Rachunek.pdf', content: pdfBuffer }] : [],
     })
   }
 
@@ -99,6 +101,7 @@ export class MailService {
     items: OrderItem[],
     total: unknown,
     discountAmount: unknown,
+    shippingCost: unknown,
   ): Promise<void> {
     const html = await render(
       GuestOrderAcknowledgedEmail({
@@ -111,6 +114,7 @@ export class MailService {
         })),
         total: Number(total),
         discountAmount: Number(discountAmount),
+        shippingCost: Number(shippingCost),
         storefrontUrl: this.storefrontUrl,
       }),
     )

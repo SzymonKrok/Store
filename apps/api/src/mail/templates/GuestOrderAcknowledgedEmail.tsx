@@ -7,6 +7,7 @@ export interface GuestOrderAcknowledgedEmailProps {
   items: Array<{ name: string; sku: string; quantity: number; priceGross: number }>
   total: number
   discountAmount: number
+  shippingCost: number
   storefrontUrl: string
 }
 
@@ -15,6 +16,7 @@ export function GuestOrderAcknowledgedEmail({
   items,
   total,
   discountAmount,
+  shippingCost,
   storefrontUrl,
 }: GuestOrderAcknowledgedEmailProps) {
   const shortId = orderId.slice(-8).toUpperCase()
@@ -56,6 +58,11 @@ export function GuestOrderAcknowledgedEmail({
               <Column style={shared.colPrice}><Text style={{ ...shared.discountLabel, textAlign: 'right' }}>−{discountAmount.toFixed(2)} zł</Text></Column>
             </Row>
           )}
+          <Row>
+            <Column style={shared.colProduct}><Text style={shared.cellText}>Dostawa</Text></Column>
+            <Column style={shared.colSku} />
+            <Column style={shared.colPrice}><Text style={{ ...shared.cellText, textAlign: 'right' }}>{shippingCost > 0 ? `${shippingCost.toFixed(2)} zł` : 'Gratis'}</Text></Column>
+          </Row>
           <Hr style={shared.tableHr} />
           <Row>
             <Column style={shared.colProduct}><Text style={shared.totalLabel}>Razem (brutto)</Text></Column>

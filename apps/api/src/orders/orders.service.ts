@@ -159,6 +159,7 @@ export class OrdersService {
         createdOrder.items,
         createdOrder.total,
         createdOrder.discountAmount,
+        createdOrder.shippingCost,
       )
     }
 
