@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsBoolean } from 'class-validator'
+import { IsOptional, IsString, IsBoolean, IsNumber, Min } from 'class-validator'
 
 export class UpdateSettingsDto {
   @IsOptional()
@@ -36,4 +36,23 @@ export class UpdateSettingsDto {
   @IsOptional()
   @IsBoolean()
   enableGuestCheckout?: boolean
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  shippingCourierCost?: number
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  shippingLockerCost?: number
+
+  @IsOptional()
+  @IsBoolean()
+  freeShipping?: boolean
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  freeShippingThreshold?: number | null
 }

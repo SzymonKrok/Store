@@ -11,7 +11,9 @@ import { PrismaService } from '../prisma/prisma.service'
 import { CouponsService } from '../coupons/coupons.service'
 import { FakturowniaService } from '../fakturownia/fakturownia.service'
 import { MailService } from '../mail/mail.service'
+import { SettingsService } from '../settings/settings.service'
 import { CreateOrderDto } from './dto/create-order.dto'
+import { resolveShippingCost } from './shipping-cost'
 
 const ACTIONABLE_STATUSES = ['PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED'] as const
 
@@ -24,6 +26,7 @@ export class OrdersService {
     private readonly couponsService: CouponsService,
     private readonly fakturownia: FakturowniaService,
     private readonly mail: MailService,
+    private readonly settings: SettingsService,
   ) {}
 
   async create(userId: string | undefined, dto: CreateOrderDto) {
@@ -57,7 +60,10 @@ export class OrdersService {
     }
 
     const discountAmount = couponResult?.discountAmount ?? 0
-    const total = subtotal - discountAmount
+
+    const storeSettings = await this.settings.getSettings()
+    const shippingCost = resolveShippingCost(storeSettings, dto.deliveryMethod, subtotal)
+    const total = subtotal - discountAmount + shippingCost
 
     const createdOrder = await this.prisma.$transaction(async (tx) => {
       // Atomic stock decrement — WHERE and UPDATE are one row-locked operation, preventing overselling
@@ -90,6 +96,7 @@ export class OrdersService {
           status: 'PENDING_PAYMENT',
           subtotal,
           discountAmount,
+          shippingCost,
           total,
           couponId: couponResult?.coupon.id ?? null,
           shippingAddress: dto.shippingAddress as object,
@@ -152,6 +159,7 @@ export class OrdersService {
         createdOrder.items,
         createdOrder.total,
         createdOrder.discountAmount,
+        createdOrder.shippingCost,
       )
     }
 
@@ -193,7 +201,7 @@ export class OrdersService {
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
-        include: { items: true },
+        include: { items: true, returnRequest: { select: { status: true } } },
       }),
       this.prisma.order.count({ where: { userId } }),
     ])
@@ -207,6 +215,7 @@ export class OrdersService {
         items: true,
         coupon: true,
         user: { select: { email: true, firstName: true, lastName: true, phone: true } },
+        returnRequest: { select: { status: true } },
       },
     })
     if (!order) throw new NotFoundException('Order not found')

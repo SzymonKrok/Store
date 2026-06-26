@@ -18,10 +18,24 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
 
   const [returnOpen, setReturnOpen] = useState(false)
   const [reason, setReason] = useState('')
-  const [bankAccount, setBankAccount] = useState('')
+  // orderItemId → liczba sztuk do zwrotu (0/brak = niezaznaczone)
+  const [selected, setSelected] = useState<Record<string, number>>({})
   const [returning, setReturning] = useState(false)
   const [returnDone, setReturnDone] = useState(false)
   const [returnError, setReturnError] = useState<string | null>(null)
+
+  function toggleItem(itemId: string, maxQty: number) {
+    setSelected((prev) => {
+      const next = { ...prev }
+      if (next[itemId]) delete next[itemId]
+      else next[itemId] = maxQty
+      return next
+    })
+  }
+
+  function setItemQty(itemId: string, qty: number) {
+    setSelected((prev) => ({ ...prev, [itemId]: qty }))
+  }
 
   useEffect(() => {
     params.then((p) => setId(p.id))
@@ -38,10 +52,17 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
   async function handleSubmitReturn(e: React.FormEvent) {
     e.preventDefault()
     if (!id) return
+    const items = Object.entries(selected)
+      .filter(([, qty]) => qty > 0)
+      .map(([orderItemId, quantity]) => ({ orderItemId, quantity }))
+    if (items.length === 0) {
+      setReturnError('Zaznacz co najmniej jedną pozycję do zwrotu')
+      return
+    }
     setReturning(true)
     setReturnError(null)
     try {
-      await apiClient.post(`/orders/${id}/return`, { reason, bankAccount })
+      await apiClient.post(`/orders/${id}/return`, { reason, items })
       setReturnDone(true)
       setReturnOpen(false)
     } catch (err: unknown) {
@@ -55,7 +76,13 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
     }
   }
 
-  const canReturn = order && RETURNABLE.includes(order.status) && !returnDone
+  const canReturn = order && RETURNABLE.includes(order.status) && !returnDone && !order.returnRequest
+
+  const RETURN_STATUS_LABEL: Record<string, string> = {
+    RETURN_REQUESTED: 'Wniosek zwrotu został złożony — rozpatrujemy go.',
+    RETURN_APPROVED: 'Zwrot zatwierdzony — sprawdź e-mail z instrukcją odesłania.',
+    REFUNDED: 'Środki za zwrot zostały zwrócone.',
+  }
 
   return (
     <div className="min-h-screen bg-ink">
@@ -121,6 +148,10 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
                   <span>−{parseFloat(order.discountAmount).toFixed(2)} zł</span>
                 </div>
               )}
+              <div className="flex justify-between text-cream/70">
+                <span>Dostawa</span>
+                <span>{parseFloat(order.shippingCost) > 0 ? `${parseFloat(order.shippingCost).toFixed(2)} zł` : 'Gratis'}</span>
+              </div>
               <div className="flex justify-between font-semibold text-cream text-base">
                 <span>Razem</span>
                 <span>{parseFloat(order.total).toFixed(2)} zł</span>
@@ -161,6 +192,13 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
           <div className="mt-4 flex items-center gap-2 bg-gold/10 border border-gold/30 rounded-xl px-4 py-3 text-sm text-cream/90">
             <CheckCircle size={15} strokeWidth={1.5} className="text-gold" />
             Wniosek zwrotu został złożony. Skontaktujemy się z Tobą wkrótce.
+          </div>
+        )}
+
+        {!returnDone && order?.returnRequest && (
+          <div className="mt-4 flex items-center gap-2 bg-gold/10 border border-gold/30 rounded-xl px-4 py-3 text-sm text-cream/90">
+            <RotateCcw size={15} strokeWidth={1.5} className="text-gold" />
+            {RETURN_STATUS_LABEL[order.returnRequest.status] ?? 'Zwrot w toku.'}
           </div>
         )}
 
@@ -219,18 +257,56 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
 
               <div>
                 <label className="block text-xs font-medium text-cream/80 mb-1.5">
-                  Numer konta bankowego (IBAN)
+                  Które produkty chcesz zwrócić?
                 </label>
-                <input
-                  type="text"
-                  value={bankAccount}
-                  onChange={(e) => setBankAccount(e.target.value)}
-                  required
-                  placeholder="PL00 0000 0000 0000 0000 0000 0000"
-                  className="w-full border border-ink-600 bg-ink-700 rounded-xl px-3.5 py-2.5 text-sm font-mono text-cream placeholder:text-cream-muted/60 placeholder:font-sans focus:outline-none focus:border-gold"
-                />
-                <p className="mt-1 text-xs text-cream-muted">
-                  Środki zostaną zwrócone na ten rachunek w ciągu 14 dni roboczych.
+                <div className="space-y-2">
+                  {order?.items.map((item) => {
+                    const checked = item.id in selected
+                    const attrs = Object.entries(item.variantAttributes ?? {})
+                    return (
+                      <div
+                        key={item.id}
+                        className={`rounded-xl border px-3.5 py-2.5 transition-colors ${
+                          checked ? 'border-gold/50 bg-ink-700' : 'border-ink-600 bg-ink-700/40'
+                        }`}
+                      >
+                        <label className="flex items-start gap-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => toggleItem(item.id, item.quantity)}
+                            className="mt-0.5 accent-gold w-4 h-4"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-cream">{item.productName}</p>
+                            <p className="text-xs text-cream-muted">
+                              {attrs.length > 0
+                                ? attrs.map(([k, v]) => `${k}: ${v}`).join(', ')
+                                : item.variantSku}
+                              {' · '}zamówiono {item.quantity} szt.
+                            </p>
+                          </div>
+                        </label>
+                        {checked && item.quantity > 1 && (
+                          <div className="mt-2 ml-7 flex items-center gap-2">
+                            <span className="text-xs text-cream-muted">Ilość do zwrotu:</span>
+                            <select
+                              value={selected[item.id]}
+                              onChange={(e) => setItemQty(item.id, Number(e.target.value))}
+                              className="bg-ink-700 border border-ink-600 rounded-lg text-sm text-cream px-2 py-1 focus:outline-none focus:border-gold"
+                            >
+                              {Array.from({ length: item.quantity }, (_, i) => i + 1).map((n) => (
+                                <option key={n} value={n}>{n}</option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+                <p className="mt-2 text-xs text-cream-muted">
+                  Środki zostaną zwrócone na metodę płatności użytą przy zakupie po zatwierdzeniu i otrzymaniu przesyłki.
                 </p>
               </div>
 

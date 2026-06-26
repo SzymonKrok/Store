@@ -16,6 +16,7 @@ export class StripeStrategy {
     orderId: string
     items: Array<{ name: string; sku: string; unitAmount: number; quantity: number }>
     discountAmount: number
+    shippingCost: number
     currency: string
     customerEmail: string
     successUrl: string
@@ -29,6 +30,17 @@ export class StripeStrategy {
       },
       quantity: item.quantity,
     }))
+
+    if (params.shippingCost > 0) {
+      lineItems.push({
+        price_data: {
+          currency: params.currency,
+          product_data: { name: 'Dostawa', description: 'Koszt wysyłki' },
+          unit_amount: Math.round(params.shippingCost * 100),
+        },
+        quantity: 1,
+      })
+    }
 
     let discounts: Array<{ coupon: string }> | undefined
     if (params.discountAmount > 0) {
@@ -56,5 +68,28 @@ export class StripeStrategy {
 
   constructWebhookEvent(rawBody: Buffer, signature: string) {
     return this.client.webhooks.constructEvent(rawBody, signature, this.webhookSecret)
+  }
+
+  /**
+   * Pobiera ID PaymentIntent dla danej sesji checkout — potrzebne do refundu
+   * dla starszych zamówień, które nie mają zapisanego stripePaymentIntentId.
+   */
+  async getPaymentIntentId(sessionId: string): Promise<string | null> {
+    const session = await this.client.checkout.sessions.retrieve(sessionId)
+    const pi = session.payment_intent
+    if (!pi) return null
+    return typeof pi === 'string' ? pi : pi.id
+  }
+
+  /**
+   * Częściowy (lub pełny) zwrot środków na oryginalną metodę płatności.
+   * @param amount kwota w groszach; pominięta = pełny zwrot PaymentIntent.
+   */
+  async refund(paymentIntentId: string, amount?: number): Promise<{ id: string }> {
+    const refund = await this.client.refunds.create({
+      payment_intent: paymentIntentId,
+      ...(amount !== undefined ? { amount } : {}),
+    })
+    return { id: refund.id }
   }
 }

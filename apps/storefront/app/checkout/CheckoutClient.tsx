@@ -87,22 +87,19 @@ declare global {
   }
 }
 
-const DELIVERY_OPTIONS = [
-  {
-    value: 'COURIER' as const,
-    label: 'InPost Kurier',
-    description: 'Dostawa 1–2 dni robocze',
-    price: '14,99 zł',
-  },
-  {
-    value: 'PARCEL_LOCKER' as const,
-    label: 'Paczkomat InPost',
-    description: 'Odbiór w ciągu 24h',
-    price: '9,99 zł',
-  },
-]
-
-export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestCheckout?: boolean }) {
+export function CheckoutClient({
+  enableGuestCheckout = true,
+  shippingCourierCost = 14.99,
+  shippingLockerCost = 9.99,
+  freeShipping = false,
+  freeShippingThreshold = 0,
+}: {
+  enableGuestCheckout?: boolean
+  shippingCourierCost?: number
+  shippingLockerCost?: number
+  freeShipping?: boolean
+  freeShippingThreshold?: number
+}) {
   const { user, isLoading: authLoading, refreshProfile } = useAuth()
   const { data: cart, isLoading: cartLoading } = useCart()
   const { mutateAsync: createOrder, isPending } = useCreateOrder()
@@ -236,6 +233,21 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
   const items = cart?.items ?? []
   const subtotal = items.reduce((sum, i) => sum + parseFloat(i.variant.price) * i.quantity, 0)
 
+  // Shipping cost — mirrors the backend's resolveShippingCost (backend is authoritative).
+  const thresholdMet = freeShippingThreshold > 0 && subtotal >= freeShippingThreshold
+  const shippingFree = freeShipping || thresholdMet
+  const formatCost = (cost: number) =>
+    shippingFree || cost === 0 ? 'Gratis' : `${cost.toFixed(2).replace('.', ',')} zł`
+  const deliveryOptions = [
+    { value: 'COURIER' as const, label: 'InPost Kurier', description: 'Dostawa 1–2 dni robocze', price: formatCost(shippingCourierCost) },
+    { value: 'PARCEL_LOCKER' as const, label: 'Paczkomat InPost', description: 'Odbiór w ciągu 24h', price: formatCost(shippingLockerCost) },
+  ]
+  const shippingCost = shippingFree
+    ? 0
+    : deliveryMethod === 'PARCEL_LOCKER'
+      ? shippingLockerCost
+      : shippingCourierCost
+
   async function onSubmit(values: CheckoutFormValues) {
     setServerError(null)
     try {
@@ -367,7 +379,7 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
             <div>
               <p className="text-sm font-medium text-cream/80 mb-2">Metoda dostawy</p>
               <div className="grid grid-cols-2 gap-3">
-                {DELIVERY_OPTIONS.map((option) => (
+                {deliveryOptions.map((option) => (
                   <label
                     key={option.value}
                     className={`flex flex-col gap-1 border rounded-xl p-3.5 cursor-pointer transition-colors ${
@@ -703,6 +715,7 @@ export function CheckoutClient({ enableGuestCheckout = true }: { enableGuestChec
                 subtotal={subtotal}
                 discountAmount={appliedCoupon?.discountAmount}
                 couponCode={appliedCoupon?.code}
+                shippingCost={shippingCost}
               />
             </div>
           </div>

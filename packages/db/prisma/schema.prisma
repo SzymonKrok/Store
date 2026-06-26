@@ -228,6 +228,7 @@ model Order {
   subtotal        Decimal       @db.Decimal(10, 2)
   discountAmount  Decimal       @db.Decimal(10, 2) @default(0)
   total           Decimal       @db.Decimal(10, 2)
+  shippingCost    Decimal       @db.Decimal(10, 2) @default(0)
   couponId        String?
   coupon          Coupon?       @relation(fields: [couponId], references: [id])
   shippingAddress  Json
@@ -241,6 +242,7 @@ model Order {
   invoiceUrl       String?
   fakturowniaId    String?
   stripeSessionId  String?
+  stripePaymentIntentId String?
   inpostShipmentId String?
   trackingNumber   String?
   shippingLabelUrl String?
@@ -259,12 +261,29 @@ model ReturnRequest {
   orderId     String       @unique
   order       Order        @relation(fields: [orderId], references: [id])
   reason      String
-  bankAccount String
+  // IBAN — opcjonalny fallback. Przy płatności Stripe refund wraca automatycznie
+  // na oryginalną metodę płatności, więc numer konta zwykle nie jest potrzebny.
+  bankAccount String?
   status      ReturnStatus @default(RETURN_REQUESTED)
+  // Kwota faktycznie zwrócona (proporcjonalnie do rabatu) — wypełniana przy REFUNDED.
+  refundedAmount Decimal?  @db.Decimal(10, 2)
+  stripeRefundId String?
+  items       ReturnItem[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
   @@index([status])
+}
+
+model ReturnItem {
+  id              String        @id @default(cuid())
+  returnRequestId String
+  returnRequest   ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
+  orderItemId     String
+  orderItem       OrderItem     @relation(fields: [orderItemId], references: [id])
+  quantity        Int
+
+  @@index([returnRequestId])
 }
 
 model StoreSettings {
@@ -278,6 +297,10 @@ model StoreSettings {
   showReviews          Boolean @default(true)
   showBestsellers      Boolean @default(true)
   enableGuestCheckout  Boolean @default(true)
+  shippingCourierCost  Decimal @db.Decimal(10, 2) @default(14.99)
+  shippingLockerCost   Decimal @db.Decimal(10, 2) @default(9.99)
+  freeShipping         Boolean @default(false)
+  freeShippingThreshold Decimal? @db.Decimal(10, 2)
 }
 
 model OrderItem {
@@ -291,6 +314,7 @@ model OrderItem {
   productName       String
   variantSku        String
   variantAttributes Json
+  returnItems       ReturnItem[]
 
   @@index([orderId])
 }

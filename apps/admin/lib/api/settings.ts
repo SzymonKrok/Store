@@ -12,6 +12,10 @@ export interface StoreSettings {
   showReviews: boolean
   showBestsellers: boolean
   enableGuestCheckout: boolean
+  shippingCourierCost: string
+  shippingLockerCost: string
+  freeShipping: boolean
+  freeShippingThreshold: string | null
 }
 
 export function useStoreSettings() {

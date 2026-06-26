@@ -11,6 +11,7 @@ export interface Order {
   status: string
   subtotal: string
   discountAmount: string
+  shippingCost: string
   total: string
   invoiceUrl: string | null
   createdAt: string
@@ -23,6 +24,7 @@ export interface Order {
     quantity: number
     priceAtPurchase: string
   }>
+  returnRequest?: { status: 'RETURN_REQUESTED' | 'RETURN_APPROVED' | 'REFUNDED' } | null
 }
 
 export interface CreateOrderPayload {

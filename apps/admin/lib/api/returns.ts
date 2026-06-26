@@ -3,12 +3,25 @@ import { apiClient } from '../axios'
 
 export type ReturnStatus = 'RETURN_REQUESTED' | 'RETURN_APPROVED' | 'REFUNDED'
 
+export interface AdminReturnItem {
+  id: string
+  quantity: number
+  orderItem: {
+    productName: string
+    variantSku: string
+    priceAtPurchase: string
+    variantAttributes: Record<string, string> | null
+  }
+}
+
 export interface AdminReturnRequest {
   id: string
   status: ReturnStatus
   reason: string
-  bankAccount: string
+  bankAccount: string | null
+  refundedAmount: string | null
   createdAt: string
+  items: AdminReturnItem[]
   order: {
     id: string
     total: string

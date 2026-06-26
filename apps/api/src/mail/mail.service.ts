@@ -9,6 +9,9 @@ import { OrderStatusShippedEmail } from './templates/OrderStatusShippedEmail'
 import { OrderStatusDeliveredEmail } from './templates/OrderStatusDeliveredEmail'
 import { AbandonedCartEmail } from './templates/AbandonedCartEmail'
 import { ReturnRequestEmail } from './templates/ReturnRequestEmail'
+import { ReturnApprovedEmail } from './templates/ReturnApprovedEmail'
+import { ReturnRefundedEmail } from './templates/ReturnRefundedEmail'
+import { ReturnRequestAdminEmail } from './templates/ReturnRequestAdminEmail'
 import { BackInStockEmail } from './templates/BackInStockEmail'
 
 interface OrderItem {
@@ -22,6 +25,7 @@ interface OrderConfirmationData {
   id: string
   total: unknown
   discountAmount: unknown
+  shippingCost: unknown
   items: OrderItem[]
 }
 
@@ -36,11 +40,24 @@ export class MailService {
   private readonly resend: Resend
   private readonly from: string
   private readonly storefrontUrl: string
+  private readonly returnAddress: string | null
 
   constructor(config: ConfigService) {
     this.resend = new Resend(config.get<string>('RESEND_API_KEY'))
     this.from = config.get<string>('RESEND_FROM_EMAIL') ?? 'zamowienia@store.pl'
     this.storefrontUrl = config.get<string>('STOREFRONT_URL') ?? 'http://localhost:3000'
+
+    // Adres do odsyłania zwrotów — składany z danych sklepu (te same co InPost).
+    const name = config.get<string>('STORE_NAME')
+    const street = config.get<string>('STORE_STREET')
+    const building = config.get<string>('STORE_BUILDING_NUMBER')
+    const postal = config.get<string>('STORE_POSTAL_CODE')
+    const city = config.get<string>('STORE_CITY')
+    if (name && street && city) {
+      this.returnAddress = `${name}\n${street} ${building ?? ''}`.trim() + `\n${postal ?? ''} ${city}`.trimEnd()
+    } else {
+      this.returnAddress = null
+    }
   }
 
   // ─── Order confirmation (fires on order.paid event) ───────────────────────
@@ -62,6 +79,7 @@ export class MailService {
         })),
         total: Number(order.total),
         discountAmount: Number(order.discountAmount),
+        shippingCost: Number(order.shippingCost),
         storefrontUrl: this.storefrontUrl,
         hasPdfAttachment: pdfBuffer !== null,
       }),
@@ -71,7 +89,7 @@ export class MailService {
       to: email,
       subject: `Potwierdzenie zamówienia #${order.id.slice(-8).toUpperCase()}`,
       html,
-      attachments: pdfBuffer ? [{ filename: 'Faktura_VAT.pdf', content: pdfBuffer }] : [],
+      attachments: pdfBuffer ? [{ filename: 'Rachunek.pdf', content: pdfBuffer }] : [],
     })
   }
 
@@ -83,6 +101,7 @@ export class MailService {
     items: OrderItem[],
     total: unknown,
     discountAmount: unknown,
+    shippingCost: unknown,
   ): Promise<void> {
     const html = await render(
       GuestOrderAcknowledgedEmail({
@@ -95,6 +114,7 @@ export class MailService {
         })),
         total: Number(total),
         discountAmount: Number(discountAmount),
+        shippingCost: Number(shippingCost),
         storefrontUrl: this.storefrontUrl,
       }),
     )
@@ -192,6 +212,54 @@ export class MailService {
     await this.send({
       to: email,
       subject: `Wniosek zwrotu #${orderId.slice(-8).toUpperCase()} — przyjęty`,
+      html,
+    })
+  }
+
+  // ─── Return: admin notification (new request) ─────────────────────────────
+
+  async sendReturnRequestAdminNotification(
+    adminEmail: string,
+    orderId: string,
+    reason: string,
+    items: Array<{ name: string; sku: string; quantity: number }>,
+    customerEmail: string,
+  ): Promise<void> {
+    const html = await render(
+      ReturnRequestAdminEmail({ orderId, reason, items, customerEmail, storefrontUrl: this.storefrontUrl }),
+    )
+
+    await this.send({
+      to: adminEmail,
+      subject: `Nowy wniosek zwrotu #${orderId.slice(-8).toUpperCase()}`,
+      html,
+    })
+  }
+
+  // ─── Return: approved (instructions to send back) ─────────────────────────
+
+  async sendReturnApproved(email: string, orderId: string): Promise<void> {
+    const html = await render(
+      ReturnApprovedEmail({ orderId, returnAddress: this.returnAddress, storefrontUrl: this.storefrontUrl }),
+    )
+
+    await this.send({
+      to: email,
+      subject: `Zwrot #${orderId.slice(-8).toUpperCase()} zatwierdzony`,
+      html,
+    })
+  }
+
+  // ─── Return: refunded ─────────────────────────────────────────────────────
+
+  async sendReturnRefunded(email: string, orderId: string, amount: number): Promise<void> {
+    const html = await render(
+      ReturnRefundedEmail({ orderId, amount, storefrontUrl: this.storefrontUrl }),
+    )
+
+    await this.send({
+      to: email,
+      subject: `Zwrot środków za zamówienie #${orderId.slice(-8).toUpperCase()}`,
       html,
     })
   }

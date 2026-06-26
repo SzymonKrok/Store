@@ -48,6 +48,7 @@ export class PaymentsService {
         quantity: item.quantity,
       })),
       discountAmount: Math.round(Number(order.discountAmount) * 100),
+      shippingCost: Number(order.shippingCost),
       currency: 'pln',
       customerEmail: shippingAddress.email,
       successUrl: `${storefrontUrl}/order-confirmation/${order.id}`,
@@ -79,10 +80,16 @@ export class PaymentsService {
       return
     }
 
+    // Zapisujemy PaymentIntent, by móc później zrealizować refund przy zwrocie.
+    const paymentIntentId =
+      typeof session.payment_intent === 'string'
+        ? session.payment_intent
+        : (session.payment_intent?.id ?? null)
+
     // Atomic conditional update — only the first webhook call wins; concurrent retries return count=0
     const result = await this.prisma.order.updateMany({
       where: { id: orderId, status: 'PENDING_PAYMENT' },
-      data: { status: 'PAID' },
+      data: { status: 'PAID', stripePaymentIntentId: paymentIntentId },
     })
 
     if (result.count === 0) {
