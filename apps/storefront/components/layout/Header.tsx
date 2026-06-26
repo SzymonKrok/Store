@@ -5,12 +5,14 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ShoppingBag, Menu, X, User, LogOut, Package } from 'lucide-react'
+import { ShoppingBag, Menu, X, User, LogOut, Package, Heart } from 'lucide-react'
 import { toast } from 'sonner'
 import { CartDrawer } from './CartDrawer'
+import { WishlistDrawer } from './WishlistDrawer'
 import { HeaderSearch } from './HeaderSearch'
 import { useCart } from '../../lib/api/cart'
 import { useAuth } from '../../lib/auth'
+import { useWishlist } from '../../lib/wishlist'
 
 const navLinks = [
   { href: '/sklep', label: 'Sklep' },
@@ -23,10 +25,12 @@ const navLinks = [
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
+  const [wishlistOpen, setWishlistOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { data: cart } = useCart()
   const { user, logout } = useAuth()
+  const { count: wishlistCount } = useWishlist()
   const router = useRouter()
   const itemCount = cart?.items.reduce((sum, i) => sum + i.quantity, 0) ?? 0
 
@@ -84,6 +88,26 @@ export function Header() {
 
             <div className="flex items-center gap-1">
               <Suspense fallback={null}><HeaderSearch /></Suspense>
+
+              {/* Wishlist */}
+              <button
+                onClick={() => setWishlistOpen(true)}
+                aria-label="Otwórz ulubione"
+                className="relative p-2.5 text-cream/70 hover:text-gold hover:bg-ink-700 transition-colors rounded-xl cursor-pointer"
+              >
+                <Heart size={19} strokeWidth={1.5} />
+                {wishlistCount > 0 && (
+                  <motion.span
+                    key={wishlistCount}
+                    initial={{ scale: 0.7 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute -top-0.5 -right-0.5 w-4 h-4 flex items-center justify-center bg-gold text-ink text-[10px] font-semibold rounded-full leading-none"
+                  >
+                    {wishlistCount > 9 ? '9+' : wishlistCount}
+                  </motion.span>
+                )}
+              </button>
 
               {/* Auth — desktop */}
               <div className="hidden md:block relative" ref={dropdownRef}>
@@ -230,6 +254,14 @@ export function Header() {
                 transition={{ delay: 0.05 + navLinks.length * 0.08, duration: 0.35 }}
                 className="mt-2 flex flex-col items-center gap-3"
               >
+                <button
+                  onClick={() => { setMobileOpen(false); setWishlistOpen(true) }}
+                  className="flex items-center gap-2 text-cream/70 hover:text-gold transition-colors text-sm font-medium cursor-pointer"
+                >
+                  <Heart size={16} strokeWidth={1.5} />
+                  Ulubione{wishlistCount > 0 ? ` (${wishlistCount})` : ''}
+                </button>
+
                 {user ? (
                   <>
                     <Link
@@ -265,6 +297,7 @@ export function Header() {
       </AnimatePresence>
 
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+      <WishlistDrawer isOpen={wishlistOpen} onClose={() => setWishlistOpen(false)} />
     </>
   )
 }

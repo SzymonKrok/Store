@@ -1,26 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Heart } from 'lucide-react'
 import type { ProductSummary } from '@/lib/api/products'
+import { useWishlist } from '@/lib/wishlist'
 
 export const cardVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
-}
-
-const WISHLIST_KEY = 'lune_wishlist'
-
-function readWishlist(): string[] {
-  if (typeof window === 'undefined') return []
-  try {
-    return JSON.parse(localStorage.getItem(WISHLIST_KEY) ?? '[]')
-  } catch {
-    return []
-  }
 }
 
 export function ProductCard({ product }: { product: ProductSummary }) {
@@ -33,25 +22,23 @@ export function ProductCard({ product }: { product: ProductSummary }) {
   const primary = product.images[0]
   const secondary = product.images[1]
 
-  const [wished, setWished] = useState(false)
-  useEffect(() => {
-    setWished(readWishlist().includes(product.id))
-  }, [product.id])
+  const { isWished, toggle } = useWishlist()
+  const wished = isWished(product.id)
 
-  function toggleWishlist(e: React.MouseEvent) {
+  function handleToggleWishlist(e: React.MouseEvent) {
     e.preventDefault()
-    const current = readWishlist()
-    const next = current.includes(product.id)
-      ? current.filter((id) => id !== product.id)
-      : [...current, product.id]
-    localStorage.setItem(WISHLIST_KEY, JSON.stringify(next))
-    setWished(next.includes(product.id))
+    toggle({
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+      price: price.toFixed(2),
+      imageUrl: primary?.url ?? null,
+    })
   }
 
   return (
     <motion.div variants={cardVariants} layout>
       <Link href={`/sklep/${product.slug}`} className="group block">
-        {/* Tall portrait image — fashion-card proportions */}
         <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-ink-700">
           {primary && (
             <Image
@@ -74,17 +61,15 @@ export function ProductCard({ product }: { product: ProductSummary }) {
             />
           )}
 
-          {/* Sale badge */}
           {onSale && (
             <span className="absolute left-3 top-3 z-10 bg-gold px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-ink rounded-md">
               −{discount}%
             </span>
           )}
 
-          {/* Wishlist heart */}
           <button
             type="button"
-            onClick={toggleWishlist}
+            onClick={handleToggleWishlist}
             aria-label={wished ? 'Usuń z ulubionych' : 'Dodaj do ulubionych'}
             aria-pressed={wished}
             className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-ink/60 backdrop-blur-sm text-cream hover:text-gold transition-colors cursor-pointer"
@@ -92,13 +77,11 @@ export function ProductCard({ product }: { product: ProductSummary }) {
             <Heart size={16} strokeWidth={1.5} className={wished ? 'fill-gold text-gold' : ''} />
           </button>
 
-          {/* Quick "Zobacz" bar on hover */}
           <div className="absolute inset-x-0 bottom-0 z-10 translate-y-full bg-ink/85 backdrop-blur-sm py-3 text-center text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-gold transition-transform duration-300 group-hover:translate-y-0">
             Zobacz produkt
           </div>
         </div>
 
-        {/* Info */}
         <div className="pt-3.5 text-center">
           {product.category?.name && (
             <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-cream-muted mb-1.5">
