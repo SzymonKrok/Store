@@ -21,7 +21,7 @@ function AuthCallback() {
     }
     localStorage.setItem('storefront_token', token)
     refreshProfile().finally(() => {
-      router.replace('/konto')
+      router.replace('/')
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
