@@ -9,7 +9,6 @@ export class FakturowniaService {
   private readonly logger = new Logger(FakturowniaService.name)
   private readonly apiToken: string
   private readonly subdomain: string
-  private readonly vatRate: number
   private readonly sellerName: string
   private readonly sellerTaxNo: string
 
@@ -19,7 +18,6 @@ export class FakturowniaService {
   ) {
     this.apiToken = config.get<string>('FAKTUROWNIA_API_TOKEN') ?? ''
     this.subdomain = config.get<string>('FAKTUROWNIA_SUBDOMAIN') ?? ''
-    this.vatRate = Number(config.get<string>('FAKTUROWNIA_VAT_RATE') ?? '23')
     this.sellerName = config.get<string>('FAKTUROWNIA_SELLER_NAME') ?? 'Sklep Testowy'
     this.sellerTaxNo = config.get<string>('FAKTUROWNIA_SELLER_TAX_NO') ?? ''
   }
@@ -88,7 +86,7 @@ export class FakturowniaService {
         name: item.productName,
         quantity: item.quantity,
         total_price_gross: totalGross,
-        tax: this.vatRate,
+        tax: 'zw',
       }
     })
 
