@@ -62,7 +62,7 @@ export class OrdersService {
     const discountAmount = couponResult?.discountAmount ?? 0
 
     const storeSettings = await this.settings.getSettings()
-    const shippingCost = resolveShippingCost(storeSettings, dto.deliveryMethod)
+    const shippingCost = resolveShippingCost(storeSettings, dto.deliveryMethod, subtotal)
     const total = subtotal - discountAmount + shippingCost
 
     const createdOrder = await this.prisma.$transaction(async (tx) => {

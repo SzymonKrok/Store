@@ -92,11 +92,13 @@ export function CheckoutClient({
   shippingCourierCost = 14.99,
   shippingLockerCost = 9.99,
   freeShipping = false,
+  freeShippingThreshold = 0,
 }: {
   enableGuestCheckout?: boolean
   shippingCourierCost?: number
   shippingLockerCost?: number
   freeShipping?: boolean
+  freeShippingThreshold?: number
 }) {
   const { user, isLoading: authLoading, refreshProfile } = useAuth()
   const { data: cart, isLoading: cartLoading } = useCart()
@@ -139,18 +141,6 @@ export function CheckoutClient({
   const wantsInvoice = watch('wantsInvoice')
   const billingDifferent = watch('billingDifferent')
   const billingAccountType = watch('billingAccountType')
-
-  const formatCost = (cost: number) =>
-    freeShipping || cost === 0 ? 'Gratis' : `${cost.toFixed(2).replace('.', ',')} zł`
-  const deliveryOptions = [
-    { value: 'COURIER' as const, label: 'InPost Kurier', description: 'Dostawa 1–2 dni robocze', price: formatCost(shippingCourierCost) },
-    { value: 'PARCEL_LOCKER' as const, label: 'Paczkomat InPost', description: 'Odbiór w ciągu 24h', price: formatCost(shippingLockerCost) },
-  ]
-  const shippingCost = freeShipping
-    ? 0
-    : deliveryMethod === 'PARCEL_LOCKER'
-      ? shippingLockerCost
-      : shippingCourierCost
 
   useEffect(() => {
     if (user?.email) setValue('email', user.email)
@@ -242,6 +232,21 @@ export function CheckoutClient({
 
   const items = cart?.items ?? []
   const subtotal = items.reduce((sum, i) => sum + parseFloat(i.variant.price) * i.quantity, 0)
+
+  // Shipping cost — mirrors the backend's resolveShippingCost (backend is authoritative).
+  const thresholdMet = freeShippingThreshold > 0 && subtotal >= freeShippingThreshold
+  const shippingFree = freeShipping || thresholdMet
+  const formatCost = (cost: number) =>
+    shippingFree || cost === 0 ? 'Gratis' : `${cost.toFixed(2).replace('.', ',')} zł`
+  const deliveryOptions = [
+    { value: 'COURIER' as const, label: 'InPost Kurier', description: 'Dostawa 1–2 dni robocze', price: formatCost(shippingCourierCost) },
+    { value: 'PARCEL_LOCKER' as const, label: 'Paczkomat InPost', description: 'Odbiór w ciągu 24h', price: formatCost(shippingLockerCost) },
+  ]
+  const shippingCost = shippingFree
+    ? 0
+    : deliveryMethod === 'PARCEL_LOCKER'
+      ? shippingLockerCost
+      : shippingCourierCost
 
   async function onSubmit(values: CheckoutFormValues) {
     setServerError(null)

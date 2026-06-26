@@ -9,6 +9,7 @@ export default async function CheckoutPage() {
       shippingCourierCost={parseFloat(settings.shippingCourierCost)}
       shippingLockerCost={parseFloat(settings.shippingLockerCost)}
       freeShipping={settings.freeShipping}
+      freeShippingThreshold={settings.freeShippingThreshold ? parseFloat(settings.freeShippingThreshold) : 0}
     />
   )
 }

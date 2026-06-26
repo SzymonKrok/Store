@@ -300,6 +300,7 @@ model StoreSettings {
   shippingCourierCost  Decimal @db.Decimal(10, 2) @default(14.99)
   shippingLockerCost   Decimal @db.Decimal(10, 2) @default(9.99)
   freeShipping         Boolean @default(false)
+  freeShippingThreshold Decimal? @db.Decimal(10, 2)
 }
 
 model OrderItem {

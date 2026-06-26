@@ -29,6 +29,7 @@ export default function SettingsPage() {
   const [courierCost, setCourierCost] = useState('14.99')
   const [lockerCost, setLockerCost] = useState('9.99')
   const [freeShipping, setFreeShipping] = useState(false)
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState('')
 
   useEffect(() => {
     if (settings) {
@@ -44,6 +45,7 @@ export default function SettingsPage() {
       setCourierCost(settings.shippingCourierCost)
       setLockerCost(settings.shippingLockerCost)
       setFreeShipping(settings.freeShipping)
+      setFreeShippingThreshold(settings.freeShippingThreshold ?? '')
     }
   }, [settings])
 
@@ -80,6 +82,7 @@ export default function SettingsPage() {
         shippingCourierCost: parseFloat(courierCost) || 0,
         shippingLockerCost: parseFloat(lockerCost) || 0,
         freeShipping,
+        freeShippingThreshold: freeShippingThreshold ? parseFloat(freeShippingThreshold) : null,
       } as unknown as Partial<StoreSettings>)
       toast.success('Ustawienia dostawy zapisane')
     } catch {
@@ -262,6 +265,12 @@ export default function SettingsPage() {
                     <Label htmlFor="lockerCost">Paczkomat (zł)</Label>
                     <Input id="lockerCost" type="number" step="0.01" min="0" disabled={freeShipping} value={lockerCost} onChange={(e) => setLockerCost(e.target.value)} placeholder="9.99" />
                   </div>
+                </div>
+
+                <div className="border-t border-border pt-5 space-y-2">
+                  <Label htmlFor="freeShippingThreshold">Darmowa dostawa od kwoty (zł)</Label>
+                  <Input id="freeShippingThreshold" type="number" step="0.01" min="0" disabled={freeShipping} value={freeShippingThreshold} onChange={(e) => setFreeShippingThreshold(e.target.value)} placeholder="np. 299 — puste = wyłączone" />
+                  <p className="text-xs text-cream-muted">Gdy wartość koszyka osiągnie tę kwotę, dostawa jest gratis. Zostaw puste, aby wyłączyć.</p>
                 </div>
               </div>
               <Button onClick={handleSaveShipping} disabled={isPending}>

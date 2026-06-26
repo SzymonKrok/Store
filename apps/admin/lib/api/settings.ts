@@ -15,6 +15,7 @@ export interface StoreSettings {
   shippingCourierCost: string
   shippingLockerCost: string
   freeShipping: boolean
+  freeShippingThreshold: string | null
 }
 
 export function useStoreSettings() {

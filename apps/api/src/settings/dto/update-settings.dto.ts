@@ -50,4 +50,9 @@ export class UpdateSettingsDto {
   @IsOptional()
   @IsBoolean()
   freeShipping?: boolean
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  freeShippingThreshold?: number | null
 }

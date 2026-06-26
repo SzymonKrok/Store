@@ -33,6 +33,7 @@ const mockSettingsService = {
     freeShipping: false,
     shippingCourierCost: '14.99',
     shippingLockerCost: '9.99',
+    freeShippingThreshold: null,
   }),
 }
 
