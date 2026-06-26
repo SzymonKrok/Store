@@ -59,12 +59,12 @@ export default function ReturnsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-cream">Zwroty</h1>
 
-        <Select value={filterStatus} onValueChange={(v) => { setFilterStatus(v); setPage(1) }}>
+        <Select value={filterStatus || 'all'} onValueChange={(v) => { setFilterStatus(v === 'all' ? '' : v); setPage(1) }}>
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Wszystkie statusy" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Wszystkie statusy</SelectItem>
+            <SelectItem value="all">Wszystkie statusy</SelectItem>
             {ALL_STATUSES.map((s) => (
               <SelectItem key={s} value={s}>{STATUS_LABELS[s]}</SelectItem>
             ))}
